@@ -13,6 +13,7 @@ interface HeaderProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   totalPeopleCount: number;
+  connectedSheet: { id: string; name: string } | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,6 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
   searchQuery,
   onSearchChange,
   totalPeopleCount,
+  connectedSheet,
 }) => {
   const [showExportMenu, setShowExportMenu] = React.useState(false);
 
@@ -88,11 +90,17 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Google Sheets Sync */}
           <button
             onClick={onOpenGoogleModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition ${
+              connectedSheet
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200'
+            }`}
             title="গুগল শিটের সাথে সরাসরি যুক্ত করুন"
           >
-            <FileSpreadsheet className="w-4 h-4 text-blue-600" />
-            <span className="hidden sm:inline">গুগল শিট</span>
+            <FileSpreadsheet className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {connectedSheet ? `শিট: ${connectedSheet.name.slice(0, 10)}...` : 'গুগল শিট'}
+            </span>
           </button>
 
           {/* Load Sample Family */}

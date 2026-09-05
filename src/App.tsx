@@ -32,6 +32,9 @@ export const App: React.FC = () => {
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Google Sheet connection state
+  const [connectedSheet, setConnectedSheet] = useState<{ id: string; name: string } | null>(null);
+
   // Modals state
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
@@ -322,6 +325,7 @@ export const App: React.FC = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         totalPeopleCount={Object.keys(tree.people).length}
+        connectedSheet={connectedSheet}
       />
 
       {/* Main Visualizer Canvas */}
@@ -342,11 +346,14 @@ export const App: React.FC = () => {
         onParseText={handleParseText}
       />
 
-      {/* Google Sheets Modal */}
+      {/* Google Sheets Modal (Method 2: OAuth + Picker + 2-Way Sync) */}
       <GoogleSyncModal
         isOpen={isGoogleModalOpen}
         onClose={() => setIsGoogleModalOpen(false)}
-        onOpenPasteModal={() => setIsPasteModalOpen(true)}
+        tree={tree}
+        onTreeLoaded={(newTree) => setTree(newTree)}
+        connectedSheet={connectedSheet}
+        onSetConnectedSheet={setConnectedSheet}
       />
 
       {/* Person Detail Modal */}
