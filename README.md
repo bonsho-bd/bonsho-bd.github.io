@@ -3,7 +3,7 @@
 > **বংশ (Bonsho)** is an open-source, privacy-first family tree visualizer designed specifically for Bangladeshi lineage traditions. It stores **zero data on servers** and renders trees completely in the browser from simple 2-column Google Sheets, CSV/Excel files, or direct copy-paste.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Hosted on GitHub Pages](https://img.shields.io/badge/Hosted%20on-GitHub%20Pages-success.svg)](https://bonsho-bd.github.io/bonsho)
+[![Hosted on GitHub Pages](https://img.shields.io/badge/Hosted%20on-GitHub%20Pages-success.svg)](https://bonsho-bd.github.io)
 [![Zero Data Retention](https://img.shields.io/badge/Data%20Retention-Zero-green.svg)](#privacy-guarantee)
 [![Bilingual](https://img.shields.io/badge/Language-বাংলা%20%2F%20English-orange.svg)](#bilingual-support)
 
@@ -44,8 +44,8 @@ For in-depth architectural details, data models, parser specifications, and Goog
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/bonsho-bd/bonsho.git
-cd bonsho
+git clone https://github.com/bonsho-bd/bonsho-bd.github.io.git
+cd bonsho-bd.github.io
 
 # Install dependencies
 npm install
@@ -61,3 +61,4 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 ## 🔒 Privacy Guarantee
 
 Bonsho does not own or store any database. All operations happen client-side in browser memory. When connecting to Google Sheets, requests are made directly between your browser and Google's official APIs using an ephemeral token.
+

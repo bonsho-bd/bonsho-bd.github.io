@@ -155,7 +155,7 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
   - Google Drive Picker API v1
   - Google Sheets API v4 (Client-side REST)
 - **Deployment**:
-  - GitHub Pages (`https://bonsho-bd.github.io/bonsho`) via GitHub Actions
+  - GitHub Pages (`https://bonsho-bd.github.io`) via GitHub Actions
 
 ---
 
@@ -194,3 +194,4 @@ bonsho/
 ├── vite.config.ts
 └── README.md
 ```
+
