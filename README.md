@@ -87,7 +87,11 @@ Bonsho-তে গুগল শিটের সাথে দ্বি-মুখ�
      - `https://bonsho-bd.github.io` (প্রোডাকশন সাইটের জন্য)
      - `http://localhost:5173` (লোকাল ডেভেলপমেন্টের জন্য)
    - **Create** বাটনে ক্লিক করুন এবং প্রাপ্ত **Client ID**-টি কপি করে রাখুন (দেখতে `xxxxxxxx.apps.googleusercontent.com`-এর মতো)।
-6. *(ঐচ্ছিক)* Google Drive Picker ব্যবহারের জন্য Credentials পেজ থেকে **Create Credentials > API Key** তৈরি করে নিতে পারেন।
+6. **টেস্টিং ব্যবহারকারী বা অ্যাপ পাবলিশ (Important - Error 403 এড়াতে)**:
+   - প্রজেক্টটি ডিফল্টভাবে **"Testing"** মোডে থাকে। তাই লগইন করতে **APIs & Services > OAuth consent screen**-এ যান:
+     - **বিকল্প ১ (টেস্ট করার জন্য)**: **Test users** সেকশনে গিয়ে **+ ADD USERS** ক্লিক করুন এবং আপনার গুগল ইমেইল (`mahdibuet3@gmail.com`) যুক্ত করে **Save** করুন।
+     - **বিকল্প ২ (সবার জন্য উন্মুক্ত করতে)**: **Publishing status**-এর নিচে **PUBLISH APP** বাটনে ক্লিক করে কনফার্ম করুন। (এরপর লগইনের সময় "Google hasn't verified this app" আসলে **Advanced** > **Go to bonsho-bd.github.io (unsafe)** ক্লিক করলেই সাইন-ইন হয়ে যাবে)।
+7. *(ঐচ্ছিক)* Google Drive Picker ব্যবহারের জন্য Credentials পেজ থেকে **Create Credentials > API Key** তৈরি করে নিতে পারেন।
 
 ---
 
