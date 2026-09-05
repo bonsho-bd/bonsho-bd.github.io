@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  FileSpreadsheet, 
-  ShieldCheck, 
-  FolderOpen, 
-  RefreshCw, 
-  Save, 
-  LogOut, 
-  Key, 
+import {
+  X,
+  FileSpreadsheet,
+  ShieldCheck,
+  FolderOpen,
+  RefreshCw,
+  Save,
+  LogOut,
   ExternalLink,
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import { 
-  getGoogleConfig, 
-  saveGoogleConfig, 
-  loadGoogleScripts, 
-  requestGoogleAccessToken, 
+import {
+  getGoogleConfig,
+  loadGoogleScripts,
+  requestGoogleAccessToken,
   openGoogleDrivePicker,
   fetchGoogleSheetValues,
   saveGoogleSheetValues,
@@ -44,8 +42,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   onSetConnectedSheet,
 }) => {
   const [accessToken, setAccessToken] = useState<string>('');
-  const [config, setConfig] = useState(getGoogleConfig());
-  const [showConfig, setShowConfig] = useState(false);
+  const [config] = useState(getGoogleConfig());
   const [manualSheetInput, setManualSheetInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -63,16 +60,15 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
     try {
       setLoading(true);
       setStatusMessage(null);
-      
-      const clientId = config.clientId || prompt('অনুগ্রহ করে আপনার Google OAuth Client ID দিন:');
+
+      const clientId = config.clientId;
       if (!clientId) {
+        setStatusMessage({
+          text: 'Google OAuth Token / Client ID কনফিগার করা নেই।',
+          type: 'error'
+        });
         setLoading(false);
         return;
-      }
-
-      if (!config.clientId) {
-        saveGoogleConfig(clientId, config.apiKey);
-        setConfig(prev => ({ ...prev, clientId }));
       }
 
       const token = await requestGoogleAccessToken(clientId);
@@ -165,7 +161,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-blue-50/70">
           <div className="flex items-center gap-2.5">
@@ -184,7 +180,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
 
         {/* Body Content */}
         <div className="p-6 overflow-y-auto space-y-4 text-xs">
-          
+
           {/* Privacy Guarantee Banner */}
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5 text-emerald-950">
             <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
@@ -217,7 +213,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
               <p className="text-slate-600 leading-relaxed">
                 আপনার প্রাইভেট শিটটি অ্যাক্সেস ও সংরক্ষণ করার জন্য গুগল অথোরাইজেশন প্রয়োজন।
               </p>
-              
+
               <button
                 type="button"
                 disabled={loading}
@@ -297,7 +293,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                 /* Select Sheet */
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                   <div className="font-bold text-slate-800 text-sm">ধাপ ২: আপনার ফ্যামিলি ট্রি শিট নির্বাচন করুন</div>
-                  
+
                   {/* Google Drive Picker Button */}
                   <button
                     type="button"
@@ -336,55 +332,6 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
               )}
             </div>
           )}
-
-          {/* Configuration Settings Accordion */}
-          <div className="border-t border-slate-100 pt-2">
-            <button
-              type="button"
-              onClick={() => setShowConfig(!showConfig)}
-              className="text-[11px] text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium"
-            >
-              <Key className="w-3.5 h-3.5" />
-              <span>Google API কনফিগারেশন {showConfig ? 'লুকান' : 'দেখুন'}</span>
-            </button>
-
-            {showConfig && (
-              <div className="mt-2 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-600 mb-0.5">Google OAuth Client ID</label>
-                  <input
-                    type="text"
-                    value={config.clientId}
-                    onChange={(e) => {
-                      const newId = e.target.value;
-                      setConfig(prev => ({ ...prev, clientId: newId }));
-                      saveGoogleConfig(newId, config.apiKey);
-                    }}
-                    placeholder="xxxx.apps.googleusercontent.com"
-                    className="w-full p-1.5 bg-white border border-slate-200 rounded text-xs font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-600 mb-0.5">Google Developer API Key (Drive Picker-এর জন্য)</label>
-                  <input
-                    type="text"
-                    value={config.apiKey}
-                    onChange={(e) => {
-                      const newKey = e.target.value;
-                      setConfig(prev => ({ ...prev, apiKey: newKey }));
-                      saveGoogleConfig(config.clientId, newKey);
-                    }}
-                    placeholder="AIzaSy..."
-                    className="w-full p-1.5 bg-white border border-slate-200 rounded text-xs font-mono"
-                  />
-                </div>
-                <p className="text-[10px] text-slate-400">
-                  Google Cloud Console-এ গিয়ে একটি OAuth 2.0 Web Client তৈরি করুন এবং Authorized JavaScript Origin-এ <code className="text-slate-600">https://bonsho-bd.github.io</code> যুক্ত করুন।
-                </p>
-              </div>
-            )}
-          </div>
-
         </div>
 
         {/* Footer */}

@@ -50,11 +50,65 @@ cd bonsho-bd.github.io
 # Install dependencies
 npm install
 
+# (Optional) Setup Google Sheets Sync locally
+cp .env.example .env.local
+# Add your VITE_GOOGLE_CLIENT_ID to .env.local
+
 # Start the local development server
 npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## 🔑 Google Sheets Sync Setup (গুগল শিট সিঙ্ক কনফিগারেশন)
+
+Bonsho-তে গুগল শিটের সাথে দ্বি-মুখী সিঙ্কের জন্য Google Identity Services (GIS) OAuth 2.0 Web Client ID প্রয়োজন। টোকেন বা Client ID কনফিগার না থাকলে UI-তে "গুগল শিট" বাটনটি ডিসেবল থাকবে (ব্যবহারকারী তখনও পেস্ট বা ফাইল আপলোড দিয়ে কাজ করতে পারবেন)।
+
+### ১. Google Cloud Console থেকে Client ID তৈরি করার নিয়ম
+
+1. [Google Cloud Console](https://console.cloud.google.com/)-এ যান।
+2. নতুন একটি প্রজেক্ট তৈরি করুন (বা পূর্বের প্রজেক্ট সিলেক্ট করুন)।
+3. **APIs & Services > Library**-তে গিয়ে এই দুটি API এনাবল করুন:
+   - **Google Sheets API**
+   - **Google Drive API**
+4. **APIs & Services > OAuth consent screen**-এ যান:
+   - User Type: **External** সিলেক্ট করে **Create** চাপুন।
+   - App Name দিন `Bonsho`, সাপোর্ট ইমেইল ও ডেভেলপার ইমেইল দিয়ে সেভ করুন।
+   - Scopes-এ গিয়ে যুক্ত করুন:
+     - `https://www.googleapis.com/auth/drive.file`
+     - `https://www.googleapis.com/auth/spreadsheets`
+5. **APIs & Services > Credentials**-এ যান:
+   - **Create Credentials** > **OAuth client ID** সিলেক্ট করুন।
+   - Application type: **Web application** সিলেক্ট করুন।
+   - Name: `Bonsho Web Client`
+   - **Authorized JavaScript origins**-এ নিচের URL-গুলো যুক্ত করুন:
+     - `https://bonsho-bd.github.io` (প্রোডাকশন সাইটের জন্য)
+     - `http://localhost:5173` (লোকাল ডেভেলপমেন্টের জন্য)
+   - **Create** বাটনে ক্লিক করুন এবং প্রাপ্ত **Client ID**-টি কপি করে রাখুন (দেখতে `xxxxxxxx.apps.googleusercontent.com`-এর মতো)।
+6. *(ঐচ্ছিক)* Google Drive Picker ব্যবহারের জন্য Credentials পেজ থেকে **Create Credentials > API Key** তৈরি করে নিতে পারেন।
+
+---
+
+### ২. GitHub Repository Variables-এ টোকেন/Client ID যুক্ত করার নিয়ম (Deployment)
+
+GitHub Pages-এ স্বয়ংক্রিয়ভাবে বিল্ড হওয়ার সময় Client ID ইনজেক্ট করতে নিচের ধাপগুলো অনুসরণ করুন:
+
+1. আপনার গিটহাব রিপোজিটরিতে যান: [https://github.com/bonsho-bd/bonsho-bd.github.io](https://github.com/bonsho-bd/bonsho-bd.github.io)
+2. রিপোজিটরির **Settings** ট্যাবে যান।
+3. বাঁপাশের মেনু থেকে **Secrets and variables** > **Actions** সিলেক্ট করুন।
+4. **Variables** ট্যাবে ক্লিক করুন (অথবা **Secrets** ট্যাবেও রাখতে পারেন)।
+5. **New repository variable** বাটনে ক্লিক করুন:
+   - **Name**: `VITE_GOOGLE_CLIENT_ID`
+   - **Value**: আপনার কপি করা Google Client ID (যেমন: `123456789-abcdef.apps.googleusercontent.com`)
+   - **Add variable** চাপুন।
+6. *(ঐচ্ছিক)* একইভাবে API Key-এর জন্য আরেকটি ভ্যারিয়েবল যোগ করুন:
+   - **Name**: `VITE_GOOGLE_API_KEY`
+   - **Value**: আপনার Google API Key
+7. **ডিপ্লয়মেন্ট ট্রিগার করুন**:
+   - রিপোজিটরির **Actions** ট্যাবে গিয়ে **Deploy to GitHub Pages** ওয়ার্কফ্লোটি **Run workflow** করুন (বা `main` ব্রাঞ্চে একটি কমিট পুশ করুন)।
+   - GitHub Actions বিল্ড চলাকালীন স্বয়ংক্রিয়ভাবে এই ভ্যারিয়েবলটি বান্ডল করে নেবে এবং লাইভ সাইটে গুগল শিট সিঙ্ক চালু হয়ে যাবে!
 
 ---
 

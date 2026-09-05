@@ -24,6 +24,11 @@ export function saveGoogleConfig(clientId: string, apiKey: string) {
   if (apiKey) localStorage.setItem('bonsho_g_api_key', apiKey.trim());
 }
 
+export function isGoogleSyncAvailable(): boolean {
+  const { clientId } = getGoogleConfig();
+  return Boolean(clientId && clientId.trim().length > 0);
+}
+
 /**
  * Dynamically loads Google Identity Services (GIS) and GAPI scripts
  */

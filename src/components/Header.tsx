@@ -1,5 +1,6 @@
 import React from 'react';
-import { TreePine, ClipboardPaste, Upload, Download, Sparkles, FileSpreadsheet, FileText, Search, PlusCircle } from 'lucide-react';
+import { TreePine, ClipboardPaste, Upload, Download, Sparkles, FileSpreadsheet, FileText, Search, PlusCircle, AlertCircle } from 'lucide-react';
+import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
 interface HeaderProps {
   onOpenPasteModal: () => void;
@@ -31,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   connectedSheet,
 }) => {
   const [showExportMenu, setShowExportMenu] = React.useState(false);
+  const isGoogleAvailable = isGoogleSyncAvailable();
 
   return (
     <header className="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-30 px-4 py-2.5 shadow-sm">
@@ -88,20 +90,46 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Google Sheets Sync */}
-          <button
-            onClick={onOpenGoogleModal}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition ${
-              connectedSheet
-                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200'
-            }`}
-            title="গুগল শিটের সাথে সরাসরি যুক্ত করুন"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {connectedSheet ? `শিট: ${connectedSheet.name.slice(0, 10)}...` : 'গুগল শিট'}
-            </span>
-          </button>
+          <div className="relative group">
+            <button
+              onClick={isGoogleAvailable ? onOpenGoogleModal : undefined}
+              disabled={!isGoogleAvailable}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition ${
+                !isGoogleAvailable
+                  ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                  : connectedSheet
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200'
+              }`}
+              title={
+                !isGoogleAvailable
+                  ? 'গুগল শিট সিঙ্ক নিষ্ক্রিয়: Google OAuth টোকেন / Client ID অনুপস্থিত'
+                  : 'গুগল শিটের সাথে সরাসরি যুক্ত করুন'
+              }
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span className="hidden sm:inline">
+                {connectedSheet ? `শিট: ${connectedSheet.name.slice(0, 10)}...` : 'গুগল শিট'}
+              </span>
+              {connectedSheet && <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>}
+            </button>
+
+            {/* Error Tooltip when Google OAuth is not present */}
+            {!isGoogleAvailable && (
+              <div className="absolute right-0 sm:left-1/2 sm:-translate-x-1/2 top-full mt-2 hidden group-hover:flex flex-col items-center z-50 w-72 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+                <div className="w-2.5 h-2.5 bg-slate-900 rotate-45 -mb-1 hidden sm:block"></div>
+                <div className="bg-slate-900 text-white text-xs rounded-xl p-3 shadow-xl border border-slate-700 text-left space-y-1">
+                  <div className="flex items-center gap-1.5 text-rose-400 font-semibold">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>গুগল শিট সিঙ্ক নিষ্ক্রিয়</span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    Google OAuth Token / Client ID কনফিগার করা নেই। অনুগ্রহ করে <strong>পেস্ট করুন</strong> বা <strong>আপলোড</strong> বিকল্পটি ব্যবহার করুন।
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Load Sample Family */}
           <button
