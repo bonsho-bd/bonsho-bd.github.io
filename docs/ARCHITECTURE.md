@@ -1,0 +1,196 @@
+# Bonsho (বংশ) - System Architecture & Design Document
+
+> **Bonsho (বংশ)** is a privacy-first, zero-data-retention family tree visualizer designed specifically for Bangladeshi genealogical traditions, powered by simple 2-column Google Sheets, CSV/Excel files, or direct clipboard copy-paste.
+
+---
+
+## 1. Core Principles & Philosophy
+
+1. **Zero Data Retention**:
+   - Bonsho has **no database** and **no backend server**.
+   - All data parsing, graph generation, and tree visualization happen **100% in-memory within the user's browser session**.
+   - When the user closes the tab, all in-memory data disappears unless the user saved it back to their Google Sheet or downloaded it as a file.
+
+2. **100% Static Frontend (GitHub Pages / `github.io`)**:
+   - Hosted statically on GitHub Pages at zero cost.
+   - Completely open-source and auditable: users can verify in their browser's Network Inspector that no personal family data or PII is sent to any third-party server.
+
+3. **Zero Developer/User GCP Friction**:
+   - End-users **never** configure Google Cloud Platform (GCP).
+   - Users can start immediately without any login or account.
+   - For cloud sync, the app uses standard Google Identity Services (GIS) OAuth 2.0 with the restrictive `drive.file` scope.
+
+---
+
+## 2. Supported Input & Onboarding Modes
+
+Users can start visualizing their lineage in 4 friction-free ways:
+
+```mermaid
+graph TD
+    A[User visits Bonsho] --> B1["1. Start Blank / Explore Sample Tree<br/>(Zero login, instant play)"]
+    A --> B2["2. Direct Paste<br/>(Paste 2-column TSV/CSV from clipboard)"]
+    A --> B3["3. File Upload<br/>(Upload .csv or .xlsx)"]
+    A --> B4["4. Connect Google Sheet<br/>(1-click OAuth + Drive Picker + 2-way sync)"]
+
+    B1 --> C[In-Memory Graph State]
+    B2 --> C
+    B3 --> C
+    B4 --> C
+
+    C --> D[Interactive Visualizer & In-App Editor]
+
+    D --> E1["Export: Download CSV / Excel"]
+    D --> E2["Export: Sync back to Google Sheet"]
+    D --> E3["Export: High-Res Poster (PNG / PDF)"]
+```
+
+1. **Direct Paste (Fastest)**:
+   - Users can simply copy rows from Google Sheets, Excel, or a text file and paste them directly into a text modal in Bonsho.
+   - Supports tab-separated (TSV) and comma-separated (CSV) values automatically.
+2. **Start Blank / Sample Tree**:
+   - Immediate sandbox where users can click `+ Add Person`, `+ Add Child`, `+ Add Spouse` visually on the canvas.
+3. **File Upload**:
+   - Drag & drop any `.csv` or `.xlsx` file.
+4. **Connect Google Sheet**:
+   - Uses Google Drive Picker to select a private sheet.
+   - Supports two-way synchronization: in-app edits can be saved directly back to the Google Sheet.
+
+---
+
+## 3. The 2-Column Key-Value Block Format
+
+The spreadsheet format consists of a single tab with **two columns**: `Column A (Property / Key)` and `Column B (Value)`. Each person is defined as a contiguous block of rows separated by a blank line.
+
+### A. Patrilineal Example (Multi-Spouse & Child Association)
+Listing `Child` directly beneath a `Wife` row associates the child with that specific marriage:
+```text
+Key             | Value
+----------------+-------------------------
+Name            | আক্কাস আলী
+Id              | akkas-1                  (Optional, defaults to Name)
+Gender          | Male
+Date of birth   | 1935
+Date of death   | 2012                     (Automatically adds মরহুম badge)
+Village         | রামপুর, চাঁদপুর
+Photo           | https://example.com/photo.jpg
+Notes           | বীর মুক্তিযোদ্ধা
+Wife            | সালেহা বেগম              (1st Wife)
+Child           | মতিউর রহমান              (Child of 1st Wife)
+Child           | রোকসানা আক্তার           (Child of 1st Wife)
+Wife            | খাদিজা খাতুন             (2nd Wife)
+Child           | সাজিদুর রহমান            (Child of 2nd Wife)
+```
+
+### B. Matrilineal / Mother-Centric Example (মাতৃতান্ত্রিক বা মাতুল বংশ)
+Works identically when the mother is the anchor (e.g. Garo / Khasi matrilineal traditions or maternal trees):
+```text
+Key             | Value
+----------------+-------------------------
+Name            | মেবেল মারাক
+Gender          | Female
+Clan / মাহারি   | মারাক (Marak)
+Village         | বিরিশিরি, নেত্রকোণা
+Husband         | জন নকরেক                 (1st Husband)
+Child           | সিলভিয়া মারাক
+Child           | প্রবীর মারাক
+Husband         | লরেন্স সাংমা             (2nd Husband)
+Child           | রিমা মারাক
+```
+
+### C. Connecting Generations
+When a child (`মতিউর রহমান`) is introduced under a parent, their branch can be expanded anywhere else in the sheet:
+```text
+Key             | Value
+----------------+-------------------------
+Name            | মতিউর রহমান
+Gender          | Male
+Date of birth   | 1965
+Profession      | অধ্যাপক (Professor)
+Wife            | নাজনীন আক্তার
+Child           | নাদিম রহমান
+Child           | তাসনিম রহমান
+```
+
+---
+
+## 4. Bilingual Polyglot Key-Value Dictionary
+
+The parser normalizes keys (ignoring case, trimming whitespace, and translating synonyms between Bangla and English):
+
+| Standard Key | English Synonyms | Accepted বাংলা প্রতিশব্দ |
+| :--- | :--- | :--- |
+| `name` | `Name`, `Full Name`, `Person` | `নাম`, `পুরো নাম`, `ব্যক্তি` |
+| `id` | `Id`, `ID`, `Identifier` | `আইডি`, `নম্বর` |
+| `gender` | `Gender`, `Sex` | `লিঙ্গ`, `জেন্ডার`, `পুরুষ/নারী` |
+| `birth` | `Date of birth`, `DOB`, `Birth`, `Birth Year` | `জন্ম`, `জন্মতারিখ`, `জন্ম সাল`, `জন্ম সন` |
+| `death` | `Date of death`, `DOD`, `Death`, `Passed Away` | `মৃত্যু`, `ইন্তেকাল`, `মৃত্যু সাল`, `ওফাত` |
+| `spouse_female` | `Wife` | `স্ত্রী`, `বউ`, `সহধর্মিণী` |
+| `spouse_male` | `Husband` | `স্বামী`, `পতি` |
+| `spouse_any` | `Spouse`, `Partner` | `দম্পতি`, `জীবনসঙ্গী` |
+| `child` | `Child`, `Son`, `Daughter`, `Children` | `সন্তান`, `ছেলে`, `মেয়ে`, `পুত্র`, `কন্যা` |
+| `father` | `Father`, `Dad` | `পিতা`, `বাবা`, `আব্বা`, `আব্বু` |
+| `mother` | `Mother`, `Mom` | `মাতা`, `মা`, `আম্মা`, `আম্মু` |
+| `photo` | `Photo`, `Image`, `Picture` | `ছবি`, `ফটোগ্রাফ` |
+| `village` | `Village`, `Origin`, `Ancestral Home` | `গ্রাম`, `গ্রামের বাড়ি`, `আদি বাড়ি`, `দেশ` |
+| `notes` | `Notes`, `Bio`, `Description`, `Title` | `মন্তব্য`, `বিবরণ`, `স্মৃতি`, `খেতাব`, `উপাধি` |
+| `*` (Arbitrary) | Any custom key (e.g. `Blood Group`) | যেকোনো বাংলা প্রপার্টি (যেমন `পেশা`, `রক্তের গ্রুপ`) |
+
+---
+
+## 5. Technology Stack
+
+- **Application Framework**: Vite + React 18+ + TypeScript
+- **Styling**: Tailwind CSS + Lucide Icons
+- **Bangla Typography**: Google Fonts (`Hind Siliguri` / `Noto Sans Bengali`)
+- **Data Parsing & Serialization**:
+  - Custom Key-Value Block Parser (`src/lib/parser.ts`)
+  - `papaparse` for CSV & TSV parsing
+  - `xlsx` for Excel import/export
+- **Visualization Engine**:
+  - SVG + custom hierarchical DAG layout tailored for multi-spouse family trees
+  - Interactive pan, zoom, search, branch highlighting, and person detail drawer
+- **Google Cloud Services (Optional Cloud Sync)**:
+  - Google Identity Services (GIS) Token Client
+  - Google Drive Picker API v1
+  - Google Sheets API v4 (Client-side REST)
+- **Deployment**:
+  - GitHub Pages (`https://bonsho-bd.github.io/bonsho`) via GitHub Actions
+
+---
+
+## 6. Repository Structure
+
+```
+bonsho/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # GitHub Pages automated build & deploy
+├── docs/
+│   └── ARCHITECTURE.md         # This design document
+├── public/
+│   └── sample_family.csv       # Preloaded sample family tree
+├── src/
+│   ├── components/
+│   │   ├── Header.tsx          # Top bar with modes (Paste, Upload, Google, Export)
+│   │   ├── Visualizer.tsx      # SVG canvas with pan, zoom, mini-map
+│   │   ├── PersonNode.tsx      # Individual family card with photo, badges
+│   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
+│   │   ├── PasteModal.tsx      # Direct CSV/TSV paste dialog
+│   │   └── GoogleSyncModal.tsx # Google Drive picker and sync controls
+│   ├── lib/
+│   │   ├── dictionary.ts       # Bilingual key-value normalizer
+│   │   ├── parser.ts           # 2-column block parser (CSV/TSV/Sheet -> Graph)
+│   │   ├── serializer.ts       # Graph -> 2-column block format (for saving/exporting)
+│   │   ├── kinship.ts          # Bangladeshi kinship calculator (চাচা, মামা, খালা, etc.)
+│   │   └── google.ts           # GIS and Drive Picker client wrapper
+│   ├── types/
+│   │   └── family.ts           # TypeScript interfaces for Person, Marriage, Graph
+│   ├── App.tsx
+│   ├── index.css
+│   └── main.tsx
+├── package.json
+├── tailwind.config.js
+├── vite.config.ts
+└── README.md
+```
