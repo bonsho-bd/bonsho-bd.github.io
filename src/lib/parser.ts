@@ -79,7 +79,6 @@ function getOrCreatePerson(
  */
 export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
   const people: Record<string, Person> = {};
-  const firstBlockRootId: string | null = null;
   let currentPerson: Person | null = null;
   let currentMarriage: Marriage | null = null;
 
@@ -302,16 +301,22 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
   const allPeopleList = Object.values(people);
   const rootCandidates = allPeopleList.filter(p => !p.fatherId && !p.motherId);
 
-  // If someone is a spouse of a root, prefer the person who introduced the lineage
-  // Primary root is the candidate who has children or marriages
-  const activeRoots = rootCandidates.filter(p => p.marriages.length > 0 || p.unassociatedChildren.length > 0);
-  const rootIds = activeRoots.length > 0
-    ? activeRoots.map(p => p.id)
-    : (allPeopleList.length > 0 ? [allPeopleList[0].id] : []);
+  // Support multiple roots: Include all root candidates while avoiding spouse duplication
+  const rootIds: string[] = [];
+  const coveredPeople = new Set<string>();
+
+  for (const candidate of rootCandidates) {
+    if (coveredPeople.has(candidate.id)) continue;
+    rootIds.push(candidate.id);
+    coveredPeople.add(candidate.id);
+    for (const m of candidate.marriages) {
+      coveredPeople.add(m.spouseId);
+    }
+  }
 
   return {
     people,
-    rootIds: firstBlockRootId ? [firstBlockRootId] : rootIds,
+    rootIds,
     meta: {
       familyTitle: rootIds.length > 0 ? `${people[rootIds[0]]?.name} এর পরিবার` : 'বংশ ফ্যামিলি ট্রি',
     },

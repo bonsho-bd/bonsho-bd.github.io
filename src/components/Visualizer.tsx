@@ -8,6 +8,7 @@ interface VisualizerProps {
   onSelectPerson: (person: Person) => void;
   onAddChild: (parent: Person) => void;
   onAddSpouse: (person: Person) => void;
+  onAddPerson: () => void;
 }
 
 interface NodeLayout {
@@ -38,12 +39,14 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   onSelectPerson,
   onAddChild,
   onAddSpouse,
+  onAddPerson,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
 
   // Center the view on initial tree load
   useEffect(() => {
@@ -104,6 +107,11 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       const spouses = person.marriages
         .map(m => tree.people[m.spouseId])
         .filter(Boolean) as Person[];
+
+      // Mark spouses as visited so they don't get duplicated as separate roots
+      for (const spouse of spouses) {
+        visited.add(spouse.id);
+      }
 
       const allChildren: string[] = [];
       for (const m of person.marriages) {
@@ -186,11 +194,12 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     };
   }, [tree]);
 
-  // Pan & Zoom handlers
+  // Pan & Zoom & Click handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // only left click
     setIsDragging(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    setClickStartPos({ x: e.clientX, y: e.clientY });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -201,7 +210,26 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     });
   };
 
-  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseUp = (e: React.MouseEvent) => {
+    setIsDragging(false);
+
+    // If mouse didn't drag/move, it is a click on canvas background!
+    if (clickStartPos) {
+      const distance = Math.hypot(e.clientX - clickStartPos.x, e.clientY - clickStartPos.y);
+      if (distance < 5) {
+        const target = e.target as HTMLElement;
+        const isBackground =
+          target === containerRef.current ||
+          target.tagName.toLowerCase() === 'svg' ||
+          target.classList.contains('canvas-bg');
+
+        if (isBackground) {
+          onAddPerson();
+        }
+      }
+    }
+    setClickStartPos(null);
+  };
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -228,12 +256,25 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onDoubleClick={onAddPerson}
       onWheel={handleWheel}
-      className="relative w-full h-[calc(100vh-61px)] overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing"
+      className="relative w-full h-[calc(100vh-61px)] overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg"
     >
+      {/* Floating Add Person Button on Canvas */}
+      <div className="absolute left-4 top-4 z-30">
+        <button
+          onClick={onAddPerson}
+          className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md transition hover:scale-105 active:scale-95"
+          title="ক্যানভাসে নতুন ব্যক্তি / রুট যোগ করুন"
+        >
+          <Plus className="w-4 h-4" />
+          <span>নতুন ব্যক্তি যোগ করুন</span>
+        </button>
+      </div>
+
       {/* Background Dot Grid */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-40"
+        className="absolute inset-0 pointer-events-none opacity-40 canvas-bg"
         style={{
           backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)',
           backgroundSize: '24px 24px',
@@ -321,6 +362,30 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           );
         })}
       </div>
+
+      {/* Empty State Banner when Tree has no people */}
+      {nodes.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-6 shadow-xl text-center max-w-sm pointer-events-auto space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-sm">
+              <User className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-800">ফ্যামিলি ট্রি খালি</h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                এই শিটটিতে এখনো কোনো তথ্য নেই। আপনি প্রথম ব্যক্তি যোগ করে বংশতালিকা তৈরি শুরু করতে পারেন।
+              </p>
+            </div>
+            <button
+              onClick={onAddPerson}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition inline-flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ প্রথম ব্যক্তি যোগ করুন</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Floating Zoom & Navigation Controls */}
       <div className="absolute right-6 bottom-6 z-30 flex flex-col gap-2 bg-white/95 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-1.5 text-slate-700">

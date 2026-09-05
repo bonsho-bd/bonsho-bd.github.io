@@ -151,9 +151,21 @@ export function openGoogleDrivePicker(
  */
 export function extractSheetId(urlOrId: string): string {
   const clean = urlOrId.trim();
-  const match = clean.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  // Match standard /d/<sheetId> format (with optional /u/0/, /u/1/, etc.)
+  const match = clean.match(/\/d\/([a-zA-Z0-9-_]+)/);
   if (match && match[1]) {
     return match[1];
+  }
+  // Fallback: If user pasted a clean ID without slashes
+  if (!clean.includes('/')) {
+    return clean;
+  }
+  // If it's a URL but didn't match /d/, try to find the longest alphanumeric segment
+  const segments = clean.split(/[/?#&]/);
+  for (const seg of segments) {
+    if (seg.length >= 25 && /^[a-zA-Z0-9-_]+$/.test(seg)) {
+      return seg;
+    }
   }
   return clean;
 }
@@ -174,7 +186,13 @@ export async function fetchGoogleSheetValues(
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error?.message || `Failed to fetch sheet: HTTP ${res.status}`);
+    const rawMsg = errorData.error?.message || `HTTP ${res.status}`;
+    if (res.status === 404 || rawMsg.includes('Requested entity was not found')) {
+      throw new Error(
+        'শিটটি পাওয়া যায়নি (404 Not Found)। নিশ্চিত করুন আপনার সাইন-ইন করা গুগল অ্যাকাউন্টে শিটটির অ্যাক্সেস রয়েছে বা শিটের শেয়ারিং অপশনে "Anyone with the link can edit" চালু রয়েছে।'
+      );
+    }
+    throw new Error(rawMsg);
   }
 
   const data = await res.json();
@@ -187,6 +205,53 @@ export async function fetchGoogleSheetValues(
 }
 
 /**
+ * Creates a brand new Google Sheet in user's Drive and saves family tree rows into it
+ */
+export async function createGoogleSheet(
+  title: string,
+  accessToken: string,
+  rows: [string, string][] = []
+): Promise<{ id: string; name: string; url: string }> {
+  const res = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      properties: {
+        title: title || 'বংশ ফ্যামিলি ট্রি',
+      },
+      sheets: [
+        {
+          properties: {
+            title: 'বংশতালিকা',
+            gridProperties: {
+              columnCount: 2,
+            },
+          },
+        },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error?.message || `Failed to create sheet: HTTP ${res.status}`);
+  }
+
+  const sheetData = await res.json();
+  const sheetId = sheetData.spreadsheetId;
+  const sheetUrl = sheetData.spreadsheetUrl;
+
+  if (rows.length > 0) {
+    await saveGoogleSheetValues(sheetId, accessToken, rows);
+  }
+
+  return { id: sheetId, name: title || 'বংশ ফ্যামিলি ট্রি', url: sheetUrl };
+}
+
+/**
  * Saves 2-column values back to a private Google Sheet using OAuth access token
  */
 export async function saveGoogleSheetValues(
@@ -195,13 +260,17 @@ export async function saveGoogleSheetValues(
   rows: [string, string][]
 ): Promise<void> {
   // Clear existing A:B range first to prevent leftover rows
-  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A:B:clear`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
+  try {
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A:B:clear`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (e) {
+    // Ignore clear errors on newly created or empty sheets
+  }
 
   // Write updated 2-column rows
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A1?valueInputOption=USER_ENTERED`;

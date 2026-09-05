@@ -43,11 +43,11 @@ export const App: React.FC = () => {
   const [addRelativeState, setAddRelativeState] = useState<{
     isOpen: boolean;
     person: Person | null;
-    mode: 'child' | 'spouse';
+    mode: 'child' | 'spouse' | 'person';
   }>({
     isOpen: false,
     person: null,
-    mode: 'child',
+    mode: 'person',
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,24 +78,17 @@ export const App: React.FC = () => {
     localStorage.setItem(STORAGE_KEY, SAMPLE_FAMILY_TEXT);
   };
 
-  // Start a new blank family
+  // Start a new blank family (empty tree)
   const handleNewTree = () => {
-    if (confirm('আপনি কি সম্পূর্ণ নতুন একটি ফ্যামিলি ট্রি তৈরি করতে চান?')) {
-      const initialPerson: Person = {
-        id: 'আদি পুরুষ',
-        name: 'আদি পুরুষ / প্রতিষ্ঠাতা',
-        gender: 'male',
-        customProperties: {},
-        marriages: [],
-        unassociatedChildren: [],
-      };
+    if (confirm('আপনি কি সম্পূর্ণ নতুন একটি খালি ফ্যামিলি ট্রি তৈরি করতে চান?')) {
       const blankTree: FamilyTree = {
-        people: { [initialPerson.id]: initialPerson },
-        rootIds: [initialPerson.id],
+        people: {},
+        rootIds: [],
         meta: { familyTitle: 'আমাদের বংশ' },
       };
       setTree(blankTree);
-      setSelectedPerson(initialPerson);
+      setSelectedPerson(null);
+      localStorage.setItem(STORAGE_KEY, '');
     }
   };
 
@@ -185,6 +178,9 @@ export const App: React.FC = () => {
     name: string;
     gender: Gender;
     birth?: string;
+    death?: string;
+    village?: string;
+    notes?: string;
     spouseId?: string;
   }) => {
     const parent = addRelativeState.person;
@@ -196,7 +192,10 @@ export const App: React.FC = () => {
       name: data.name.trim(),
       gender: data.gender,
       birth: data.birth,
-      village: parent.village,
+      death: data.death,
+      village: data.village,
+      notes: data.notes,
+      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
       customProperties: {},
       marriages: [],
       unassociatedChildren: [],
@@ -240,6 +239,9 @@ export const App: React.FC = () => {
     name: string;
     gender: Gender;
     birth?: string;
+    death?: string;
+    village?: string;
+    notes?: string;
   }) => {
     const person = addRelativeState.person;
     if (!person) return;
@@ -250,6 +252,10 @@ export const App: React.FC = () => {
       name: data.name.trim(),
       gender: data.gender,
       birth: data.birth,
+      death: data.death,
+      village: data.village,
+      notes: data.notes,
+      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
       customProperties: {},
       marriages: [
         {
@@ -281,6 +287,57 @@ export const App: React.FC = () => {
         people: updatedPeople,
       };
     });
+  };
+
+  // In-App Editing: Add New Root / Independent Person
+  const handleAddPerson = (data: {
+    name: string;
+    gender: Gender;
+    birth?: string;
+    death?: string;
+    village?: string;
+    notes?: string;
+  }) => {
+    const cleanName = data.name.trim();
+    if (!cleanName) return;
+
+    let id = cleanName;
+    if (tree.people[id]) {
+      let counter = 2;
+      while (tree.people[`${cleanName} (${counter})`]) {
+        counter++;
+      }
+      id = `${cleanName} (${counter})`;
+    }
+
+    const newPerson: Person = {
+      id,
+      name: cleanName,
+      gender: data.gender,
+      birth: data.birth,
+      death: data.death,
+      village: data.village,
+      notes: data.notes,
+      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
+      customProperties: {},
+      marriages: [],
+      unassociatedChildren: [],
+    };
+
+    setTree(prev => {
+      const updatedPeople = { ...prev.people, [newPerson.id]: newPerson };
+      const updatedRoots = prev.rootIds.includes(newPerson.id)
+        ? prev.rootIds
+        : [...prev.rootIds, newPerson.id];
+
+      return {
+        ...prev,
+        people: updatedPeople,
+        rootIds: updatedRoots,
+      };
+    });
+
+    setSelectedPerson(newPerson);
   };
 
   // Export Poster as PNG
@@ -336,6 +393,7 @@ export const App: React.FC = () => {
           onSelectPerson={(p) => setSelectedPerson(p)}
           onAddChild={(p) => setAddRelativeState({ isOpen: true, person: p, mode: 'child' })}
           onAddSpouse={(p) => setAddRelativeState({ isOpen: true, person: p, mode: 'spouse' })}
+          onAddPerson={() => setAddRelativeState({ isOpen: true, person: null, mode: 'person' })}
         />
       </main>
 
@@ -387,8 +445,10 @@ export const App: React.FC = () => {
         onAdd={(data) => {
           if (addRelativeState.mode === 'child') {
             handleAddChild(data);
-          } else {
+          } else if (addRelativeState.mode === 'spouse') {
             handleAddSpouse(data);
+          } else {
+            handleAddPerson(data);
           }
         }}
       />

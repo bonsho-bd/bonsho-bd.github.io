@@ -9,7 +9,8 @@ import {
   LogOut,
   ExternalLink,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  PlusCircle
 } from 'lucide-react';
 import {
   getGoogleConfig,
@@ -18,6 +19,7 @@ import {
   openGoogleDrivePicker,
   fetchGoogleSheetValues,
   saveGoogleSheetValues,
+  createGoogleSheet,
   extractSheetId
 } from '../lib/googleAuth';
 import { FamilyTree } from '../types/family';
@@ -98,6 +100,33 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
     }
   };
 
+  // Create a brand new Google Sheet in Drive
+  const handleCreateNewSheet = async () => {
+    if (!accessToken) {
+      alert('প্রথমে গুগল সাইন-ইন করুন');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setStatusMessage({ text: 'আপনার গুগল ড্রাইভে নতুন শিট তৈরি করা হচ্ছে...', type: 'info' });
+
+      const rows = treeToKeyValueRows(tree);
+      const title = tree.meta?.familyTitle ? `${tree.meta.familyTitle} (বংশতালিকা)` : 'আমাদের বংশ ফ্যামিলি ট্রি';
+
+      const newSheet = await createGoogleSheet(title, accessToken, rows);
+      onSetConnectedSheet({ id: newSheet.id, name: newSheet.name });
+      setStatusMessage({
+        text: `গুগল ড্রাইভে "${newSheet.name}" সফলভাবে তৈরি হয়েছে এবং বর্তমান ফ্যামিলি ট্রির ডেটা সংরক্ষিত হয়েছে!`,
+        type: 'success'
+      });
+    } catch (err: any) {
+      setStatusMessage({ text: `শিট তৈরি করতে ব্যর্থ: ${err.message}`, type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Connect via Sheet URL / ID
   const handleConnectManual = async () => {
     if (!accessToken) {
@@ -105,11 +134,14 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       return;
     }
     const cleanId = extractSheetId(manualSheetInput);
-    if (!cleanId) return;
+    if (!cleanId) {
+      setStatusMessage({ text: 'অনুগ্রহ করে সঠিক গুগল শিটের লিঙ্ক দিন', type: 'error' });
+      return;
+    }
 
     onSetConnectedSheet({ id: cleanId, name: 'Private Google Sheet' });
-    await handlePullFromSheet(cleanId, 'Private Google Sheet');
     setManualSheetInput('');
+    await handlePullFromSheet(cleanId, 'Private Google Sheet');
   };
 
   // Pull data from connected Sheet
@@ -124,7 +156,14 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       const parsedTree = parseKeyValueBlocksToTree(rows);
       onTreeLoaded(parsedTree);
 
-      setStatusMessage({ text: `সফলভাবে ${rows.length}টি প্রপার্টি লোড করা হয়েছে!`, type: 'success' });
+      if (rows.length === 0) {
+        setStatusMessage({
+          text: 'খালি শিট সংযুক্ত করা হয়েছে। ট্রি-তে সদস্য যোগ করে "শিটে সেভ করুন" চাপুন।',
+          type: 'success',
+        });
+      } else {
+        setStatusMessage({ text: `সফলভাবে ${rows.length}টি প্রপার্টি লোড করা হয়েছে!`, type: 'success' });
+      }
     } catch (err: any) {
       setStatusMessage({ text: `ডেটা লোড করতে ব্যর্থ: ${err.message}`, type: 'error' });
     } finally {
@@ -293,6 +332,23 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                 /* Select Sheet */
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                   <div className="font-bold text-slate-800 text-sm">ধাপ ২: আপনার ফ্যামিলি ট্রি শিট নির্বাচন করুন</div>
+
+                  {/* 1-Click Create New Sheet in Google Drive */}
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={handleCreateNewSheet}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 shadow-sm transition"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    <span>গুগল ড্রাইভে নতুন ফ্যামিলি ট্রি শিট তৈরি করুন</span>
+                  </button>
+
+                  <div className="flex items-center gap-2 my-2 text-slate-400">
+                    <div className="flex-1 h-px bg-slate-200"></div>
+                    <span className="text-[10px] uppercase font-bold">অথবা পূর্বে তৈরি শিট যুক্ত করুন</span>
+                    <div className="flex-1 h-px bg-slate-200"></div>
+                  </div>
 
                   {/* Google Drive Picker Button */}
                   <button

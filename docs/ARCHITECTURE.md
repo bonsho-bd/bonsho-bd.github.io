@@ -49,12 +49,18 @@ graph TD
 1. **Direct Paste (Fastest)**:
    - Users can simply copy rows from Google Sheets, Excel, or a text file and paste them directly into a text modal in Bonsho.
    - Supports tab-separated (TSV) and comma-separated (CSV) values automatically.
-2. **Start Blank / Sample Tree**:
-   - Immediate sandbox where users can click `+ Add Person`, `+ Add Child`, `+ Add Spouse` visually on the canvas.
-3. **File Upload**:
+2. **Start Blank / Empty Canvas & Multi-Root Support**:
+   - Creating a new tree starts with a completely empty canvas (no dummy placeholder person).
+   - Users can click directly on the canvas background to add root ancestors.
+   - Bonsho supports **multiple independent roots** rendered side-by-side without spouse duplication.
+3. **Progressive Disclosure Data Entry**:
+   - Relative addition and editing modals default to only **Name** and **Gender**, keeping data collection friction-free.
+   - Optional attributes (**Birthday/Year**, **Address/Village**, **Death year**, and **Info/Notes**) are added on-demand via clickable button pills.
+4. **File Upload**:
    - Drag & drop any `.csv` or `.xlsx` file.
-4. **Connect Google Sheet**:
-   - Uses Google Drive Picker to select a private sheet.
+5. **Connect Google Sheet**:
+   - 1-click spreadsheet creation directly in Google Drive, or connect an existing sheet via Google Drive Picker or URL.
+   - Handles multi-account URLs (`/u/0/d/...`) and empty spreadsheets gracefully.
    - Supports two-way synchronization: in-app edits can be saved directly back to the Google Sheet.
 
 ---
@@ -133,8 +139,8 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
 | `father` | `Father`, `Dad` | `পিতা`, `বাবা`, `আব্বা`, `আব্বু` |
 | `mother` | `Mother`, `Mom` | `মাতা`, `মা`, `আম্মা`, `আম্মু` |
 | `photo` | `Photo`, `Image`, `Picture` | `ছবি`, `ফটোগ্রাফ` |
-| `village` | `Village`, `Origin`, `Ancestral Home` | `গ্রাম`, `গ্রামের বাড়ি`, `আদি বাড়ি`, `দেশ` |
-| `notes` | `Notes`, `Bio`, `Description`, `Title` | `মন্তব্য`, `বিবরণ`, `স্মৃতি`, `খেতাব`, `উপাধি` |
+| `village` | `Village`, `Address`, `Origin`, `Ancestral Home` | `গ্রাম`, `গ্রামের বাড়ি`, `ঠিকানা`, `আদি বাড়ি`, `দেশ` |
+| `notes` | `Notes`, `Info`, `Bio`, `Description`, `Title` | `মন্তব্য`, `তথ্য`, `বিবরণ`, `স্মৃতি`, `খেতাব`, `উপাধি` |
 | `*` (Arbitrary) | Any custom key (e.g. `Blood Group`) | যেকোনো বাংলা প্রপার্টি (যেমন `পেশা`, `রক্তের গ্রুপ`) |
 
 ---

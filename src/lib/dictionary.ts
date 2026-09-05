@@ -116,8 +116,10 @@ const KEY_MAP: Record<string, CanonicalKey> = {
   'ফটোগ্রাফ': 'photo',
   'চিত্র': 'photo',
 
-  // Village / Roots
+  // Village / Roots / Address
   village: 'village',
+  address: 'village',
+  'ঠিকানা': 'village',
   origin: 'village',
   'ancestral home': 'village',
   hometown: 'village',
@@ -127,8 +129,10 @@ const KEY_MAP: Record<string, CanonicalKey> = {
   'আদি নিবাস': 'village',
   'দেশ': 'village',
 
-  // Notes
+  // Notes / Info
   notes: 'notes',
+  info: 'notes',
+  information: 'notes',
   bio: 'notes',
   description: 'notes',
   title: 'notes',
@@ -137,6 +141,7 @@ const KEY_MAP: Record<string, CanonicalKey> = {
   'স্মৃতি': 'notes',
   'খেতাব': 'notes',
   'উপাধি': 'notes',
+  'তথ্য': 'notes',
 };
 
 /**
