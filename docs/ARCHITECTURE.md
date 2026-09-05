@@ -18,7 +18,8 @@
 3. **Zero Developer/User GCP Friction**:
    - End-users **never** configure Google Cloud Platform (GCP).
    - Users can start immediately without any login or account.
-   - For cloud sync, the app uses standard Google Identity Services (GIS) OAuth 2.0 with the restrictive `drive.file` scope.
+   - For cloud sync, the app uses standard Google Identity Services (GIS) OAuth 2.0 with the restrictive `drive.file` and `spreadsheets` scopes.
+   - **Graceful Degradation**: If `VITE_GOOGLE_CLIENT_ID` is not configured at build time (e.g. via GitHub Repository Variables), the "গুগল শিট" sync button is gracefully disabled with an explanatory hover tooltip directing users to the friction-free Paste and File Upload modes. No browser prompts or credential dialogs are ever shown to end users.
 
 ---
 
@@ -151,9 +152,9 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
   - SVG + custom hierarchical DAG layout tailored for multi-spouse family trees
   - Interactive pan, zoom, search, branch highlighting, and person detail drawer
 - **Google Cloud Services (Optional Cloud Sync)**:
-  - Google Identity Services (GIS) Token Client
-  - Google Drive Picker API v1
-  - Google Sheets API v4 (Client-side REST)
+  - Google Identity Services (GIS) Token Client (via `VITE_GOOGLE_CLIENT_ID` injected at build-time)
+  - Google Sheets API v4 (Client-side REST via user's ephemeral token)
+  - (Optional) Google Drive Picker API v1 (via `VITE_GOOGLE_API_KEY`)
 - **Deployment**:
   - GitHub Pages (`https://bonsho-bd.github.io`) via GitHub Actions
 
@@ -169,13 +170,15 @@ bonsho/
 ├── docs/
 │   └── ARCHITECTURE.md         # This design document
 ├── public/
-│   └── sample_family.csv       # Preloaded sample family tree
+│   ├── sample_family.csv       # Preloaded sample family tree
+│   └── tree-icon.svg           # Site favicon
 ├── src/
 │   ├── components/
 │   │   ├── Header.tsx          # Top bar with modes (Paste, Upload, Google, Export)
 │   │   ├── Visualizer.tsx      # SVG canvas with pan, zoom, mini-map
-│   │   ├── PersonNode.tsx      # Individual family card with photo, badges
 │   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
+│   │   ├── EditPersonModal.tsx # Full profile editor modal
+│   │   ├── AddRelativeModal.tsx# Quick relative addition modal
 │   │   ├── PasteModal.tsx      # Direct CSV/TSV paste dialog
 │   │   └── GoogleSyncModal.tsx # Google Drive picker and sync controls
 │   ├── lib/
@@ -183,12 +186,14 @@ bonsho/
 │   │   ├── parser.ts           # 2-column block parser (CSV/TSV/Sheet -> Graph)
 │   │   ├── serializer.ts       # Graph -> 2-column block format (for saving/exporting)
 │   │   ├── kinship.ts          # Bangladeshi kinship calculator (চাচা, মামা, খালা, etc.)
-│   │   └── google.ts           # GIS and Drive Picker client wrapper
+│   │   ├── sampleData.ts       # Bengali demo family tree dataset
+│   │   └── googleAuth.ts       # GIS and Drive Picker client wrapper
 │   ├── types/
 │   │   └── family.ts           # TypeScript interfaces for Person, Marriage, Graph
 │   ├── App.tsx
 │   ├── index.css
 │   └── main.tsx
+├── .env.example
 ├── package.json
 ├── tailwind.config.js
 ├── vite.config.ts
