@@ -151,8 +151,8 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
             <label className="block text-xs font-semibold text-slate-700 mb-1">লিঙ্গ</label>
             <div className="flex gap-2">
               {[
-                { val: 'male', label: 'পুরুষ (Male)' },
-                { val: 'female', label: 'নারী (Female)' },
+                { val: 'male', label: 'পুরুষ' },
+                { val: 'female', label: 'নারী' },
               ].map(({ val, label }) => (
                 <button
                   type="button"
@@ -198,7 +198,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {visibleFields.birth && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">জন্ম সাল / তারিখ (Birthday / Year)</label>
+                <label className="text-xs font-semibold text-slate-700">জন্ম সাল / তারিখ</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -213,7 +213,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
               </div>
               <input
                 type="text"
-                placeholder="যেমন: 1985 বা 12/05/1985"
+                placeholder="যেমন: ১৯৮৫ বা ১৫/০৮/১৯৮৫"
                 value={birth}
                 onChange={(e) => setBirth(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -224,7 +224,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {visibleFields.village && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">ঠিকানা (Address)</label>
+                <label className="text-xs font-semibold text-slate-700">ঠিকানা / গ্রামের বাড়ি</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -250,7 +250,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {visibleFields.death && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">মৃত্যু সাল (Death year)</label>
+                <label className="text-xs font-semibold text-slate-700">মৃত্যু সাল</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -265,7 +265,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
               </div>
               <input
                 type="text"
-                placeholder="যেমন: 2021"
+                placeholder="যেমন: ২০২১"
                 value={death}
                 onChange={(e) => setDeath(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -276,7 +276,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {visibleFields.notes && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">বিবরণ / তথ্য (Info)</label>
+                <label className="text-xs font-semibold text-slate-700">বিবরণ / তথ্য</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -303,7 +303,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {(!visibleFields.birth || !visibleFields.village || !visibleFields.death || !visibleFields.notes) && (
             <div className="pt-2 border-t border-slate-100">
               <span className="block text-[11px] font-semibold text-slate-400 mb-1.5">
-                + তথ্য যোগ করুন (Add details):
+                + আরও তথ্য যোগ করুন:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {!visibleFields.birth && (
@@ -313,7 +313,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-emerald-600" />
-                    <span>Birthday/year</span>
+                    <span>জন্ম সাল</span>
                   </button>
                 )}
                 {!visibleFields.village && (
@@ -323,7 +323,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-emerald-600" />
-                    <span>Address</span>
+                    <span>ঠিকানা</span>
                   </button>
                 )}
                 {!visibleFields.death && (
@@ -333,7 +333,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-rose-600" />
-                    <span>Death year</span>
+                    <span>মৃত্যু সাল</span>
                   </button>
                 )}
                 {!visibleFields.notes && (
@@ -343,7 +343,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-amber-600" />
-                    <span>Info</span>
+                    <span>বিবরণ/তথ্য</span>
                   </button>
                 )}
               </div>

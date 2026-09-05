@@ -391,14 +391,14 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       <div className="absolute right-6 bottom-6 z-30 flex flex-col gap-2 bg-white/95 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-1.5 text-slate-700">
         <button
           onClick={handleZoomIn}
-          title="Zoom In (বড় করুন)"
+          title="বড় করুন (Zoom In)"
           className="p-2 hover:bg-slate-100 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={handleZoomOut}
-          title="Zoom Out (ছোট করুন)"
+          title="ছোট করুন (Zoom Out)"
           className="p-2 hover:bg-slate-100 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900"
         >
           <ZoomOut className="w-4 h-4" />
@@ -406,7 +406,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         <div className="h-px bg-slate-200 my-0.5"></div>
         <button
           onClick={handleResetZoom}
-          title="Reset View (পুনরায় সাজান)"
+          title="পুনরায় সাজান"
           className="p-2 hover:bg-slate-100 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900"
         >
           <RotateCcw className="w-4 h-4" />

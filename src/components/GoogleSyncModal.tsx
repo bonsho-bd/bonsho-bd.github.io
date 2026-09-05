@@ -381,7 +381,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       onClick={handleConnectManual}
                       className="px-3 py-1.5 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-900 disabled:opacity-40"
                     >
-                      কানেক্ট
+                      যুক্ত করুন
                     </button>
                   </div>
                 </div>

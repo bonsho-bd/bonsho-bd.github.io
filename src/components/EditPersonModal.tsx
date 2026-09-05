@@ -132,9 +132,9 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
             <label className="block text-xs font-semibold text-slate-700 mb-1">লিঙ্গ</label>
             <div className="flex gap-2">
               {[
-                { val: 'male', label: 'পুরুষ (Male)' },
-                { val: 'female', label: 'নারী (Female)' },
-                { val: 'other', label: 'অন্যান্য (Other)' },
+                { val: 'male', label: 'পুরুষ' },
+                { val: 'female', label: 'নারী' },
+                { val: 'other', label: 'অন্যান্য' },
               ].map(({ val, label }) => (
                 <button
                   type="button"
@@ -156,7 +156,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {visibleFields.birth && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">জন্ম সাল / তারিখ (Birthday / Year)</label>
+                <label className="text-xs font-semibold text-slate-700">জন্ম সাল / তারিখ</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -171,7 +171,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
               </div>
               <input
                 type="text"
-                placeholder="যেমন: 1965"
+                placeholder="যেমন: ১৯৬৫"
                 value={birth}
                 onChange={(e) => setBirth(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -182,7 +182,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {visibleFields.village && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">ঠিকানা (Address)</label>
+                <label className="text-xs font-semibold text-slate-700">ঠিকানা / গ্রামের বাড়ি</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -208,7 +208,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {visibleFields.death && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">মৃত্যু সাল (Death year)</label>
+                <label className="text-xs font-semibold text-slate-700">মৃত্যু সাল</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -223,7 +223,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
               </div>
               <input
                 type="text"
-                placeholder="যেমন: 2020"
+                placeholder="যেমন: ২০২০"
                 value={death}
                 onChange={(e) => setDeath(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -234,7 +234,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {visibleFields.notes && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">স্মৃতি, খেতাব বা বিবরণ (Info)</label>
+                <label className="text-xs font-semibold text-slate-700">স্মৃতি, খেতাব বা বিবরণ</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -261,7 +261,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {(!visibleFields.birth || !visibleFields.village || !visibleFields.death || !visibleFields.notes) && (
             <div className="pt-2 border-t border-slate-100">
               <span className="block text-[11px] font-semibold text-slate-400 mb-1.5">
-                + তথ্য যোগ করুন (Add info):
+                + আরও তথ্য যোগ করুন:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {!visibleFields.birth && (
@@ -271,7 +271,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-emerald-600" />
-                    <span>Birthday/year</span>
+                    <span>জন্ম সাল</span>
                   </button>
                 )}
                 {!visibleFields.village && (
@@ -281,7 +281,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-emerald-600" />
-                    <span>Address</span>
+                    <span>ঠিকানা</span>
                   </button>
                 )}
                 {!visibleFields.death && (
@@ -291,7 +291,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-rose-600" />
-                    <span>Death year</span>
+                    <span>মৃত্যু সাল</span>
                   </button>
                 )}
                 {!visibleFields.notes && (
@@ -301,7 +301,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-amber-600" />
-                    <span>Info</span>
+                    <span>বিবরণ/তথ্য</span>
                   </button>
                 )}
               </div>
