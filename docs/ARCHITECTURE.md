@@ -26,6 +26,11 @@
    - The browser's Back and Forward buttons work seamlessly across all modal and relative inspection levels without trapping the user or accidentally leaving the site.
    - Deep linking is supported: bookmarking or sharing a URL with `?person=Name` opens that exact person's profile drawer instantly.
 
+5. **Robust Canvas Pointer Isolation & Dynamic Auto-Centering**:
+   - The visualizer strictly isolates canvas drag/pan gestures from click events using distance thresholds (`Math.hypot(dx, dy) < 5px`) and pointer-up tracking.
+   - Floating controls (zoom buttons, reset view, mini-map, and context action prompts) explicitly isolate event propagation (`stopPropagation`), preventing ghost canvas clicks or unwanted form triggers on double clicks.
+   - Dynamic viewport bounding-box calculations compute the global envelope of all nodes and marriages, automatically centering and scaling trees of any dimension on initial load and view reset.
+
 ---
 
 ## 2. Supported Input & Onboarding Modes
@@ -71,10 +76,12 @@ graph TD
    - Handles multi-account URLs (`/u/0/d/...`) and empty spreadsheets gracefully.
    - Supports two-way synchronization: in-app edits can be saved directly back to the Google Sheet.
 6. **QR Code URL Export & Direct Scan**:
-   - Compresses the entire tree via native browser `deflate-raw` into a compact URL-safe Base64URL string.
-   - Encodes a self-contained URL: `<domain>/view/qr-v0/<compressed-data>` that can be scanned by any smartphone camera.
-   - Scanning or navigating to the link decompresses the tree data 100% client-side and immediately renders the interactive visualizer.
-   - Users can download the crisp QR code image (PNG), copy the full link, or take a screenshot to share with relatives.
+   - Compresses the entire tree 100% client-side using `pako` (`deflateRaw` level 9) and converts it to a compact, URL-safe Base64URL string (`-`, `_`, no padding).
+   - Preserves complete Unicode integrity for 3-byte Bengali text and complex multi-spouse genealogical trees via standard `TextEncoder` / `TextDecoder`.
+   - Encodes a self-contained, **0-redirect hash URL**: `<domain>/#/view/qr-v0/<compressed-data>` that works seamlessly across GitHub Pages without server-side routing or 404 delays.
+   - Includes a fallback SPA router (`public/404.html`) that gracefully intercepts legacy or direct pathname visits (`/view/qr-v0/...`) and translates them into the client hash route.
+   - Scanning or navigating to the link decompresses the tree data synchronously on page load and immediately renders the interactive visualizer.
+   - Users can download the crisp QR code image (PNG rendered with error-correction `L` and 8x scaling), copy the full link, or take a screenshot to share with relatives.
 
 ---
 
@@ -163,19 +170,25 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
 - **Application Framework**: Vite + React 18+ + TypeScript
 - **Styling**: Tailwind CSS + Lucide Icons
 - **Bangla Typography**: Google Fonts (`Hind Siliguri` / `Noto Sans Bengali`)
-- **Data Parsing & Serialization**:
+- **Data Parsing, Serialization & Compression**:
   - Custom Key-Value Block Parser (`src/lib/parser.ts`)
   - `papaparse` for CSV & TSV parsing
   - `xlsx` for Excel import/export
+  - `pako` for cross-browser, synchronous raw DEFLATE compression & decompression
+  - `qrcode` for high-resolution client-side QR code canvas generation
 - **Visualization Engine**:
   - SVG + custom hierarchical DAG layout tailored for multi-spouse family trees
+  - `d3-zoom`, `d3-selection`, `d3-hierarchy` for smooth interactive pan, zoom, auto-centering, and transform matrix calculations
+  - `html-to-image` for high-resolution PNG poster export
   - Interactive pan, zoom, search, branch highlighting, and person detail drawer
 - **Google Cloud Services (Optional Cloud Sync)**:
   - Google Identity Services (GIS) Token Client (via `VITE_GOOGLE_CLIENT_ID` injected at build-time)
   - Google Sheets API v4 (Client-side REST via user's ephemeral token)
   - (Optional) Google Drive Picker API v1 (via `VITE_GOOGLE_API_KEY`)
-- **Deployment**:
+- **Deployment & Routing**:
   - GitHub Pages (`https://bonsho-bd.github.io`) via GitHub Actions
+  - Client-side 0-redirect hash router (`/#/view/qr-v0/<data>`)
+  - `public/404.html` SPA redirect fallback for direct subpath requests
 
 ---
 
@@ -189,24 +202,26 @@ bonsho/
 ├── docs/
 │   └── ARCHITECTURE.md         # This design document
 ├── public/
-│   ├── sample_family.csv       # Preloaded sample family tree
+│   ├── 404.html                # GitHub Pages SPA router fallback (redirects to hash routes)
 │   └── tree-icon.svg           # Site favicon
 ├── src/
 │   ├── components/
-│   │   ├── Header.tsx          # Top bar with modes (Paste, Upload, Google, Export)
-│   │   ├── Visualizer.tsx      # SVG canvas with pan, zoom, mini-map
-│   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
-│   │   ├── EditPersonModal.tsx # Full profile editor modal
 │   │   ├── AddRelativeModal.tsx# Quick relative addition modal
+│   │   ├── EditPersonModal.tsx # Full profile editor modal
+│   │   ├── GoogleSyncModal.tsx # Google Drive picker and sync controls
+│   │   ├── Header.tsx          # Top bar with modes (Paste, Upload, Google, Export, QR)
 │   │   ├── PasteModal.tsx      # Clipboard Sync modal (Export text & Import paste)
-│   │   └── GoogleSyncModal.tsx # Google Drive picker and sync controls
+│   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
+│   │   ├── QRCodeModal.tsx     # QR code display, copy link, and PNG download modal
+│   │   └── Visualizer.tsx      # SVG canvas with pan, zoom, mini-map, and auto-centering
 │   ├── lib/
 │   │   ├── dictionary.ts       # Bilingual key-value normalizer
-│   │   ├── parser.ts           # 2-column block parser (CSV/TSV/Sheet -> Graph)
-│   │   ├── serializer.ts       # Graph -> 2-column block format (for saving/exporting)
+│   │   ├── googleAuth.ts       # GIS and Drive Picker client wrapper
 │   │   ├── kinship.ts          # Bangladeshi kinship calculator (চাচা, মামা, খালা, etc.)
+│   │   ├── parser.ts           # 2-column block parser (CSV/TSV/Sheet -> Graph)
+│   │   ├── qrCodec.ts          # Pako DEFLATE + Base64URL codec & URL route parser
 │   │   ├── sampleData.ts       # Bengali demo family tree dataset
-│   │   └── googleAuth.ts       # GIS and Drive Picker client wrapper
+│   │   └── serializer.ts       # Graph -> 2-column block format (for saving/exporting)
 │   ├── types/
 │   │   └── family.ts           # TypeScript interfaces for Person, Marriage, Graph
 │   ├── App.tsx
