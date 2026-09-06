@@ -69,7 +69,7 @@ graph TD
 
 ## 3. The 2-Column Key-Value Block Format
 
-The spreadsheet format consists of a single tab with **two columns**: `Column A (Property / Key)` and `Column B (Value)`. Each person is defined as a contiguous block of rows. A new person block automatically starts whenever a `Name` (or its synonym) is encountered. Blank lines are optional and can be used for visual readability.
+The spreadsheet format consists of a single tab with **two columns**: `Column A (Property / Key)` and `Column B (Value)`. Each person is defined as a contiguous block of rows. A new person block automatically starts whenever a `Name` (or its synonym) is encountered.
 
 ### A. Patrilineal Example (Multi-Spouse & Child Association)
 Listing `Child` directly beneath a `Wife` row associates the child with that specific marriage:
