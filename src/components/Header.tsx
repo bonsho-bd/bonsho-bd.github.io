@@ -91,7 +91,27 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Action Buttons (Just Sync and Share) */}
-        <div className="flex items-center gap-2 w-full lg:w-auto shrink-0 ml-auto justify-end">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:pb-0 lg:mx-0 lg:px-0 scrollbar-hide w-full lg:w-auto shrink-0 ml-auto justify-start lg:justify-end">
+
+          {/* Start New / Blank */}
+          <button
+            onClick={onNewTree}
+            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-sm transition whitespace-nowrap"
+            title="নতুন খালি ট্রি শুরু করুন"
+          >
+            <PlusCircle className="w-4 h-4 text-slate-500" />
+            <span className="hidden sm:inline">নতুন ট্রি</span>
+          </button>
+
+          {/* Load Sample Family */}
+          <button
+            onClick={onLoadSample}
+            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg shadow-sm transition whitespace-nowrap"
+            title="নমুনা ট্রি লোড করুন"
+          >
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span className="hidden sm:inline">নমুনা ট্রি</span>
+          </button>
 
           {/* Sync & Data Dropdown */}
           <div className="relative">
@@ -110,22 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
             {showSyncMenu && (
               <div className="absolute right-0 lg:right-auto lg:left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm">
                 
-                <button
-                  onClick={() => { onNewTree(); setShowSyncMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
-                >
-                  <PlusCircle className="w-4 h-4 text-slate-500" />
-                  <span>খালি ট্রি শুরু করুন</span>
-                </button>
-                <button
-                  onClick={() => { onLoadSample(); setShowSyncMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
-                >
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span>নমুনা ট্রি লোড করুন</span>
-                </button>
 
-                <div className="h-px bg-slate-100 my-1"></div>
 
                 <div className="relative group">
                   <button
