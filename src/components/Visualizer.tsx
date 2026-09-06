@@ -565,7 +565,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           return (
             <div
               key={node.id}
-              className="absolute flex items-center"
+              className="bonsho-node absolute flex items-center"
               style={{
                 left: `${node.x}px`,
                 top: `${node.y}px`,

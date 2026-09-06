@@ -167,11 +167,31 @@ export const App: React.FC = () => {
     window.history.replaceState({ modalDepth }, '', url.toString());
   };
 
-  const handleExportViewport = async () => {
+    const handleExportViewport = async () => {
     const visualizerEl = document.querySelector('main > div') as HTMLElement;
     if (!visualizerEl) return;
+    
+    // Inject QR code for viewport export
+    const qrUrl = generateQRUrlForTree(tree).url;
+    const qrDataUrl = await generateQRCodeWithLogo(qrUrl);
+    const qrImg = document.createElement('img');
+    qrImg.src = qrDataUrl;
+    qrImg.style.position = 'absolute';
+    qrImg.style.top = '20px';
+    qrImg.style.left = '20px';
+    qrImg.style.width = '100px';
+    qrImg.style.height = '100px';
+    qrImg.style.background = 'white';
+    qrImg.style.padding = '8px';
+    qrImg.style.borderRadius = '12px';
+    qrImg.style.boxShadow = '0 10px 15px -3px rgb(0 0 0 / 0.1)';
+    qrImg.style.zIndex = '50';
+    qrImg.id = 'temp-qr-viewport';
+    
+    visualizerEl.appendChild(qrImg);
+
     try {
-      const dataUrl = await toPng(visualizerEl, { quality: 0.95, pixelRatio: 2 });
+      const dataUrl = await toPng(visualizerEl, { quality: 1, pixelRatio: 2 });
       const link = document.createElement('a');
       link.download = 'bonsho-viewport.png';
       link.href = dataUrl;
@@ -179,26 +199,37 @@ export const App: React.FC = () => {
     } catch (err) {
       alert('ছবি তৈরি করতে সমস্যা হয়েছে।');
       console.error(err);
+    } finally {
+      const el = document.getElementById('temp-qr-viewport');
+      if (el) el.remove();
     }
   };
 
   const handleExportFullTree = async () => {
-    const nodes = document.querySelectorAll('.origin-top-left > div[style*="left"]');
+    const nodes = document.querySelectorAll('.bonsho-node');
     if (!nodes.length) {
       alert('ফ্যামিলি ট্রি খালি');
       return;
     }
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let found = false;
     nodes.forEach(node => {
       const el = node as HTMLElement;
-      const left = parseFloat(el.style.left || '0');
-      const top = parseFloat(el.style.top || '0');
-      if (left < minX) minX = left;
-      if (left > maxX) maxX = left;
-      if (top < minY) minY = top;
-      if (top > maxY) maxY = top;
+      const left = parseFloat(el.style.left || '');
+      const top = parseFloat(el.style.top || '');
+      if (!isNaN(left) && !isNaN(top)) {
+        if (left < minX) minX = left;
+        if (left > maxX) maxX = left;
+        if (top < minY) minY = top;
+        if (top > maxY) maxY = top;
+        found = true;
+      }
     });
+
+    if (!found) {
+      minX = 0; minY = 0; maxX = 500; maxY = 500;
+    }
 
     const padding = 150;
     const nodeWidth = 250; 
@@ -208,8 +239,9 @@ export const App: React.FC = () => {
 
     const exportContainer = document.createElement('div');
     exportContainer.style.position = 'absolute';
+    // Position off-screen but visible to the browser layout engine
     exportContainer.style.left = '-9999px';
-    exportContainer.style.top = '-9999px';
+    exportContainer.style.top = '0px'; 
     exportContainer.style.width = `${fullWidth}px`;
     exportContainer.style.height = `${fullHeight}px`;
     exportContainer.style.background = '#f1f5f9';
@@ -228,6 +260,7 @@ export const App: React.FC = () => {
     const origSvg = document.querySelector('svg.pointer-events-none');
     if (origSvg) {
       const clonedSvg = origSvg.cloneNode(true) as SVGElement;
+      clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
       clonedSvg.style.width = `${fullWidth}px`;
       clonedSvg.style.height = `${fullHeight}px`;
       const g = clonedSvg.querySelector('g');
@@ -261,6 +294,9 @@ export const App: React.FC = () => {
     exportContainer.appendChild(qrImg);
 
     document.body.appendChild(exportContainer);
+
+    // Wait a brief moment for browser to calculate layout of the offscreen container
+    await new Promise(resolve => setTimeout(resolve, 150));
 
     try {
       const dataUrl = await toPng(exportContainer, { 
