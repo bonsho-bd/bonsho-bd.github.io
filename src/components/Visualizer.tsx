@@ -305,7 +305,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onDoubleClick={onAddPerson}
       onWheel={handleWheel}
       className="relative w-full h-[calc(100vh-61px)] overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg"
     >
@@ -317,6 +316,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           onMouseDown={(e) => e.stopPropagation()}
           onMouseUp={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
         >
           <button
             type="button"
@@ -455,10 +455,15 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         onMouseDown={(e) => e.stopPropagation()}
         onMouseUp={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
+        onDoubleClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={(e) => {
+            e.stopPropagation();
+            handleZoomIn();
+          }}
+          onDoubleClick={(e) => {
             e.stopPropagation();
             handleZoomIn();
           }}
@@ -473,6 +478,10 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             e.stopPropagation();
             handleZoomOut();
           }}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            handleZoomOut();
+          }}
           title="ছোট করুন (Zoom Out)"
           className="p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
@@ -482,6 +491,10 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         <button
           type="button"
           onClick={(e) => {
+            e.stopPropagation();
+            handleResetZoom();
+          }}
+          onDoubleClick={(e) => {
             e.stopPropagation();
             handleResetZoom();
           }}
