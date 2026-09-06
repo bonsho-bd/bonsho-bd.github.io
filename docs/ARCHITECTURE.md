@@ -30,12 +30,12 @@ Users can start visualizing their lineage in 4 friction-free ways:
 ```mermaid
 graph TD
     A[User visits Bonsho] --> B1["1. Start Blank / Explore Sample Tree<br/>(Zero login, instant play)"]
-    A --> B2["2. Direct Paste<br/>(Paste 2-column TSV/CSV from clipboard)"]
+    A --> B2["2. Clipboard Sync<br/>(Export & Import 2-column TSV/CSV)"]
     A --> B3["3. File Upload<br/>(Upload .csv or .xlsx)"]
     A --> B4["4. Connect Google Sheet<br/>(1-click OAuth + Drive Picker + 2-way sync)"]
 
     B1 --> C[In-Memory Graph State]
-    B2 --> C
+    B2 <--> C
     B3 --> C
     B4 --> C
 
@@ -46,12 +46,14 @@ graph TD
     D --> E3["Export: High-Res Poster (PNG / PDF)"]
 ```
 
-1. **Direct Paste (Fastest)**:
-   - Users can simply copy rows from Google Sheets, Excel, or a text file and paste them directly into a text modal in Bonsho.
-   - Supports tab-separated (TSV) and comma-separated (CSV) values automatically.
+1. **Clipboard Sync (Export & Import)**:
+   - Users can open the clipboard modal to see their tree represented as a live-syncing 2-column CSV text block.
+   - 1-click **Copy** exports the tree data to the clipboard.
+   - Users can edit the text or paste new data from Google Sheets/Excel directly into the modal and click **Apply** to instantly update the visualizer.
 2. **Start Blank / Empty Canvas & Multi-Root Support**:
    - Creating a new tree starts with a completely empty canvas (no dummy placeholder person).
-   - Users can click directly on the canvas background to add root ancestors.
+   - If the canvas is empty, clicking anywhere opens the form to add the first person.
+   - If the canvas has people, clicking in any empty space spawns a floating **Add Person** button to easily add new, unconnected roots to the forest.
    - Bonsho supports **multiple independent roots** rendered side-by-side without spouse duplication.
 3. **Progressive Disclosure Data Entry**:
    - Relative addition and editing modals default to only **Name** and **Gender**, keeping data collection friction-free.
@@ -185,7 +187,7 @@ bonsho/
 │   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
 │   │   ├── EditPersonModal.tsx # Full profile editor modal
 │   │   ├── AddRelativeModal.tsx# Quick relative addition modal
-│   │   ├── PasteModal.tsx      # Direct CSV/TSV paste dialog
+│   │   ├── PasteModal.tsx      # Clipboard Sync modal (Export text & Import paste)
 │   │   └── GoogleSyncModal.tsx # Google Drive picker and sync controls
 │   ├── lib/
 │   │   ├── dictionary.ts       # Bilingual key-value normalizer
