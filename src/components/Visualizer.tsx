@@ -230,7 +230,11 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // only left click
     const target = e.target as HTMLElement;
-    if (target.closest('.floating-add-btn')) {
+    if (
+      target.closest('.floating-add-btn') ||
+      target.closest('.zoom-controls') ||
+      target.closest('button')
+    ) {
       return;
     }
     setIsDragging(true);
@@ -251,7 +255,11 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     setIsDragging(false);
 
     const target = e.target as HTMLElement;
-    if (target.closest('.floating-add-btn')) {
+    if (
+      target.closest('.floating-add-btn') ||
+      target.closest('.zoom-controls') ||
+      target.closest('button')
+    ) {
       return;
     }
 
@@ -261,7 +269,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       if (distance < 5) {
         const isBackground =
           target === containerRef.current ||
-          target.tagName.toLowerCase() === 'svg' ||
           target.classList.contains('canvas-bg');
 
         if (isBackground) {
@@ -443,28 +450,45 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       )}
 
       {/* Floating Zoom & Navigation Controls */}
-      <div className="absolute right-6 bottom-6 z-30 flex flex-col gap-2 bg-white/95 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-1.5 text-slate-700">
+      <div
+        className="zoom-controls absolute right-6 bottom-6 z-30 flex flex-col gap-2 bg-white/95 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-1.5 text-slate-700 select-none"
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
-          onClick={handleZoomIn}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleZoomIn();
+          }}
           title="বড় করুন (Zoom In)"
-          className="p-2 hover:bg-slate-100 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900"
+          className="p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
-          <ZoomIn className="w-4 h-4" />
+          <ZoomIn className="w-4 h-4 pointer-events-none" />
         </button>
         <button
-          onClick={handleZoomOut}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleZoomOut();
+          }}
           title="ছোট করুন (Zoom Out)"
-          className="p-2 hover:bg-slate-100 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900"
+          className="p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
-          <ZoomOut className="w-4 h-4" />
+          <ZoomOut className="w-4 h-4 pointer-events-none" />
         </button>
         <div className="h-px bg-slate-200 my-0.5"></div>
         <button
-          onClick={handleResetZoom}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleResetZoom();
+          }}
           title="পুনরায় সাজান"
-          className="p-2 hover:bg-slate-100 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900"
+          className="p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-4 h-4 pointer-events-none" />
         </button>
       </div>
 
