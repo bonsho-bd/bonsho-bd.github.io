@@ -168,20 +168,22 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
 ## 5. Technology Stack
 
 - **Application Framework**: Vite + React 18+ + TypeScript
-  - Modular Custom Hooks (`useFamilyTree`, `useGoogleSync`, `useAppNavigation`) for state management and separation of concerns
-- **Styling**: Tailwind CSS + Lucide Icons
+  - Modular Custom Hooks (`useFamilyTree`, `useGoogleSync`, `useAppNavigation`, `useToast`) for state management, separation of concerns, and in-app notifications
+- **Styling & Interaction**: Tailwind CSS + Lucide Icons
+  - 100% Non-blocking, modern UI: Contextual in-app toasts (`Toast.tsx`), inline delete confirmations, and graceful disabled states (zero native browser `alert()` or `confirm()`)
 - **Bangla Typography**: Google Fonts (`Hind Siliguri` / `Noto Sans Bengali`)
 - **Data Parsing, Serialization & Compression**:
   - Custom Key-Value Block Parser (`src/lib/parser.ts`)
   - `papaparse` for CSV & TSV parsing
   - `xlsx` for Excel import/export
   - `pako` for cross-browser, synchronous raw DEFLATE compression & decompression
-  - `qrcode` for high-resolution client-side QR code canvas generation
-- **Visualization Engine**:
+  - `qrcode` for high-resolution client-side QR code canvas generation with embedded Bangladesh coin logo
+- **Visualization Engine & Export**:
   - SVG + custom hierarchical DAG layout tailored for multi-spouse family trees
-  - `d3-zoom`, `d3-selection`, `d3-hierarchy` for smooth interactive pan, zoom, auto-centering, and transform matrix calculations
-  - `html-to-image` for high-resolution PNG poster export
-  - Interactive pan, zoom, search, branch highlighting, and person detail drawer
+  - Dual-mode PNG image export via `html-to-image`:
+    1. **Full Tree Export**: Live DOM boundary calculation and auto-alignment at 100% scale with embedded branded QR code
+    2. **Viewport Export**: Instant snapshot of current zoom/pan with stamped QR code
+  - Interactive pan, pinch-to-zoom (cursor/pinch-centered), search, branch highlighting, and person detail drawer
 - **Google Cloud Services (Optional Cloud Sync)**:
   - Google Identity Services (GIS) Token Client (via `VITE_GOOGLE_CLIENT_ID` injected at build-time)
   - Google Sheets API v4 (Client-side REST via user's ephemeral token)
@@ -204,29 +206,31 @@ bonsho/
 │   └── ARCHITECTURE.md         # This design document
 ├── public/
 │   ├── 404.html                # GitHub Pages SPA router fallback (redirects to hash routes)
-│   └── tree-icon.svg           # Site favicon
+│   └── tree-icon.svg           # Site favicon & custom coin logo
 ├── src/
 │   ├── components/
 │   │   ├── AddRelativeModal.tsx# Quick relative addition modal
-│   │   ├── EditPersonModal.tsx # Full profile editor modal
+│   │   ├── EditPersonModal.tsx # Full profile editor modal with inline delete confirmation
 │   │   ├── GoogleSyncModal.tsx # Google Drive picker and sync controls
-│   │   ├── Header.tsx          # Top bar with consolidated Sync # Top bar with modes (Paste, Upload, Google, Export, QR) Share menus
-│   │   ├── PasteModal.tsx      # Clipboard Sync modal (Export text & Import paste)
+│   │   ├── Header.tsx          # Top bar with search, sync, and share/export menus
+│   │   ├── PasteModal.tsx      # Clipboard Sync modal (with inline error feedback)
 │   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
-│   │   ├── QRCodeModal.tsx     # QR code display, copy link, and PNG download modal
-│   │   └── Visualizer.tsx      # SVG canvas with pan, zoom, mini-map, and auto-centering
+│   │   ├── QRCodeModal.tsx     # QR code display with centered logo, link copy, & PNG download
+│   │   ├── Toast.tsx           # Non-blocking floating toast notification container
+│   │   └── Visualizer.tsx      # SVG canvas with pan, pinch-zoom, and auto-centering
 │   ├── lib/
 │   │   ├── dictionary.ts       # Bilingual key-value normalizer
 │   │   ├── googleAuth.ts       # GIS and Drive Picker client wrapper
 │   │   ├── kinship.ts          # Bangladeshi kinship calculator (চাচা, মামা, খালা, etc.)
 │   │   ├── parser.ts           # 2-column block parser (CSV/TSV/Sheet -> Graph)
-│   │   ├── qrCodec.ts          # Pako DEFLATE + Base64URL codec & URL route parser
+│   │   ├── qrCodec.ts          # Pako DEFLATE + Base64URL codec, URL parser, & QR logo generator
 │   │   ├── sampleData.ts       # Bengali demo family tree dataset
 │   │   └── serializer.ts       # Graph -> 2-column block format (for saving/exporting)
 │   ├── hooks/
 │   │   ├── useAppNavigation.ts # Custom router, history, and modal orchestrator
 │   │   ├── useFamilyTree.ts    # Tree mutation logic, add/edit/delete, localStorage
-│   │   └── useGoogleSync.ts    # Google Sheets connection, quick sync, unload warnings
+│   │   ├── useGoogleSync.ts    # Google Sheets connection, quick sync, unload warnings
+│   │   └── useToast.ts         # Ephemeral toast notification state management
 │   ├── types/
 │   │   └── family.ts           # TypeScript interfaces for Person, Marriage, Graph
 │   ├── App.tsx
