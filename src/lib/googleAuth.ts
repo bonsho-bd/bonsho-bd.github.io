@@ -118,8 +118,7 @@ export function openGoogleDrivePicker(
   onPick: (doc: { id: string; name: string }) => void
 ): void {
   if (!window.google?.picker) {
-    alert('Google Picker API is not ready yet. Please try again in a few seconds.');
-    return;
+    throw new Error('গুগল ড্রাইভ পিকার এখনো প্রস্তুত নয়। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।');
   }
 
   const view = new window.google.picker.DocsView(window.google.picker.ViewId.SPREADSHEETS)

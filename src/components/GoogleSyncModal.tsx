@@ -91,7 +91,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   // Open Drive Picker
   const handleOpenPicker = () => {
     if (!accessToken) {
-      alert('প্রথমে গুগল সাইন-ইন করুন');
+      setStatusMessage({ text: 'প্রথমে গুগল সাইন-ইন করুন', type: 'error' });
       return;
     }
 
@@ -108,7 +108,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   // Create a brand new Google Sheet in Drive
   const handleCreateNewSheet = async () => {
     if (!accessToken) {
-      alert('প্রথমে গুগল সাইন-ইন করুন');
+      setStatusMessage({ text: 'প্রথমে গুগল সাইন-ইন করুন', type: 'error' });
       return;
     }
 
@@ -135,7 +135,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   // Connect via Sheet URL / ID
   const handleConnectManual = async () => {
     if (!accessToken) {
-      alert('প্রথমে গুগল সাইন-ইন করুন');
+      setStatusMessage({ text: 'প্রথমে গুগল সাইন-ইন করুন', type: 'error' });
       return;
     }
     const cleanId = extractSheetId(manualSheetInput);

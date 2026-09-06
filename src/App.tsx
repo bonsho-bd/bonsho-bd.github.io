@@ -15,10 +15,11 @@ import { toPng } from 'html-to-image';
 import { CloudUpload, AlertCircle, Loader2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-// Hooks
 import { useFamilyTree } from './hooks/useFamilyTree';
 import { useGoogleSync } from './hooks/useGoogleSync';
 import { useAppNavigation } from './hooks/useAppNavigation';
+import { useToast } from './hooks/useToast';
+import { ToastContainer } from './components/Toast';
 
 export const App: React.FC = () => {
   // Use custom hooks
@@ -61,6 +62,8 @@ export const App: React.FC = () => {
     setSelectedPerson
   } = useAppNavigation(tree);
 
+  const { toasts, showToast, dismissToast } = useToast();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check URL on load for encoded tree
@@ -77,16 +80,18 @@ export const App: React.FC = () => {
   }, []); // Run once
 
   // Handle Raw Text Parse (from Paste modal)
-  const handleParseText = (rawText: string) => {
+  const handleParseText = (rawText: string): boolean => {
     try {
       const parsedTree = parseRawText(rawText);
       setTree(parsedTree);
       disconnectSheet();
       markAsSynced(parsedTree);
       navigateTo({}, true, parsedTree);
+      showToast('ট্রি সফলভাবে আপডেট করা হয়েছে!', 'success');
+      return true;
     } catch (err) {
-      alert('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।');
       console.error(err);
+      return false;
     }
   };
 
@@ -101,7 +106,10 @@ export const App: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const text = event.target?.result as string;
-        handleParseText(text);
+        const success = handleParseText(text);
+        if (!success) {
+          showToast('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।', 'error');
+        }
       };
       reader.readAsText(file);
     } else if (extension === 'xlsx' || extension === 'xls') {
@@ -127,9 +135,12 @@ export const App: React.FC = () => {
             }
           });
 
-          handleParseText(rawText);
+          const success = handleParseText(rawText);
+          if (!success) {
+            showToast('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।', 'error');
+          }
         } catch (err) {
-          alert('এক্সেল ফাইল পড়তে সমস্যা হয়েছে। নিশ্চিত করুন ফাইলটিতে ২টি কলাম রয়েছে।');
+          showToast('এক্সেল ফাইল পড়তে সমস্যা হয়েছে। নিশ্চিত করুন ফাইলটিতে ২টি কলাম রয়েছে।', 'error');
           console.error(err);
         }
       };
@@ -200,7 +211,7 @@ export const App: React.FC = () => {
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      alert('ছবি তৈরি করতে সমস্যা হয়েছে।');
+      showToast('ছবি তৈরি করতে সমস্যা হয়েছে।', 'error');
       console.error(err);
     } finally {
       const el = document.getElementById('temp-qr-viewport');
@@ -215,7 +226,7 @@ export const App: React.FC = () => {
     const bgGrid = document.querySelector('.canvas-bg') as HTMLElement;
 
     if (!visualizerRoot || !nodesContainer || !svgGroup) {
-      alert('ফ্যামিলি ট্রি খালি');
+      showToast('ফ্যামিলি ট্রি খালি', 'info');
       return;
     }
 
@@ -300,7 +311,7 @@ export const App: React.FC = () => {
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      alert('ছবি তৈরি করতে সমস্যা হয়েছে।');
+      showToast('ছবি তৈরি করতে সমস্যা হয়েছে।', 'error');
       console.error(err);
     } finally {
       // Restore everything
@@ -337,8 +348,8 @@ export const App: React.FC = () => {
         onExportViewport={handleExportViewport}
         onCopyToClipboard={() => {
           navigator.clipboard.writeText(treeToCSV(tree))
-            .then(() => alert('ট্রি ডেটা ক্লিপবোর্ডে কপি করা হয়েছে!'))
-            .catch(() => alert('কপি করতে সমস্যা হয়েছে।'));
+            .then(() => showToast('ট্রি ডেটা ক্লিপবোর্ডে কপি করা হয়েছে!', 'success'))
+            .catch(() => showToast('কপি করতে সমস্যা হয়েছে।', 'error'));
         }}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
@@ -462,6 +473,9 @@ export const App: React.FC = () => {
           }
         }}
       />
+
+      {/* Modern In-App Toast Notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
     </div>
   );

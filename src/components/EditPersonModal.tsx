@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Person, Gender } from '../types/family';
-import { X, Check, Trash2, Plus } from 'lucide-react';
+import { X, Check, Trash2, Plus, AlertCircle } from 'lucide-react';
 
 interface EditPersonModalProps {
   person: Person | null;
@@ -25,6 +25,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
   const [death, setDeath] = useState(person.death || '');
   const [village, setVillage] = useState(person.village || '');
   const [notes, setNotes] = useState(person.notes || '');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [visibleFields, setVisibleFields] = useState<{
     birth: boolean;
     death: boolean;
@@ -43,6 +44,10 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
   const [newCustomKey, setNewCustomKey] = useState('');
   const [newCustomVal, setNewCustomVal] = useState('');
+
+  useEffect(() => {
+    setShowDeleteConfirm(false);
+  }, [person?.id, isOpen]);
 
   useEffect(() => {
     if (person && isOpen) {
@@ -372,20 +377,45 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
           {/* Delete Option */}
           {onDeletePerson && (
-            <div className="pt-2 border-t border-slate-100 flex justify-end">
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm(`আপনি কি সত্যিই ${person.name}-কে মুছে ফেলতে চান?`)) {
-                    onDeletePerson(person.id);
-                    onClose();
-                  }
-                }}
-                className="text-xs text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>ট্রি থেকে মুছে ফেলুন</span>
-              </button>
+            <div className="pt-2 border-t border-slate-100">
+              {showDeleteConfirm ? (
+                <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in duration-150">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-rose-800">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>আপনি কি সত্যিই {person.name}-কে মুছে ফেলতে চান?</span>
+                  </div>
+                  <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition"
+                    >
+                      বাতিল
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onDeletePerson(person.id);
+                        onClose();
+                      }}
+                      className="px-3 py-1 text-xs font-medium bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition shadow-xs"
+                    >
+                      হ্যাঁ, মুছে ফেলুন
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="text-xs text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>ট্রি থেকে মুছে ফেলুন</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

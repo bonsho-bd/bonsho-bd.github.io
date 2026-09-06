@@ -212,15 +212,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="h-px bg-slate-100 my-1"></div>
 
                 <button
+                  disabled={totalPeopleCount === 0}
                   onClick={() => { onExportFullTree(); setShowShareMenu(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <Camera className="w-4 h-4 text-emerald-600" />
-                  সম্পূর্ণ ট্রি ছবি হিসেবে সেভ করুন
+                  <span>সম্পূর্ণ ট্রি ছবি হিসেবে সেভ করুন</span>
                 </button>
                 <button
+                  disabled={totalPeopleCount === 0}
                   onClick={() => { onExportViewport(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
                 >
                   <TreePine className="w-4 h-4 text-purple-600" />
                   <span>ডাউনলোড ইমেজ (PNG)</span>
@@ -228,8 +230,9 @@ export const Header: React.FC<HeaderProps> = ({
                 
                 {onCopyToClipboard && (
                   <button
+                    disabled={totalPeopleCount === 0}
                     onClick={() => { onCopyToClipboard(); setShowShareMenu(false); }}
-                    className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                    className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
                   >
                     <Copy className="w-4 h-4 text-slate-500" />
                     <span>ক্লিপবোর্ডে কপি করুন</span>
@@ -239,15 +242,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="h-px bg-slate-100 my-1"></div>
 
                 <button
+                  disabled={totalPeopleCount === 0}
                   onClick={() => { onExportExcel(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
                 >
                   <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
                   <span>ডাউনলোড .xlsx</span>
                 </button>
                 <button
+                  disabled={totalPeopleCount === 0}
                   onClick={() => { onExportCSV(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
                 >
                   <FileText className="w-4 h-4 text-blue-600" />
                   <span>ডাউনলোড .csv</span>

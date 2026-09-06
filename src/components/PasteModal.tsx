@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ClipboardPaste, Check, HelpCircle, Copy, CheckCheck } from 'lucide-react';
+import { X, ClipboardPaste, Check, HelpCircle, Copy, CheckCheck, AlertCircle } from 'lucide-react';
 import { parseRawTextToRows } from '../lib/parser';
 import { treeToCSV } from '../lib/serializer';
 import { FamilyTree } from '../types/family';
@@ -7,7 +7,7 @@ import { FamilyTree } from '../types/family';
 interface PasteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onParseText: (text: string) => void;
+  onParseText: (text: string) => boolean;
   tree: FamilyTree;
 }
 
@@ -15,11 +15,13 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
   const [text, setText] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setText(treeToCSV(tree));
       setCopied(false);
+      setErrorMessage(null);
     }
   }, [isOpen, tree]);
 
@@ -30,11 +32,14 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
 
   const handleApply = () => {
     if (!text.trim()) return;
-    onParseText(text);
-    onClose();
+    const success = onParseText(text);
+    if (success) {
+      setErrorMessage(null);
+      onClose();
+    } else {
+      setErrorMessage('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।');
+    }
   };
-
-
 
   const handleCopy = async () => {
     try {
@@ -96,6 +101,14 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
               </button>
             </div>
           </div>
+
+          {/* Error Banner */}
+          {errorMessage && (
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 flex items-center gap-2.5 text-xs text-rose-800 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
 
           {/* Help Accordion */}
           {showHelp && (
