@@ -64,8 +64,7 @@ graph TD
 2. **Start Blank / Empty Canvas & Multi-Root Support**:
    - Creating a new tree starts with a completely empty canvas (no dummy placeholder person).
    - If the canvas is empty, clicking anywhere opens the form to add the first person.
-   - If the canvas has people, clicking in any empty space spawns a floating **Add Person** button to easily add new, unconnected roots to the forest.
-   - Bonsho supports **multiple independent roots** rendered side-by-side without spouse duplication.
+   - Bonsho supports **multiple independent roots** rendered side-by-side without spouse duplication, automatically laid out by the graph engine.
 3. **Progressive Disclosure & Open Key-Value Data Entry**:
    - Person creation and editing focus strictly on minimal core attributes (**Name**, **Gender**, and optional **Birth/Death dates**).
    - Any arbitrary information can be attached dynamically as key-value pairs without assuming fixed keys.
