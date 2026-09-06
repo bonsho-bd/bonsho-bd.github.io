@@ -598,7 +598,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
               </h4>
               {person.isDeceased && (
                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 shrink-0">
-                  মরহুম
+                  প্রয়াত
                 </span>
               )}
             </div>
@@ -611,7 +611,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
                   {(() => {
                     if (person.birth && person.death) return `${person.birth} - ${person.death}`;
                     if (person.birth && !person.death) {
-                      if (person.isDeceased) return `${person.birth} - ${person.gender === 'female' ? 'মরহুমা' : 'মরহুম'}`;
+                      if (person.isDeceased) return `${person.birth} - $প্রয়াত`;
                       return `জন্ম: ${person.birth}`;
                     }
                     if (!person.birth && person.death) return `? - ${person.death}`;

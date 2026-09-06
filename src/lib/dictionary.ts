@@ -168,12 +168,12 @@ export function normalizeGender(val: string): Gender {
 }
 
 /**
- * Checks if a string or context indicates a deceased person (মরহুম/মরহুমা)
+ * Checks if a string or context indicates a deceased person (প্রয়াত/মৃত)
  */
 export function checkIsDeceased(death?: string, notes?: string, customProps?: Record<string, string>): boolean {
   if (death && death.trim().length > 0) return true;
 
-  const searchTerms = ['মরহুম', 'মরহুমা', 'স্বর্গীয়', 'late', 'deceased', 'ইন্তেকাল', 'passed away', 'ওফাত'];
+  const searchTerms = ['প্রয়াত', 'মৃত', 'মরহুম', 'মরহুমা', 'স্বর্গীয়', 'late', 'deceased', 'ইন্তেকাল', 'passed away', 'ওফাত'];
   const allText = [notes || '', ...Object.values(customProps || {})].join(' ').toLowerCase();
 
   return searchTerms.some(term => allText.includes(term.toLowerCase()));

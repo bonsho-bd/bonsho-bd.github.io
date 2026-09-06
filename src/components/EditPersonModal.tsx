@@ -92,7 +92,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
       death: (visibleFields.death && death.trim()) ? death.trim() : undefined,
       village: (visibleFields.village && village.trim()) ? village.trim() : undefined,
       notes: (visibleFields.notes && notes.trim()) ? notes.trim() : undefined,
-      isDeceased: Boolean((visibleFields.death && death.trim()) || (visibleFields.notes && (notes.includes('মরহুম') || notes.includes('মরহুমা')))),
+      isDeceased: Boolean((visibleFields.death && death.trim()) || (visibleFields.notes && (notes.includes('প্রয়াত') || notes.includes('মৃত') || notes.includes('মরহুম') || notes.includes('মরহুমা')))),
       customProperties: propsObj,
     };
 

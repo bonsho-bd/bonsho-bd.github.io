@@ -3,7 +3,7 @@ Gender, Male
 Date of birth, 1935
 Date of death, 2012
 Village, রামপুর, চাঁদপুর
-Notes, বীর মুক্তিযোদ্ধা ও সমাজসেবক (মরহুম)
+Notes, বীর মুক্তিযোদ্ধা ও সমাজসেবক (প্রয়াত)
 পেশা, শিক্ষকতা
 Wife, সালেহা বেগম
 Child, মতিউর রহমান
@@ -14,7 +14,7 @@ Child, সাজিদুর রহমান
 Name, সালেহা বেগম
 Gender, Female
 Date of death, 1985
-Notes, মরহুমা
+Notes, প্রয়াত
 
 Name, খাদিজা খাতুন
 Gender, Female

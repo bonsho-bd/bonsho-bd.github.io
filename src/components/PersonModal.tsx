@@ -86,7 +86,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                 <h2 className="text-xl font-bold text-slate-900 truncate">{person.name}</h2>
                 {person.isDeceased && (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
-                    {person.gender === 'female' ? 'মরহুমা' : 'মরহুম'}
+                    প্রয়াত
                   </span>
                 )}
               </div>

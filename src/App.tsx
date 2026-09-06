@@ -345,7 +345,7 @@ export const App: React.FC = () => {
       death: data.death,
       village: data.village,
       notes: data.notes,
-      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
+      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('প্রয়াত') || data.notes.includes('মৃত') || data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
       customProperties: {},
       marriages: [],
       unassociatedChildren: [],
@@ -405,7 +405,7 @@ export const App: React.FC = () => {
       death: data.death,
       village: data.village,
       notes: data.notes,
-      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
+      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('প্রয়াত') || data.notes.includes('মৃত') || data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
       customProperties: {},
       marriages: [
         {
@@ -468,7 +468,7 @@ export const App: React.FC = () => {
       death: data.death,
       village: data.village,
       notes: data.notes,
-      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
+      isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('প্রয়াত') || data.notes.includes('মৃত') || data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
       customProperties: {
         ...(newPersonCoords ? { _x: newPersonCoords.x.toString(), _y: newPersonCoords.y.toString() } : {})
       },
