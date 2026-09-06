@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  TreePine, ClipboardPaste, Sparkles,
+  TreePine, Table2, Sparkles,
   FileSpreadsheet, Search, PlusCircle,
   QrCode, Share2, Copy, ChevronDown, Camera
 } from 'lucide-react';
@@ -111,14 +111,14 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden sm:inline">নমুনা গ্রাফ</span>
           </button>
 
-          {/* Paste Data Button */}
+          {/* CSV Editor Button */}
           <button
             onClick={onOpenPasteModal}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 shadow-sm transition whitespace-nowrap"
-            title="ক্লিপবোর্ড থেকে টেক্সট পেস্ট করুন"
+            title="CSV ফরম্যাটে ডেটা এডিট বা পেস্ট করুন"
           >
-            <ClipboardPaste className="w-4 h-4 text-blue-600" />
-            <span className="hidden sm:inline">পেস্ট ডেটা</span>
+            <Table2 className="w-4 h-4 text-blue-600" />
+            <span className="hidden sm:inline">CSV এডিটর</span>
           </button>
 
           {/* Google Sheets Sync Button */}

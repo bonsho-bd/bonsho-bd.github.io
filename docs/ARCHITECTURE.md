@@ -40,7 +40,7 @@ Users can start visualizing their lineage in 4 friction-free ways:
 ```mermaid
 graph TD
     A[User visits Bonsho] --> B1["1. Start Blank / Explore Sample Graph<br/>(Zero login, instant play)"]
-    A --> B2["2. Clipboard Sync<br/>(Export & Import 2-column TSV/CSV)"]
+    A --> B2["2. CSV Editor<br/>(Export & Import 2-column TSV/CSV)"]
     A --> B4["3. Connect Google Sheet<br/>(1-click OAuth + Drive Picker + 2-way sync)"]
 
     B1 --> C[In-Memory Graph State]
@@ -56,7 +56,7 @@ graph TD
     D --> E4["Export: QR Code URL (DEFLATE + Base64URL)"]
 ```
 
-1. **Clipboard Sync (Export & Import)**:
+1. **CSV Editor (Export & Import)**:
    - Users can open the clipboard modal to see their graph represented as a live-syncing 2-column CSV text block.
    - 1-click **Copy** exports the graph data to the clipboard.
    - Users can edit the text or paste new data from Google Sheets/Excel directly into the modal and click **Apply** to instantly update the visualizer.
@@ -204,7 +204,7 @@ bonsho/
 │   │   ├── EditPersonModal.tsx # Full profile editor modal with inline delete confirmation
 │   │   ├── GoogleSyncModal.tsx # Google Drive picker and sync controls
 │   │   ├── Header.tsx          # Top bar with search, sync, and share/export menus
-│   │   ├── PasteModal.tsx      # Clipboard Sync modal (with inline error feedback)
+│   │   ├── PasteModal.tsx      # CSV Editor modal (with inline error feedback)
 │   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
 │   │   ├── QRCodeModal.tsx     # QR code display with centered logo, link copy, & PNG download
 │   │   ├── Toast.tsx           # Non-blocking floating toast notification container

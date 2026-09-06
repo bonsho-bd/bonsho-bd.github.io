@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ClipboardPaste, Check, HelpCircle, Copy, CheckCheck, AlertCircle } from 'lucide-react';
+import { X, Table2, Check, HelpCircle, Copy, CheckCheck, AlertCircle } from 'lucide-react';
 import { parseRawTextToRows } from '../lib/parser';
 import { graphToCSV } from '../lib/serializer';
 import { FamilyGraph } from '../types/family';
@@ -58,11 +58,11 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-              <ClipboardPaste className="w-5 h-5" />
+              <Table2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800">টেক্সট / ক্লিপবোর্ড সিঙ্ক</h2>
-              <p className="text-xs text-slate-500">এখান থেকে ডেটা কপি করুন, অথবা নতুন ডেটা পেস্ট করে গ্রাফ আপডেট করুন</p>
+              <h2 className="text-lg font-bold text-slate-800">CSV ডেটা এডিটর</h2>
+              <p className="text-xs text-slate-500">সরাসরি ডেটা এডিট করুন অথবা এক্সেল/গুগল শিট থেকে কপি করে পেস্ট করুন</p>
             </div>
           </div>
           <button
