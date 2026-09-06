@@ -31,7 +31,6 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
   const validRowCount = rows.filter(r => r.key && r.value).length;
 
   const handleApply = () => {
-    if (!text.trim()) return;
     const success = onParseText(text);
     if (success) {
       setErrorMessage(null);
