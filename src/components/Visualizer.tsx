@@ -49,15 +49,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
   const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number } | null>(null);
 
-  // Center the view on initial tree load
-  useEffect(() => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setPan({ x: rect.width / 2, y: 80 });
-      setZoom(0.9);
-    }
-  }, [tree.rootIds]);
-
   // Compute Tree Layout
   const { nodes, links, bounds } = React.useMemo(() => {
     const layoutMap = new Map<string, NodeLayout>();
@@ -195,6 +186,46 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     };
   }, [tree]);
 
+  // Accurately center the tree on the canvas
+  const centerTree = React.useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    if (nodes.length === 0) {
+      setPan({ x: rect.width / 2, y: rect.height / 2 });
+      setZoom(1);
+      return;
+    }
+
+    const contentWidth = Math.max(bounds.maxX - bounds.minX, CARD_WIDTH);
+    const contentHeight = Math.max(bounds.maxY - bounds.minY, CARD_HEIGHT);
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+
+    // Leave comfortable margins around the tree
+    const availableWidth = rect.width - 120;
+    const availableHeight = rect.height - 140;
+
+    const fitZoomX = availableWidth > 0 ? availableWidth / contentWidth : 1;
+    const fitZoomY = availableHeight > 0 && contentHeight > 0 ? availableHeight / contentHeight : 1;
+    const fitZoom = Math.min(fitZoomX, fitZoomY, 1);
+    const newZoom = Math.max(Math.min(fitZoom, 1), 0.45);
+
+    const newPanX = rect.width / 2 - centerX * newZoom;
+    const newPanY = Math.max(60, Math.min(100, (rect.height - contentHeight * newZoom) / 3));
+
+    setZoom(newZoom);
+    setPan({ x: newPanX, y: newPanY });
+  }, [nodes.length, bounds]);
+
+  // Auto-center on initial mount and when tree structure changes
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      centerTree();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [centerTree]);
+
   // Pan & Zoom & Click handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // only left click
@@ -257,13 +288,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 2.5));
   const handleZoomOut = () => setZoom(prev => Math.max(prev * 0.8, 0.2));
   const handleResetZoom = () => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const contentWidth = bounds.maxX - bounds.minX || 800;
-      const initialZoom = Math.min(rect.width / (contentWidth + 200), 1);
-      setPan({ x: rect.width / 2 - (bounds.minX + contentWidth / 2) * initialZoom, y: 80 });
-      setZoom(initialZoom || 0.8);
-    }
+    centerTree();
   };
 
   return (
