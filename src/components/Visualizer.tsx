@@ -306,7 +306,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onWheel={handleWheel}
-      className="relative w-full h-[calc(100vh-61px)] overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg"
+      className="relative w-full h-full overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg"
     >
       {/* Floating Add Person Button on Canvas (Click triggered) */}
       {floatingAddBtnPos && (
@@ -451,7 +451,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
 
       {/* Floating Zoom & Navigation Controls */}
       <div
-        className="zoom-controls absolute right-6 bottom-6 z-30 flex flex-col gap-2 bg-white/95 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-1.5 text-slate-700 select-none"
+        className="zoom-controls absolute right-4 bottom-4 sm:right-6 sm:bottom-6 z-30 flex flex-col gap-2 bg-white/95 backdrop-blur border border-slate-200 shadow-lg rounded-2xl p-1.5 text-slate-700 select-none"
         onMouseDown={(e) => e.stopPropagation()}
         onMouseUp={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
@@ -468,7 +468,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             handleZoomIn();
           }}
           title="বড় করুন (Zoom In)"
-          className="p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
+          className="p-3 sm:p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
           <ZoomIn className="w-4 h-4 pointer-events-none" />
         </button>
@@ -483,7 +483,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             handleZoomOut();
           }}
           title="ছোট করুন (Zoom Out)"
-          className="p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
+          className="p-3 sm:p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
           <ZoomOut className="w-4 h-4 pointer-events-none" />
         </button>
@@ -499,7 +499,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             handleResetZoom();
           }}
           title="পুনরায় সাজান"
-          className="p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
+          className="p-3 sm:p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
           <RotateCcw className="w-4 h-4 pointer-events-none" />
         </button>

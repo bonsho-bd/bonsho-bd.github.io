@@ -39,11 +39,11 @@ export const PersonModal: React.FC<PersonModalProps> = ({
   const otherPeople = Object.values(tree.people).filter(p => p.id !== person.id);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
 
         {/* Header with Gender Theme */}
-        <div className={`px-6 py-5 border-b relative ${
+        <div className={`px-4 sm:px-4 sm:px-6 py-3 sm:py-4 sm:py-5 border-b relative ${
           person.gender === 'female' ? 'bg-gradient-to-r from-rose-50 to-pink-50 border-rose-100' :
           person.gender === 'male' ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-100' :
           'bg-gradient-to-r from-slate-50 to-gray-50 border-slate-100'
@@ -117,7 +117,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
         </div>
 
         {/* Body Content */}
-        <div className="p-6 overflow-y-auto space-y-5 text-sm">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-sm">
 
           {/* Quick Actions */}
           <div className="flex items-center gap-2">

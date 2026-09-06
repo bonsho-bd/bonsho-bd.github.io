@@ -57,24 +57,24 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Search Bar */}
-        <div className="relative flex-1 max-w-xs min-w-[180px]">
+        <div className="relative w-full lg:flex-1 lg:max-w-md shrink-0">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="আত্মীয় খুঁজুন..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+            className="w-full pl-9 pr-3 py-2 sm:py-1.5 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition shadow-inner"
           />
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center flex-wrap gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:mx-0 lg:px-0 lg:pb-0 scrollbar-hide w-full lg:w-auto shrink-0">
 
           {/* Direct Paste */}
           <button
             onClick={onOpenPasteModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm transition"
+            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm transition"
             title="ক্লিপবোর্ডের মাধ্যমে ডেটা কপি বা পেস্ট করুন"
           >
             <ClipboardPaste className="w-4 h-4" />
@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Upload File */}
           <button
             onClick={onOpenUpload}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg border border-slate-200 transition"
+            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg border border-slate-200 transition"
             title="CSV বা Excel ফাইল আপলোড করুন"
           >
             <Upload className="w-4 h-4 text-slate-500" />
@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={isGoogleAvailable ? onOpenGoogleModal : undefined}
               disabled={!isGoogleAvailable}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition ${
+              className={`flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium rounded-lg border transition ${
                 !isGoogleAvailable
                   ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
                   : connectedSheet
@@ -136,7 +136,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Load Sample Family */}
           <button
             onClick={onLoadSample}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition"
+            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition"
             title="নমুনা পরিবার দেখুন"
           >
             <Sparkles className="w-4 h-4 text-amber-600" />
@@ -146,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Start New / Blank */}
           <button
             onClick={onNewTree}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
+            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
             title="নতুন খালি ট্রি শুরু করুন"
           >
             <PlusCircle className="w-4 h-4 text-slate-500" />
@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-sm transition"
+              className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-sm transition"
             >
               <Download className="w-4 h-4" />
               <span>ডাউনলোড</span>

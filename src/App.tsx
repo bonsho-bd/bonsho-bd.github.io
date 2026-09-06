@@ -507,7 +507,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100">
+    <div className="h-[100dvh] flex flex-col bg-slate-100 overflow-hidden">
 
       {/* Hidden File Input */}
       <input
