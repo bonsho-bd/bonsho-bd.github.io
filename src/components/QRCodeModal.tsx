@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { X, QrCode, Download, Copy, Check, Share2, Camera, Printer, Link as LinkIcon, Sparkles } from 'lucide-react';
-import { FamilyTree } from '../types/family';
+import { FamilyGraph } from '../types/family';
 import { generateQRUrlForTree, generateQRCodeWithLogo } from '../lib/qrCodec';
 
 interface QRCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tree: FamilyTree;
+  graph: FamilyGraph;
 }
 
-export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree }) => {
+export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, graph }) => {
   const [qrUrl, setQrUrl] = useState<string>('');
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [stats, setStats] = useState<{ rawBytes: number; compressedBytes: number }>({
@@ -27,7 +27,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
     setCopied(false);
 
     try {
-      const { url, rawByteCount, compressedByteCount } = generateQRUrlForTree(tree);
+      const { url, rawByteCount, compressedByteCount } = generateQRUrlForTree(graph);
       setQrUrl(url);
       setStats({ rawBytes: rawByteCount, compressedBytes: compressedByteCount });
 
@@ -50,11 +50,11 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
     return () => {
       isMounted = false;
     };
-  }, [isOpen, tree]);
+  }, [isOpen, graph]);
 
   if (!isOpen) return null;
 
-  const peopleCount = Object.keys(tree.people).length;
+  const peopleCount = Object.keys(graph.people).length;
 
   const handleCopyLink = async () => {
     try {
@@ -69,7 +69,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
   const handleDownloadImage = () => {
     if (!qrDataUrl) return;
     const link = document.createElement('a');
-    link.download = 'bonsho-family-tree-qr.png';
+    link.download = 'bonsho-family-graph-qr.png';
     link.href = qrDataUrl;
     link.click();
   };
@@ -79,7 +79,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
       try {
         await navigator.share({
           title: 'আমাদের বংশ তালিকা',
-          text: `${peopleCount} জন সদস্যের বংশ ফ্যামিলি ট্রি দেখতে QR কোড বা লিঙ্কে প্রবেশ করুন:`,
+          text: `${peopleCount} জন সদস্যের বংশ ফ্যামিলি গ্রাফ দেখতে QR কোড বা লিঙ্কে প্রবেশ করুন:`,
           url: qrUrl,
         });
       } catch {
@@ -102,7 +102,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-800">QR কোড এক্সপোর্ট</h2>
-              <p className="text-xs text-slate-500">স্ক্যান করলেই সরাসরি ব্রাউজারে ফ্যামিলি ট্রি দেখতে পাবেন</p>
+              <p className="text-xs text-slate-500">স্ক্যান করলেই সরাসরি ব্রাউজারে ফ্যামিলি গ্রাফ দেখতে পাবেন</p>
             </div>
           </div>
           <button
@@ -127,7 +127,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
               ) : qrDataUrl ? (
                 <img
                   src={qrDataUrl}
-                  alt="Family Tree QR Code"
+                  alt="family graph QR Code"
                   className="w-56 h-56 rounded-lg select-none"
                 />
               ) : (

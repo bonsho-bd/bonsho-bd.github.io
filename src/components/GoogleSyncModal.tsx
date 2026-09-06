@@ -22,15 +22,15 @@ import {
   createGoogleSheet,
   extractSheetId
 } from '../lib/googleAuth';
-import { FamilyTree } from '../types/family';
+import { FamilyGraph } from '../types/family';
 import { parseKeyValueBlocksToTree, computeRootIds } from '../lib/parser';
-import { treeToKeyValueRows } from '../lib/serializer';
+import { graphToKeyValueRows } from '../lib/serializer';
 
 interface GoogleSyncModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tree: FamilyTree;
-  onTreeLoaded: (tree: FamilyTree) => void;
+  graph: FamilyGraph;
+  onTreeLoaded: (graph: FamilyGraph) => void;
   connectedSheet: { id: string; name: string } | null;
   onSetConnectedSheet: (sheet: { id: string; name: string } | null) => void;
   accessToken: string;
@@ -41,7 +41,7 @@ interface GoogleSyncModalProps {
 export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   isOpen,
   onClose,
-  tree,
+  graph,
   onTreeLoaded,
   connectedSheet,
   onSetConnectedSheet,
@@ -116,15 +116,15 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       setLoading(true);
       setStatusMessage({ text: 'আপনার গুগল ড্রাইভে নতুন শিট তৈরি করা হচ্ছে...', type: 'info' });
 
-      const rows = treeToKeyValueRows(tree);
-      const rootIds = computeRootIds(tree.people);
-      const rootPerson = rootIds.length > 0 ? tree.people[rootIds[0]] : null;
-      const title = rootPerson ? `${rootPerson.name} এর পরিবার (বংশতালিকা)` : 'আমাদের বংশ ফ্যামিলি ট্রি';
+      const rows = graphToKeyValueRows(graph);
+      const rootIds = computeRootIds(graph.people);
+      const rootPerson = rootIds.length > 0 ? graph.people[rootIds[0]] : null;
+      const title = rootPerson ? `${rootPerson.name} এর পরিবার (বংশতালিকা)` : 'আমাদের বংশ ফ্যামিলি গ্রাফ';
 
       const newSheet = await createGoogleSheet(title, accessToken, rows);
       onSetConnectedSheet({ id: newSheet.id, name: newSheet.name });
       setStatusMessage({
-        text: `গুগল ড্রাইভে "${newSheet.name}" সফলভাবে তৈরি হয়েছে এবং বর্তমান ফ্যামিলি ট্রির ডেটা সংরক্ষিত হয়েছে!`,
+        text: `গুগল ড্রাইভে "${newSheet.name}" সফলভাবে তৈরি হয়েছে এবং বর্তমান ফ্যামিলি গ্রাফর ডেটা সংরক্ষিত হয়েছে!`,
         type: 'success'
       });
     } catch (err: any) {
@@ -160,12 +160,12 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       setStatusMessage({ text: `${sheetName || 'শিট'} থেকে ডেটা আনা হচ্ছে...`, type: 'info' });
 
       const rows = await fetchGoogleSheetValues(sheetId, accessToken);
-      const parsedTree = parseKeyValueBlocksToTree(rows);
-      onTreeLoaded(parsedTree);
+      const parsedGraph = parseKeyValueBlocksToTree(rows);
+      onTreeLoaded(parsedGraph);
 
       if (rows.length === 0) {
         setStatusMessage({
-          text: 'খালি শিট সংযুক্ত করা হয়েছে। ট্রি-তে সদস্য যোগ করে "শিটে সেভ করুন" চাপুন।',
+          text: 'খালি শিট সংযুক্ত করা হয়েছে। গ্রাফ-তে সদস্য যোগ করে "শিটে সেভ করুন" চাপুন।',
           type: 'success',
         });
       } else {
@@ -186,7 +186,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       setLoading(true);
       setStatusMessage({ text: 'আপনার গুগল শিটে পরিবর্তনগুলো সংরক্ষণ করা হচ্ছে...', type: 'info' });
 
-      const rows = treeToKeyValueRows(tree);
+      const rows = graphToKeyValueRows(graph);
       await saveGoogleSheetValues(connectedSheet.id, accessToken, rows);
 
       setStatusMessage({ text: 'আপনার গুগল শিটে সফলভাবে সেভ হয়েছে!', type: 'success' });
@@ -339,7 +339,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
               ) : (
                 /* Select Sheet */
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                  <div className="font-bold text-slate-800 text-sm">ধাপ ২: আপনার ফ্যামিলি ট্রি শিট নির্বাচন করুন</div>
+                  <div className="font-bold text-slate-800 text-sm">ধাপ ২: আপনার ফ্যামিলি গ্রাফ শিট নির্বাচন করুন</div>
 
                   {/* 1-Click Create New Sheet in Google Drive */}
                   <button
@@ -349,7 +349,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 shadow-sm transition"
                   >
                     <PlusCircle className="w-4 h-4" />
-                    <span>গুগল ড্রাইভে নতুন ফ্যামিলি ট্রি শিট তৈরি করুন</span>
+                    <span>গুগল ড্রাইভে নতুন ফ্যামিলি গ্রাফ শিট তৈরি করুন</span>
                   </button>
 
                   <div className="flex items-center gap-2 my-2 text-slate-400">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { parseRawText } from './lib/parser';
-import { treeToCSV } from './lib/serializer';
+import { graphToCSV } from './lib/serializer';
 import { SAMPLE_FAMILY_TEXT } from './lib/sampleData';
 import { Header } from './components/Header';
 import { Visualizer } from './components/Visualizer';
@@ -15,7 +15,7 @@ import { toPng } from 'html-to-image';
 import { CloudUpload, AlertCircle, Loader2 } from 'lucide-react';
 
 
-import { useFamilyTree } from './hooks/useFamilyTree';
+import { useFamilyGraph } from './hooks/useFamilyGraph';
 import { useGoogleSync } from './hooks/useGoogleSync';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useToast } from './hooks/useToast';
@@ -24,12 +24,12 @@ import { ToastContainer } from './components/Toast';
 export const App: React.FC = () => {
   // Use custom hooks
   const {
-    tree,
+    graph,
     setTree,
     savePerson,
     deletePerson,
     addPerson
-  } = useFamilyTree();
+  } = useFamilyGraph();
 
   const {
     connectedSheet,
@@ -42,7 +42,7 @@ export const App: React.FC = () => {
     handleQuickSync,
     disconnectSheet,
     markAsSynced
-  } = useGoogleSync(tree);
+  } = useGoogleSync(graph);
 
   const {
     isPasteModalOpen,
@@ -57,18 +57,18 @@ export const App: React.FC = () => {
     navigateTo,
     closeActiveModal,
     setSelectedPerson
-  } = useAppNavigation(tree);
+  } = useAppNavigation(graph);
 
   const { toasts, showToast, dismissToast } = useToast();
 
 
 
-  // Check URL on load for encoded tree
+  // Check URL on load for encoded graph
   React.useEffect(() => {
-    const encodedTree = extractTreeFromCurrentUrl();
-    if (encodedTree) {
-      setTree(encodedTree);
-      markAsSynced(encodedTree); // Reset sync state for new tree
+    const encodedGraph = extractTreeFromCurrentUrl();
+    if (encodedGraph) {
+      setTree(encodedGraph);
+      markAsSynced(encodedGraph); // Reset sync state for new graph
       // Clean up encoded data from URL while preserving other params (e.g. lang=en)
       const url = new URL(window.location.href);
       url.searchParams.delete('qr-v0');
@@ -84,12 +84,12 @@ export const App: React.FC = () => {
   // Handle Raw Text Parse (from Paste modal)
   const handleParseText = (rawText: string): boolean => {
     try {
-      const parsedTree = parseRawText(rawText);
-      setTree(parsedTree);
+      const parsedGraph = parseRawText(rawText);
+      setTree(parsedGraph);
       disconnectSheet();
-      markAsSynced(parsedTree);
-      navigateTo({}, true, parsedTree);
-      showToast('ট্রি সফলভাবে আপডেট করা হয়েছে!', 'success');
+      markAsSynced(parsedGraph);
+      navigateTo({}, true, parsedGraph);
+      showToast('গ্রাফ সফলভাবে আপডেট করা হয়েছে!', 'success');
       return true;
     } catch (err) {
       console.error(err);
@@ -99,13 +99,13 @@ export const App: React.FC = () => {
 
 
 
-  // Clear Tree
+  // Clear Graph
   const handleNewTree = () => {
-    const emptyTree = { people: {} };
-    setTree(emptyTree);
+    const emptyGraph = { people: {} };
+    setTree(emptyGraph);
     disconnectSheet();
-    markAsSynced(emptyTree);
-    navigateTo({}, true, emptyTree);
+    markAsSynced(emptyGraph);
+    navigateTo({}, true, emptyGraph);
   };
 
   // Load Sample
@@ -168,7 +168,7 @@ export const App: React.FC = () => {
     const visualizerRoot = document.querySelector('main > div') as HTMLElement;
 
     if (!visualizerRoot) {
-      showToast('ফ্যামিলি ট্রি খালি', 'info');
+      showToast('ফ্যামিলি গ্রাফ খালি', 'info');
       return;
     }
 
@@ -252,7 +252,7 @@ export const App: React.FC = () => {
       });
 
       const link = document.createElement('a');
-      link.download = 'bonsho-full-tree.png';
+      link.download = 'bonsho-full-graph.png';
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -278,13 +278,13 @@ export const App: React.FC = () => {
         onExportFullTree={handleExportFullTree}
         onExportViewport={handleExportViewport}
         onCopyToClipboard={() => {
-          navigator.clipboard.writeText(treeToCSV(tree))
-            .then(() => showToast('ট্রি ডেটা ক্লিপবোর্ডে কপি করা হয়েছে!', 'success'))
+          navigator.clipboard.writeText(graphToCSV(graph))
+            .then(() => showToast('গ্রাফ ডেটা ক্লিপবোর্ডে কপি করা হয়েছে!', 'success'))
             .catch(() => showToast('কপি করতে সমস্যা হয়েছে।', 'error'));
         }}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
-        totalPeopleCount={Object.keys(tree.people).length}
+        totalPeopleCount={Object.keys(graph.people).length}
         connectedSheet={connectedSheet}
       />
 
@@ -319,7 +319,7 @@ export const App: React.FC = () => {
           </div>
         )}
         <Visualizer
-          tree={tree}
+          graph={graph}
           searchQuery={searchQuery}
           onSelectPerson={(p) => navigateTo({ person: p.id })}
           onAddChild={(p) => navigateTo({ person: p.id, add: 'child', target: p.id })}
@@ -334,13 +334,13 @@ export const App: React.FC = () => {
         isOpen={isPasteModalOpen}
         onClose={closeActiveModal}
         onParseText={handleParseText}
-        tree={tree}
+        graph={graph}
       />
 
       <GoogleSyncModal
         isOpen={isGoogleModalOpen}
         onClose={closeActiveModal}
-        tree={tree}
+        graph={graph}
         onTreeLoaded={(newTree) => {
           setTree(newTree);
           markAsSynced(newTree);
@@ -356,12 +356,12 @@ export const App: React.FC = () => {
       <QRCodeModal
         isOpen={isQRModalOpen}
         onClose={closeActiveModal}
-        tree={tree}
+        graph={graph}
       />
 
       <PersonModal
         person={selectedPerson}
-        tree={tree}
+        graph={graph}
         isOpen={Boolean(selectedPerson) && !editingPerson && !addRelativeState.isOpen}
         onClose={() => {
           setSelectedPerson(null);
@@ -386,7 +386,7 @@ export const App: React.FC = () => {
       <AddRelativeModal
         person={addRelativeState.person}
         mode={addRelativeState.mode}
-        tree={tree}
+        graph={graph}
         isOpen={addRelativeState.isOpen}
         onClose={closeActiveModal}
         onAdd={(data) => {

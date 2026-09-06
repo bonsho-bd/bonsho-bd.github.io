@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { X, ClipboardPaste, Check, HelpCircle, Copy, CheckCheck, AlertCircle } from 'lucide-react';
 import { parseRawTextToRows } from '../lib/parser';
-import { treeToCSV } from '../lib/serializer';
-import { FamilyTree } from '../types/family';
+import { graphToCSV } from '../lib/serializer';
+import { FamilyGraph } from '../types/family';
 
 interface PasteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onParseText: (text: string) => boolean;
-  tree: FamilyTree;
+  graph: FamilyGraph;
 }
 
-export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParseText, tree }) => {
+export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParseText, graph }) => {
   const [text, setText] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -19,11 +19,11 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
 
   useEffect(() => {
     if (isOpen) {
-      setText(treeToCSV(tree));
+      setText(graphToCSV(graph));
       setCopied(false);
       setErrorMessage(null);
     }
-  }, [isOpen, tree]);
+  }, [isOpen, graph]);
 
   if (!isOpen) return null;
 
@@ -63,7 +63,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800">টেক্সট / ক্লিপবোর্ড সিঙ্ক</h2>
-              <p className="text-xs text-slate-500">এখান থেকে ডেটা কপি করুন, অথবা নতুন ডেটা পেস্ট করে ট্রি আপডেট করুন</p>
+              <p className="text-xs text-slate-500">এখান থেকে ডেটা কপি করুন, অথবা নতুন ডেটা পেস্ট করে গ্রাফ আপডেট করুন</p>
             </div>
           </div>
           <button
@@ -158,7 +158,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
             className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition"
           >
             <Check className="w-4 h-4" />
-            <span>ট্রি আপডেট করুন</span>
+            <span>গ্রাফ আপডেট করুন</span>
           </button>
         </div>
 

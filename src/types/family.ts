@@ -17,7 +17,7 @@ export interface Person {
   marriages: Marriage[];
 }
 
-export interface FamilyTree {
+export interface FamilyGraph {
   people: Record<string, Person>;
 }
 

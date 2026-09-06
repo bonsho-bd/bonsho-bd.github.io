@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Person, Gender, FamilyTree } from '../types/family';
-import { AddPersonInput } from '../hooks/useFamilyTree';
+import { Person, Gender, FamilyGraph } from '../types/family';
+import { AddPersonInput } from '../hooks/useFamilyGraph';
 import { X, Check, Baby, Heart, UserPlus, Plus, Trash2 } from 'lucide-react';
 
 interface AddRelativeModalProps {
   person: Person | null;
   mode: 'child' | 'spouse' | 'person';
-  tree: FamilyTree;
+  graph: FamilyGraph;
   isOpen: boolean;
   onClose: () => void;
   onAdd: (data: AddPersonInput) => void;
@@ -15,7 +15,7 @@ interface AddRelativeModalProps {
 export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
   person,
   mode,
-  tree,
+  graph,
   isOpen,
   onClose,
   onAdd,
@@ -199,7 +199,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 {person.marriages.map(m => {
-                  const spouse = tree.people[m.spouseId];
+                  const spouse = graph.people[m.spouseId];
                   return (
                     <option key={m.spouseId} value={m.spouseId}>
                       {spouse ? spouse.name : m.spouseId}

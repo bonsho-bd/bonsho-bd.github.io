@@ -178,7 +178,7 @@ export const createGoogleSheet = async (
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        properties: { title: title || 'বংশ ফ্যামিলি ট্রি' },
+        properties: { title: title || 'বংশ ফ্যামিলি গ্রাফ' },
         sheets: [{ properties: { title: 'বংশতালিকা', gridProperties: { columnCount: 2 } } }],
       }),
     }
@@ -188,7 +188,7 @@ export const createGoogleSheet = async (
     await saveGoogleSheetValues(data.spreadsheetId, accessToken, rows);
   }
 
-  return { id: data.spreadsheetId, name: title || 'বংশ ফ্যামিলি ট্রি', url: data.spreadsheetUrl };
+  return { id: data.spreadsheetId, name: title || 'বংশ ফ্যামিলি গ্রাফ', url: data.spreadsheetUrl };
 };
 
 export const saveGoogleSheetValues = async (

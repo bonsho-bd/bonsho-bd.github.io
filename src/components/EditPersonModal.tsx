@@ -338,7 +338,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="text-xs text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>ট্রি থেকে মুছে ফেলুন</span>
+                    <span>গ্রাফ থেকে মুছে ফেলুন</span>
                   </button>
                 </div>
               )}

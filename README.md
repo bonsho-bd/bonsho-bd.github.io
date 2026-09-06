@@ -1,6 +1,6 @@
 # Bonsho (বংশ) 🌳
 
-> **বংশ (Bonsho)** is an open-source, privacy-first family tree visualizer designed specifically for Bangladeshi lineage traditions. It stores **zero data on servers** and renders trees completely in the browser from simple 2-column Google Sheets or direct copy-paste.
+> **বংশ (Bonsho)** is an open-source, privacy-first family graph visualizer designed specifically for Bangladeshi lineage traditions. It stores **zero data on servers** and renders trees completely in the browser from simple 2-column Google Sheets or direct copy-paste.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Hosted on GitHub Pages](https://img.shields.io/badge/Hosted%20on-GitHub%20Pages-success.svg)](https://bonsho-bd.github.io)
@@ -21,9 +21,9 @@
   - Native Bengali honorifics & badges (মরহুম / মরহুমা / স্বর্গীয়).
   - Custom attributes: Attach any key-value information directly to family members.
 - 🌐 **Bilingual (বাংলা / English)**: Keys and values work interchangeably in Bangla or English (`নাম` or `Name`, `স্ত্রী` or `Wife`, `সন্তান` or `Child`).
-- ✏️ **Interactive In-App Editing**: Add children, add spouses, and edit details directly on the visual tree.
+- ✏️ **Interactive In-App Editing**: Add children, add spouses, and edit details directly on the visual graph.
 - 🔄 **Two-Way Google Sheets Sync**: Connect your private Google Sheet via Google Drive Picker (read & write directly to your sheet with 0 server transit).
-- 💾 **Poster Export**: Export high-resolution posters (PNG) of your tree for family reunions (মিলনমেলা).
+- 💾 **Poster Export**: Export high-resolution posters (PNG) of your graph for family reunions (মিলনমেলা).
 
 ---
 

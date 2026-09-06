@@ -1,6 +1,6 @@
 # Bonsho (বংশ) - System Architecture & Design Document
 
-> **Bonsho (বংশ)** is a privacy-first, zero-data-retention family tree visualizer designed specifically for Bangladeshi genealogical traditions, powered by simple 2-column Google Sheets or direct clipboard copy-paste.
+> **Bonsho (বংশ)** is a privacy-first, zero-data-retention family graph visualizer designed specifically for Bangladeshi genealogical traditions, powered by simple 2-column Google Sheets or direct clipboard copy-paste.
 
 ---
 
@@ -8,7 +8,7 @@
 
 1. **Zero Data Retention**:
    - Bonsho has **no database** and **no backend server**.
-   - All data parsing, graph generation, and tree visualization happen **100% in-memory within the user's browser session**.
+   - All data parsing, graph generation, and graph visualization happen **100% in-memory within the user's browser session**.
    - When the user closes the tab, all in-memory data disappears unless the user saved it back to their Google Sheet or downloaded it as a file.
 
 2. **100% Static Frontend (GitHub Pages / `github.io`)**:
@@ -39,7 +39,7 @@ Users can start visualizing their lineage in 4 friction-free ways:
 
 ```mermaid
 graph TD
-    A[User visits Bonsho] --> B1["1. Start Blank / Explore Sample Tree<br/>(Zero login, instant play)"]
+    A[User visits Bonsho] --> B1["1. Start Blank / Explore Sample Graph<br/>(Zero login, instant play)"]
     A --> B2["2. Clipboard Sync<br/>(Export & Import 2-column TSV/CSV)"]
     A --> B4["3. Connect Google Sheet<br/>(1-click OAuth + Drive Picker + 2-way sync)"]
 
@@ -57,11 +57,11 @@ graph TD
 ```
 
 1. **Clipboard Sync (Export & Import)**:
-   - Users can open the clipboard modal to see their tree represented as a live-syncing 2-column CSV text block.
-   - 1-click **Copy** exports the tree data to the clipboard.
+   - Users can open the clipboard modal to see their graph represented as a live-syncing 2-column CSV text block.
+   - 1-click **Copy** exports the graph data to the clipboard.
    - Users can edit the text or paste new data from Google Sheets/Excel directly into the modal and click **Apply** to instantly update the visualizer.
 2. **Start Blank / Empty Canvas & Multi-Root Support**:
-   - Creating a new tree starts with a completely empty canvas (no dummy placeholder person).
+   - Creating a new graph starts with a completely empty canvas (no dummy placeholder person).
    - If the canvas is empty, clicking anywhere opens the form to add the first person.
    - Bonsho supports **multiple independent roots** rendered side-by-side without spouse duplication, automatically laid out by the graph engine.
 3. **Progressive Disclosure & Open Key-Value Data Entry**:
@@ -72,11 +72,11 @@ graph TD
    - Handles multi-account URLs (`/u/0/d/...`) and empty spreadsheets gracefully.
    - Supports two-way synchronization: in-app edits can be saved directly back to the Google Sheet.
 5. **QR Code URL Export & Direct Scan**:
-   - Compresses the entire tree 100% client-side using `pako` (`deflateRaw` level 9) and converts it to a compact, URL-safe Base64URL string (`-`, `_`, no padding).
+   - Compresses the entire graph 100% client-side using `pako` (`deflateRaw` level 9) and converts it to a compact, URL-safe Base64URL string (`-`, `_`, no padding).
    - Preserves complete Unicode integrity for 3-byte Bengali text and complex multi-spouse genealogical trees via standard `TextEncoder` / `TextDecoder`.
    - Encodes a self-contained, **0-redirect query URL**: `<domain>/?qr-v0=<compressed-data>` that loads directly on GitHub Pages with zero server-side routing, zero redirects, and zero 404 delays.
    - Cleanly composes with other query parameters (e.g. `?lang=en` for future internationalization).
-   - Scanning or navigating to the link decompresses the tree data synchronously on page load and immediately renders the interactive visualizer.
+   - Scanning or navigating to the link decompresses the graph data synchronously on page load and immediately renders the interactive visualizer.
    - Users can download the crisp QR code image (PNG rendered with error-correction `L` and 8x scaling), copy the full link, or take a screenshot to share with relatives.
 
 ---
@@ -157,7 +157,7 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
 ## 5. Technology Stack
 
 - **Application Framework**: Vite + React 18+ + TypeScript
-  - Modular Custom Hooks (`useFamilyTree`, `useGoogleSync`, `useAppNavigation`, `useToast`) for state management, separation of concerns, and in-app notifications
+  - Modular Custom Hooks (`useFamilyGraph`, `useGoogleSync`, `useAppNavigation`, `useToast`) for state management, separation of concerns, and in-app notifications
 - **Styling & Interaction**: Tailwind CSS + Lucide Icons
   - 100% Non-blocking, modern UI: Contextual in-app toasts (`Toast.tsx`), inline delete confirmations, and graceful disabled states (zero native browser `alert()` or `confirm()`)
 - **Bangla Typography**: Google Fonts (`Hind Siliguri` / `Noto Sans Bengali`)
@@ -169,9 +169,9 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
   - `pako` for cross-browser, synchronous raw DEFLATE compression & decompression
   - `qrcode` for high-resolution client-side QR code canvas generation with embedded Bangladesh coin logo
 - **Visualization Engine & Export**:
-  - SVG + custom hierarchical DAG layout tailored for multi-spouse family trees
+  - SVG + custom hierarchical DAG layout tailored for multi-spouse family graphs
   - Dual-mode PNG image export via `html-to-image`:
-    1. **Full Tree Export**: Hidden DOM cloning boundary calculation and auto-alignment at 100% scale with embedded text watermark
+    1. **Full Graph Export**: Hidden DOM cloning boundary calculation and auto-alignment at 100% scale with embedded text watermark
     2. **Viewport Export**: Instant snapshot of current zoom/pan with stamped text watermark
   - Interactive pan, pinch-to-zoom (cursor/pinch-centered), search, branch highlighting, and person detail drawer
 - **Google Cloud Services (Optional Cloud Sync)**:
@@ -195,7 +195,7 @@ bonsho/
 ├── docs/
 │   └── ARCHITECTURE.md         # This design document
 ├── public/
-│   └── tree-icon.svg           # Site favicon & custom coin logo
+│   └── graph-icon.svg           # Site favicon & custom coin logo
 ├── src/
 │   ├── components/
 │   │   ├── AddRelativeModal.tsx# Quick relative addition modal
@@ -212,11 +212,11 @@ bonsho/
 │   │   ├── googleAuth.ts       # GIS and Drive Picker client wrapper
 │   │   ├── parser.ts           # 2-column block parser (CSV/TSV/Sheet -> Graph)
 │   │   ├── qrCodec.ts          # Pako DEFLATE + Base64URL codec, URL parser, & QR logo generator
-│   │   ├── sampleData.ts       # Bengali demo family tree dataset
+│   │   ├── sampleData.ts       # Bengali demo family graph dataset
 │   │   └── serializer.ts       # Graph -> 2-column block format (for saving/exporting)
 │   ├── hooks/
 │   │   ├── useAppNavigation.ts # Custom router, history, and modal orchestrator
-│   │   ├── useFamilyTree.ts    # Tree mutation logic, add/edit/delete, localStorage
+│   │   ├── useFamilyGraph.ts    # Graph mutation logic, add/edit/delete, localStorage
 │   │   ├── useGoogleSync.ts    # Google Sheets connection, quick sync, unload warnings
 │   │   └── useToast.ts         # Ephemeral toast notification state management
 │   ├── types/

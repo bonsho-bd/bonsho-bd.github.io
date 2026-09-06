@@ -1,6 +1,6 @@
 import { deflateRaw, inflateRaw } from 'pako';
-import { FamilyTree } from '../types/family';
-import { treeToCSV } from './serializer';
+import { FamilyGraph } from '../types/family';
+import { graphToCSV } from './serializer';
 import { parseRawText } from './parser';
 import QRCode from 'qrcode';
 
@@ -59,13 +59,13 @@ export function decompressBase64UrlToText(base64Url: string): string {
 /**
  * Generates the full QR URL (bonsho-bd.github.io/?qr-v0=<compressed-data>)
  */
-export function generateQRUrlForTree(tree: FamilyTree): {
+export function generateQRUrlForTree(graph: FamilyGraph): {
   url: string;
   compressedData: string;
   rawByteCount: number;
   compressedByteCount: number;
 } {
-  const csv = treeToCSV(tree);
+  const csv = graphToCSV(graph);
   const rawByteCount = new TextEncoder().encode(csv).length;
   const compressedData = compressTextToBase64Url(csv);
   const compressedByteCount = compressedData.length;
@@ -92,7 +92,7 @@ export function generateQRUrlForTree(tree: FamilyTree): {
 /**
  * Reads and decompresses QR data from URL query params, hash, or legacy path
  */
-export function extractTreeFromCurrentUrl(): FamilyTree | null {
+export function extractTreeFromCurrentUrl(): FamilyGraph | null {
   let qrData: string | null = null;
 
   // 1. Check primary query parameter: ?qr-v0=<compressedData>
@@ -168,7 +168,7 @@ export async function generateQRCodeWithLogo(text: string): Promise<string> {
 
   const logo = new Image();
   const baseUrl = import.meta.env.BASE_URL || '/';
-  logo.src = `${baseUrl.replace(/\/$/, '')}/tree-icon.svg`;
+  logo.src = `${baseUrl.replace(/\/$/, '')}/graph-icon.svg`;
   await new Promise((resolve) => {
     logo.onload = resolve;
     logo.onerror = resolve;

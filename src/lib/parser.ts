@@ -1,4 +1,4 @@
-import { FamilyTree, Person, Marriage, Gender } from '../types/family';
+import { FamilyGraph, Person, Marriage, Gender } from '../types/family';
 import { normalizeKey, normalizeGender } from './dictionary';
 import Papa from 'papaparse';
 
@@ -132,9 +132,9 @@ export function createUnknownSpouse(
 }
 
 /**
- * Core Parser: Converts 2-Column Key-Value rows into an in-memory FamilyTree Graph
+ * Core Parser: Converts 2-Column Key-Value rows into an in-memory FamilyGraph Graph
  */
-export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
+export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyGraph {
   const people: Record<string, Person> = {};
   let currentPerson: Person | null = null;
   let currentMarriage: Marriage | null = null;
@@ -393,11 +393,11 @@ export function computeRootIds(people: Record<string, Person>): string[] {
 /**
  * Finds the parent(s) of a person by inspecting marriages containing the person as a child
  */
-export function getParents(tree: FamilyTree, personId: string): { father: Person | null; mother: Person | null; parents: Person[] } {
-  for (const p of Object.values(tree.people)) {
+export function getParents(graph: FamilyGraph, personId: string): { father: Person | null; mother: Person | null; parents: Person[] } {
+  for (const p of Object.values(graph.people)) {
     for (const m of p.marriages) {
       if (m.children.includes(personId)) {
-        const spouse = tree.people[m.spouseId];
+        const spouse = graph.people[m.spouseId];
         let father: Person | null = null;
         let mother: Person | null = null;
 
@@ -418,9 +418,9 @@ export function getParents(tree: FamilyTree, personId: string): { father: Person
 }
 
 /**
- * Convenience helper: parse raw pasted string directly to FamilyTree
+ * Convenience helper: parse raw pasted string directly to FamilyGraph
  */
-export function parseRawText(text: string): FamilyTree {
+export function parseRawText(text: string): FamilyGraph {
   const rows = parseRawTextToRows(text);
   return parseKeyValueBlocksToTree(rows);
 }

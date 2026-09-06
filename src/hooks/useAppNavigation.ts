@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Person, FamilyTree } from '../types/family';
+import { Person, FamilyGraph } from '../types/family';
 
 interface AddRelativeState {
   isOpen: boolean;
@@ -15,7 +15,7 @@ interface NavigateParams {
   modal?: 'clipboard' | 'google' | 'qr' | null;
 }
 
-export const useAppNavigation = (tree: FamilyTree) => {
+export const useAppNavigation = (graph: FamilyGraph) => {
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
@@ -31,24 +31,24 @@ export const useAppNavigation = (tree: FamilyTree) => {
   });
   const [modalDepth, setModalDepth] = useState<number>(() => (window.history.state?.modalDepth as number) || 0);
 
-  // Sync with selectedPerson when tree updates
+  // Sync with selectedPerson when graph updates
   useEffect(() => {
     if (selectedPerson) {
-      setSelectedPerson(tree.people[selectedPerson.id] || null);
+      setSelectedPerson(graph.people[selectedPerson.id] || null);
     }
-  }, [tree]);
+  }, [graph]);
 
-  const navigateTo = useCallback((params: NavigateParams, replace = false, currentTree: FamilyTree = tree) => {
+  const navigateTo = useCallback((params: NavigateParams, replace = false, currentGraph: FamilyGraph = graph) => {
     // Determine new states based on params
-    const nextSelected = params.person ? currentTree.people[params.person] || null : null;
-    const nextEditing = params.edit ? currentTree.people[params.edit] || null : null;
+    const nextSelected = params.person ? currentGraph.people[params.person] || null : null;
+    const nextEditing = params.edit ? currentGraph.people[params.edit] || null : null;
 
     let nextAddState: AddRelativeState = { isOpen: false, mode: 'child', person: null };
     if (params.add) {
       if (params.add === 'person') {
         nextAddState = { isOpen: true, mode: 'person', person: null };
-      } else if (params.target && currentTree.people[params.target]) {
-        nextAddState = { isOpen: true, mode: params.add, person: currentTree.people[params.target] };
+      } else if (params.target && currentGraph.people[params.target]) {
+        nextAddState = { isOpen: true, mode: params.add, person: currentGraph.people[params.target] };
       }
     }
 
@@ -93,7 +93,7 @@ export const useAppNavigation = (tree: FamilyTree) => {
     } else {
       window.history.pushState({ modalDepth: newDepth }, '', url.toString());
     }
-  }, [modalDepth, tree]);
+  }, [modalDepth, graph]);
 
   const closeActiveModal = useCallback(() => {
     if (modalDepth > 0) {
@@ -125,14 +125,14 @@ export const useAppNavigation = (tree: FamilyTree) => {
 
       if (hash.startsWith('#person-')) {
         const id = decodeURIComponent(hash.replace('#person-', ''));
-        setSelectedPerson(tree.people[id] || null);
+        setSelectedPerson(graph.people[id] || null);
         setEditingPerson(null);
         setAddRelativeState({ isOpen: false, mode: 'child', person: null });
         setIsPasteModalOpen(false);
         setIsGoogleModalOpen(false);
         setIsQRModalOpen(false);
-      } else if (searchPerson && tree.people[searchPerson]) {
-        setSelectedPerson(tree.people[searchPerson]);
+      } else if (searchPerson && graph.people[searchPerson]) {
+        setSelectedPerson(graph.people[searchPerson]);
         setEditingPerson(null);
         setAddRelativeState({ isOpen: false, mode: 'child', person: null });
         setIsPasteModalOpen(false);
@@ -153,7 +153,7 @@ export const useAppNavigation = (tree: FamilyTree) => {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [tree]);
+  }, [graph]);
 
   return {
     isPasteModalOpen,

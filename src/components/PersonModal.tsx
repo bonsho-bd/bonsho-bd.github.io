@@ -1,11 +1,11 @@
 import React from 'react';
-import { Person, FamilyTree } from '../types/family';
+import { Person, FamilyGraph } from '../types/family';
 import { getParents } from '../lib/parser';
 import { X, User, Heart, Baby, Calendar, FileText, Edit2, Plus, ArrowLeft } from 'lucide-react';
 
 interface PersonModalProps {
   person: Person | null;
-  tree: FamilyTree;
+  graph: FamilyGraph;
   isOpen: boolean;
   onClose: () => void;
   onSelectPerson: (id: string) => void;
@@ -18,7 +18,7 @@ interface PersonModalProps {
 
 export const PersonModal: React.FC<PersonModalProps> = ({
   person,
-  tree,
+  graph,
   isOpen,
   onClose,
   onSelectPerson,
@@ -30,7 +30,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
 }) => {
   if (!isOpen || !person) return null;
 
-  const { father, mother } = getParents(tree, person.id);
+  const { father, mother } = getParents(graph, person.id);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
@@ -191,7 +191,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                 <span>দাম্পত্য ও সন্তানাদি</span>
               </h3>
               {person.marriages.map((m, idx) => {
-                const spouse = tree.people[m.spouseId];
+                const spouse = graph.people[m.spouseId];
                 return (
                   <div key={m.id || idx} className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2">
                     {spouse && (
@@ -213,7 +213,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                     {m.children.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {m.children.map(cId => {
-                          const child = tree.people[cId];
+                          const child = graph.people[cId];
                           if (!child) return null;
                           return (
                             <button

@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between w-full lg:w-auto gap-3 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
-              <img src="/tree-icon.svg" alt="Bonsho Logo" className="w-5 h-5 sm:w-6 sm:h-6 opacity-80" />
+              <img src="/graph-icon.svg" alt="Bonsho Logo" className="w-5 h-5 sm:w-6 sm:h-6 opacity-80" />
             </div>
             <div>
               <div className="flex items-baseline gap-2">
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {totalPeopleCount} জন সদস্য
                 </span>
               </div>
-              <p className="text-[10px] sm:text-xs text-slate-500 hidden sm:block">প্রাইভেসি-বান্ধব বাংলাদেশী ফ্যামিলি ট্রি</p>
+              <p className="text-[10px] sm:text-xs text-slate-500 hidden sm:block">প্রাইভেসি-বান্ধব বাংলাদেশী ফ্যামিলি গ্রাফ</p>
             </div>
           </div>
         </div>
@@ -95,20 +95,20 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onNewTree}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-sm transition whitespace-nowrap"
-            title="নতুন খালি ট্রি শুরু করুন"
+            title="নতুন খালি গ্রাফ শুরু করুন"
           >
             <PlusCircle className="w-4 h-4 text-slate-500" />
-            <span className="hidden sm:inline">নতুন ট্রি</span>
+            <span className="hidden sm:inline">নতুন গ্রাফ</span>
           </button>
 
           {/* Load Sample Family */}
           <button
             onClick={onLoadSample}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg shadow-sm transition whitespace-nowrap"
-            title="নমুনা ট্রি লোড করুন"
+            title="নমুনা গ্রাফ লোড করুন"
           >
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <span className="hidden sm:inline">নমুনা ট্রি</span>
+            <span className="hidden sm:inline">নমুনা গ্রাফ</span>
           </button>
 
           {/* Paste Data Button */}
@@ -181,7 +181,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <Camera className="w-4 h-4 text-emerald-600" />
-                  <span>সম্পূর্ণ ট্রি ছবি হিসেবে সেভ করুন</span>
+                  <span>সম্পূর্ণ গ্রাফ ছবি হিসেবে সেভ করুন</span>
                 </button>
                 <button
                   disabled={totalPeopleCount === 0}

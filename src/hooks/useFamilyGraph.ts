@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FamilyTree, Person, Gender, Marriage } from '../types/family';
+import { FamilyGraph, Person, Gender, Marriage } from '../types/family';
 import { createUnknownSpouse } from '../lib/parser';
 
 const STORAGE_KEY = 'bonsho_family_tree_data';
@@ -17,14 +17,14 @@ export interface AddPersonInput {
   };
 }
 
-export const useFamilyTree = () => {
-  const [tree, setTree] = useState<FamilyTree>(() => {
+export const useFamilyGraph = () => {
+  const [graph, setTree] = useState<FamilyGraph>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
         return JSON.parse(saved);
       } catch (e) {
-        console.error('Failed to parse tree from local storage', e);
+        console.error('Failed to parse graph from local storage', e);
       }
     }
     return { people: {} };
@@ -33,9 +33,9 @@ export const useFamilyTree = () => {
 
   // Auto-save to localStorage
   useEffect(() => {
-    const treeStr = JSON.stringify(tree);
-    localStorage.setItem(STORAGE_KEY, treeStr);
-  }, [tree]);
+    const graphStr = JSON.stringify(graph);
+    localStorage.setItem(STORAGE_KEY, graphStr);
+  }, [graph]);
 
   const savePerson = (updatedPerson: Person) => {
     setTree((prev) => ({
@@ -93,9 +93,9 @@ export const useFamilyTree = () => {
     if (!cleanName) return null;
 
     let id = cleanName;
-    if (tree.people[id]) {
+    if (graph.people[id]) {
       let counter = 2;
-      while (tree.people[`${cleanName} (${counter})`]) {
+      while (graph.people[`${cleanName} (${counter})`]) {
         counter++;
       }
       id = `${cleanName} (${counter})`;
@@ -195,7 +195,7 @@ export const useFamilyTree = () => {
   };
 
   return {
-    tree,
+    graph,
     setTree,
     savePerson,
     deletePerson,

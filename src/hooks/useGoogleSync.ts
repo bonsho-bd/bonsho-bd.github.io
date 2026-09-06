@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { FamilyTree } from '../types/family';
+import { FamilyGraph } from '../types/family';
 import { saveGoogleSheetValues } from '../lib/googleAuth';
-import { treeToKeyValueRows } from '../lib/serializer';
+import { graphToKeyValueRows } from '../lib/serializer';
 
-export const useGoogleSync = (tree: FamilyTree) => {
+export const useGoogleSync = (graph: FamilyGraph) => {
   const [connectedSheet, setConnectedSheet] = useState<{ id: string; name: string } | null>(() => {
     const saved = localStorage.getItem('bonsho_connected_sheet');
     return saved ? JSON.parse(saved) : null;
@@ -32,13 +32,13 @@ export const useGoogleSync = (tree: FamilyTree) => {
   // Make sure lastSyncedTree is initialized properly
   useEffect(() => {
     if (!lastSyncedTree) {
-      setLastSyncedTree(JSON.stringify(tree));
+      setLastSyncedTree(JSON.stringify(graph));
     }
   }, []);
 
   // Derived state for unsaved changes
-  const currentTreeStr = JSON.stringify(tree);
-  const hasUnsavedChanges = connectedSheet && lastSyncedTree && currentTreeStr !== lastSyncedTree;
+  const currentGraphStr = JSON.stringify(graph);
+  const hasUnsavedChanges = connectedSheet && lastSyncedTree && currentGraphStr !== lastSyncedTree;
 
   // Unload warning
   useEffect(() => {
@@ -57,9 +57,9 @@ export const useGoogleSync = (tree: FamilyTree) => {
     try {
       setIsSyncing(true);
       setSyncError(null);
-      const rows = treeToKeyValueRows(tree);
+      const rows = graphToKeyValueRows(graph);
       await saveGoogleSheetValues(connectedSheet.id, accessToken, rows);
-      setLastSyncedTree(currentTreeStr);
+      setLastSyncedTree(currentGraphStr);
       // Removed native alert: The UI naturally dismissing itself is the success indicator.
     } catch (err: any) {
       setSyncError(err.message);
@@ -75,8 +75,8 @@ export const useGoogleSync = (tree: FamilyTree) => {
     setConnectedSheet(null);
   };
 
-  const markAsSynced = (explicitTree?: FamilyTree) => {
-    setLastSyncedTree(explicitTree ? JSON.stringify(explicitTree) : currentTreeStr);
+  const markAsSynced = (explicitTree?: FamilyGraph) => {
+    setLastSyncedTree(explicitTree ? JSON.stringify(explicitTree) : currentGraphStr);
   };
 
   return {

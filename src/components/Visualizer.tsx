@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { FamilyTree, Person } from '../types/family';
+import { FamilyGraph, Person } from '../types/family';
 import { computeRootIds } from '../lib/parser';
 import { ZoomIn, ZoomOut, RotateCcw, User, Heart, Plus, Calendar } from 'lucide-react';
 
 interface VisualizerProps {
-  tree: FamilyTree;
+  graph: FamilyGraph;
   searchQuery: string;
   onSelectPerson: (person: Person) => void;
   onAddChild: (parent: Person) => void;
@@ -35,7 +35,7 @@ const HORIZONTAL_GAP = 40;
 const VERTICAL_GAP = 140;
 
 export const Visualizer: React.FC<VisualizerProps> = ({
-  tree,
+  graph,
   searchQuery,
   onSelectPerson,
   onAddChild,
@@ -50,19 +50,19 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
   const [lastPinchDist, setLastPinchDist] = useState<number | null>(null);
 
-  // Compute Tree Layout
+  // Compute Graph Layout
   const { nodes, links, bounds } = React.useMemo(() => {
     const layoutMap = new Map<string, NodeLayout>();
     const linkList: LinkPath[] = [];
     const visited = new Set<string>();
-    const rootIds = computeRootIds(tree.people);
+    const rootIds = computeRootIds(graph.people);
 
     // Helper to calculate subtree width (with cycle protection)
     function calculateSubtreeWidth(personId: string, visitedNodes = new Set<string>()): number {
       if (visitedNodes.has(personId)) return CARD_WIDTH;
       visitedNodes.add(personId);
 
-      const p = tree.people[personId];
+      const p = graph.people[personId];
       if (!p) return CARD_WIDTH;
 
       const spouseCount = p.marriages.length;
@@ -93,11 +93,11 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       if (visited.has(personId)) return startX;
       visited.add(personId);
 
-      const person = tree.people[personId];
+      const person = graph.people[personId];
       if (!person) return startX;
 
       const spouses = person.marriages
-        .map(m => tree.people[m.spouseId])
+        .map(m => graph.people[m.spouseId])
         .filter(Boolean) as Person[];
 
       // Mark spouses as visited so they don't get duplicated as separate roots
@@ -168,7 +168,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     }
 
     // Include any unlinked components
-    for (const pId of Object.keys(tree.people)) {
+    for (const pId of Object.keys(graph.people)) {
       if (!visited.has(pId)) {
         currentXOffset = layoutPerson(pId, currentXOffset, 0);
       }
@@ -188,9 +188,9 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       links: linkList,
       bounds: { minX, maxX, minY, maxY },
     };
-  }, [tree]);
+  }, [graph]);
 
-  // Accurately center the tree on the canvas
+  // Accurately center the graph on the canvas
   const centerTree = React.useCallback(() => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -206,7 +206,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     const contentHeight = Math.max(bounds.maxY - bounds.minY, CARD_HEIGHT);
     const centerX = (bounds.minX + bounds.maxX) / 2;
 
-    // Leave comfortable margins around the tree
+    // Leave comfortable margins around the graph
     const availableWidth = rect.width - 120;
     const availableHeight = rect.height - 140;
 
@@ -222,7 +222,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     setPan({ x: newPanX, y: newPanY });
   }, [nodes.length, bounds]);
 
-  // Auto-center on initial mount and when tree structure changes
+  // Auto-center on initial mount and when graph structure changes
   // Keep track of initial load
   const isInitialLoad = useRef(true);
   useEffect(() => {
@@ -550,7 +550,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         })}
       </div>
 
-      {/* Empty State Banner when Tree has no people */}
+      {/* Empty State Banner when Graph has no people */}
       {nodes.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
           <div className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-6 shadow-xl text-center max-w-sm pointer-events-auto space-y-3">
@@ -558,7 +558,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
               <User className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-800">ফ্যামিলি ট্রি খালি</h3>
+              <h3 className="text-base font-bold text-slate-800">ফ্যামিলি গ্রাফ খালি</h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                 এই শিটটিতে এখনো কোনো তথ্য নেই। আপনি প্রথম ব্যক্তি যোগ করে বংশতালিকা তৈরি শুরু করতে পারেন।
               </p>

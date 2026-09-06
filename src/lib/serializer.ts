@@ -1,4 +1,4 @@
-import { FamilyTree, Person } from '../types/family';
+import { FamilyGraph, Person } from '../types/family';
 import { computeRootIds } from './parser';
 import Papa from 'papaparse';
 
@@ -58,9 +58,9 @@ function serializePersonToRows(
 }
 
 /**
- * Serializes entire FamilyTree into 2-column Key-Value format (separated by blank rows)
+ * Serializes entire FamilyGraph into 2-column Key-Value format (separated by blank rows)
  */
-export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
+export function graphToKeyValueRows(graph: FamilyGraph): [string, string][] {
   const allRows: [string, string][] = [];
   const processedPeople = new Set<string>();
   const serializedMarriages = new Set<string>();
@@ -70,10 +70,10 @@ export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
     if (processedPeople.has(personId)) return;
     processedPeople.add(personId);
 
-    const person = tree.people[personId];
+    const person = graph.people[personId];
     if (!person) return;
 
-    const personRows = serializePersonToRows(person, tree.people, serializedMarriages);
+    const personRows = serializePersonToRows(person, graph.people, serializedMarriages);
     allRows.push(...personRows);
     allRows.push(['', '']); // Blank row block separator
 
@@ -85,13 +85,13 @@ export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
     }
   }
 
-  const rootIds = computeRootIds(tree.people);
+  const rootIds = computeRootIds(graph.people);
   for (const rootId of rootIds) {
     traverse(rootId);
   }
 
   // Traverse any remaining unvisited people
-  for (const personId of Object.keys(tree.people)) {
+  for (const personId of Object.keys(graph.people)) {
     traverse(personId);
   }
 
@@ -104,10 +104,10 @@ export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
 }
 
 /**
- * Generates CSV string from tree
+ * Generates CSV string from graph
  */
-export function treeToCSV(tree: FamilyTree): string {
-  const rows = treeToKeyValueRows(tree);
+export function graphToCSV(graph: FamilyGraph): string {
+  const rows = graphToKeyValueRows(graph);
   return Papa.unparse(rows);
 }
 
