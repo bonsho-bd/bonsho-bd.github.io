@@ -382,31 +382,38 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     }
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-    setZoom(prevZoom => {
-      const newZoom = Math.min(Math.max(prevZoom * zoomFactor, 0.2), 2.5);
-      if (newZoom !== prevZoom) {
-        setPan(prevPan => {
-          if (!containerRef.current) return prevPan;
-          const rect = containerRef.current.getBoundingClientRect();
-          const pointerX = e.clientX - rect.left;
-          const pointerY = e.clientY - rect.top;
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
 
-          const logicalX = (pointerX - prevPan.x) / prevZoom;
-          const logicalY = (pointerY - prevPan.y) / prevZoom;
+      setZoom(prevZoom => {
+        const newZoom = Math.min(Math.max(prevZoom * zoomFactor, 0.2), 2.5);
+        if (newZoom !== prevZoom) {
+          setPan(prevPan => {
+            const rect = container.getBoundingClientRect();
+            const pointerX = e.clientX - rect.left;
+            const pointerY = e.clientY - rect.top;
 
-          return {
-            x: pointerX - logicalX * newZoom,
-            y: pointerY - logicalY * newZoom,
-          };
-        });
-      }
-      return newZoom;
-    });
-  };
+            const logicalX = (pointerX - prevPan.x) / prevZoom;
+            const logicalY = (pointerY - prevPan.y) / prevZoom;
+
+            return {
+              x: pointerX - logicalX * newZoom,
+              y: pointerY - logicalY * newZoom,
+            };
+          });
+        }
+        return newZoom;
+      });
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, [setZoom, setPan]);
 
   const handleZoomWithCenter = (zoomFactor: number) => {
     setZoom(prevZoom => {
@@ -445,7 +452,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onWheel={handleWheel}
+
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
