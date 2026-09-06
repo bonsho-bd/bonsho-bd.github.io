@@ -2,6 +2,7 @@ import { deflateRaw, inflateRaw } from 'pako';
 import { FamilyTree } from '../types/family';
 import { treeToCSV } from './serializer';
 import { parseRawText } from './parser';
+import QRCode from 'qrcode';
 
 /**
  * Browser-safe Uint8Array to Base64URL
@@ -134,4 +135,43 @@ export function extractTreeFromCurrentUrl(): FamilyTree | null {
     console.error('Failed to decompress QR data from URL:', err);
     return null;
   }
+}
+
+
+export async function generateQRCodeWithLogo(text: string): Promise<string> {
+  const canvas = document.createElement('canvas');
+  const size = 1000;
+  canvas.width = size;
+  canvas.height = size;
+  
+  await QRCode.toCanvas(canvas, text, {
+    width: size,
+    margin: 1,
+    color: {
+      dark: '#0f172a', // slate-900
+      light: '#ffffff'
+    },
+    errorCorrectionLevel: 'H'
+  });
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return canvas.toDataURL('image/png');
+
+  const logo = new Image();
+  logo.src = '/tree-icon.svg';
+  await new Promise((resolve) => {
+    logo.onload = resolve;
+    logo.onerror = resolve; 
+  });
+
+  const logoSize = size * 0.22;
+  const offset = (size - logoSize) / 2;
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, (logoSize / 2) + (size * 0.02), 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.drawImage(logo, offset, offset, logoSize, logoSize);
+  return canvas.toDataURL('image/png');
 }

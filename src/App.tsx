@@ -10,7 +10,7 @@ import { EditPersonModal } from './components/EditPersonModal';
 import { AddRelativeModal } from './components/AddRelativeModal';
 import { GoogleSyncModal } from './components/GoogleSyncModal';
 import { QRCodeModal } from './components/QRCodeModal';
-import { extractTreeFromCurrentUrl } from './lib/qrCodec';
+import { extractTreeFromCurrentUrl, generateQRUrlForTree, generateQRCodeWithLogo } from './lib/qrCodec';
 import { toPng } from 'html-to-image';
 import { CloudUpload, AlertCircle, Loader2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -167,20 +167,119 @@ export const App: React.FC = () => {
     window.history.replaceState({ modalDepth }, '', url.toString());
   };
 
-  // Export Poster as PNG
-  const handleExportPoster = async () => {
-    const visualizerEl = document.querySelector('.overflow-hidden') as HTMLElement;
+  const handleExportViewport = async () => {
+    const visualizerEl = document.querySelector('main > div') as HTMLElement;
     if (!visualizerEl) return;
-
     try {
       const dataUrl = await toPng(visualizerEl, { quality: 0.95, pixelRatio: 2 });
       const link = document.createElement('a');
-      link.download = 'bonsho-family-tree.png';
+      link.download = 'bonsho-viewport.png';
       link.href = dataUrl;
       link.click();
     } catch (err) {
       alert('ছবি তৈরি করতে সমস্যা হয়েছে।');
       console.error(err);
+    }
+  };
+
+  const handleExportFullTree = async () => {
+    const nodes = document.querySelectorAll('.origin-top-left > div[style*="left"]');
+    if (!nodes.length) {
+      alert('ফ্যামিলি ট্রি খালি');
+      return;
+    }
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    nodes.forEach(node => {
+      const el = node as HTMLElement;
+      const left = parseFloat(el.style.left || '0');
+      const top = parseFloat(el.style.top || '0');
+      if (left < minX) minX = left;
+      if (left > maxX) maxX = left;
+      if (top < minY) minY = top;
+      if (top > maxY) maxY = top;
+    });
+
+    const padding = 150;
+    const nodeWidth = 250; 
+    const nodeHeight = 150; 
+    const fullWidth = (maxX - minX) + nodeWidth + padding * 2;
+    const fullHeight = (maxY - minY) + nodeHeight + padding * 2;
+
+    const exportContainer = document.createElement('div');
+    exportContainer.style.position = 'absolute';
+    exportContainer.style.left = '-9999px';
+    exportContainer.style.top = '-9999px';
+    exportContainer.style.width = `${fullWidth}px`;
+    exportContainer.style.height = `${fullHeight}px`;
+    exportContainer.style.background = '#f1f5f9';
+    exportContainer.style.overflow = 'hidden';
+    exportContainer.style.fontFamily = 'Hind Siliguri, sans-serif';
+    
+    const grid = document.createElement('div');
+    grid.style.position = 'absolute';
+    grid.style.inset = '0';
+    grid.style.opacity = '0.4';
+    grid.style.backgroundImage = 'radial-gradient(#94a3b8 1px, transparent 1px)';
+    grid.style.backgroundSize = '24px 24px';
+    grid.style.backgroundPosition = `${-minX + padding}px ${-minY + padding}px`;
+    exportContainer.appendChild(grid);
+
+    const origSvg = document.querySelector('svg.pointer-events-none');
+    if (origSvg) {
+      const clonedSvg = origSvg.cloneNode(true) as SVGElement;
+      clonedSvg.style.width = `${fullWidth}px`;
+      clonedSvg.style.height = `${fullHeight}px`;
+      const g = clonedSvg.querySelector('g');
+      if (g) {
+        g.setAttribute('transform', `translate(${-minX + padding}, ${-minY + padding}) scale(1)`);
+      }
+      exportContainer.appendChild(clonedSvg);
+    }
+
+    const origNodes = document.querySelector('.origin-top-left');
+    if (origNodes) {
+      const clonedNodes = origNodes.cloneNode(true) as HTMLElement;
+      clonedNodes.style.transform = `translate(${-minX + padding}px, ${-minY + padding}px) scale(1)`;
+      exportContainer.appendChild(clonedNodes);
+    }
+
+    const qrUrl = generateQRUrlForTree(tree).url;
+    const qrDataUrl = await generateQRCodeWithLogo(qrUrl);
+    const qrImg = document.createElement('img');
+    qrImg.src = qrDataUrl;
+    qrImg.style.position = 'absolute';
+    qrImg.style.top = '40px';
+    qrImg.style.left = '40px';
+    qrImg.style.width = '140px';
+    qrImg.style.height = '140px';
+    qrImg.style.background = 'white';
+    qrImg.style.padding = '10px';
+    qrImg.style.borderRadius = '16px';
+    qrImg.style.boxShadow = '0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)';
+    qrImg.style.zIndex = '50';
+    exportContainer.appendChild(qrImg);
+
+    document.body.appendChild(exportContainer);
+
+    try {
+      const dataUrl = await toPng(exportContainer, { 
+        quality: 1, 
+        pixelRatio: 2,
+        width: fullWidth,
+        height: fullHeight,
+        style: { transform: 'none' },
+        skipFonts: false
+      });
+      const link = document.createElement('a');
+      link.download = 'bonsho-full-tree.png';
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      alert('ছবি তৈরি করতে সমস্যা হয়েছে।');
+      console.error(err);
+    } finally {
+      document.body.removeChild(exportContainer);
     }
   };
 
@@ -204,7 +303,8 @@ export const App: React.FC = () => {
         onNewTree={handleNewTree}
         onExportExcel={() => downloadTreeAsExcel(tree)}
         onExportCSV={() => downloadTreeAsCSV(tree)}
-        onExportPoster={handleExportPoster}
+        onExportFullTree={handleExportFullTree}
+        onExportViewport={handleExportViewport}
         onCopyToClipboard={() => {
           navigator.clipboard.writeText(treeToCSV(tree))
             .then(() => alert('ট্রি ডেটা ক্লিপবোর্ডে কপি করা হয়েছে!'))

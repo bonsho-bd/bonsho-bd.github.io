@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   TreePine, ClipboardPaste, Upload, Sparkles, 
   FileSpreadsheet, FileText, Search, PlusCircle,  
-  QrCode, Share2, Database, Copy, ChevronDown
+  QrCode, Share2, Database, Copy, ChevronDown, Camera
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
@@ -15,7 +15,8 @@ interface HeaderProps {
   onNewTree: () => void;
   onExportExcel: () => void;
   onExportCSV: () => void;
-  onExportPoster: () => void;
+  onExportFullTree: () => void;
+  onExportViewport: () => void;
   onCopyToClipboard?: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
@@ -32,7 +33,8 @@ export const Header: React.FC<HeaderProps> = ({
   onNewTree,
   onExportExcel,
   onExportCSV,
-  onExportPoster,
+  onExportFullTree,
+  onExportViewport,
   onCopyToClipboard,
   searchQuery,
   onSearchChange,
@@ -210,7 +212,14 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="h-px bg-slate-100 my-1"></div>
 
                 <button
-                  onClick={() => { onExportPoster(); setShowShareMenu(false); }}
+                  onClick={() => { onExportFullTree(); setShowShareMenu(false); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <Camera className="w-4 h-4 text-emerald-600" />
+                  সম্পূর্ণ ট্রি ছবি হিসেবে সেভ করুন
+                </button>
+                <button
+                  onClick={() => { onExportViewport(); setShowShareMenu(false); }}
                   className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
                 >
                   <TreePine className="w-4 h-4 text-purple-600" />

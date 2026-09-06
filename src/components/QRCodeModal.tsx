@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, QrCode, Download, Copy, Check, Share2, Camera, Printer, Link as LinkIcon, Sparkles } from 'lucide-react';
-import QRCode from 'qrcode';
 import { FamilyTree } from '../types/family';
-import { generateQRUrlForTree } from '../lib/qrCodec';
+import { generateQRUrlForTree, generateQRCodeWithLogo } from '../lib/qrCodec';
 
 interface QRCodeModalProps {
   isOpen: boolean;
@@ -32,16 +31,8 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
       setQrUrl(url);
       setStats({ rawBytes: rawByteCount, compressedBytes: compressedByteCount });
 
-      // Generate QR code data URL (High-res for crisp mobile scanning and printing)
-      QRCode.toDataURL(url, {
-        errorCorrectionLevel: 'L',
-        margin: 2,
-        scale: 8,
-        color: {
-          dark: '#0f172a',
-          light: '#ffffff',
-        },
-      })
+      // Generate QR code data URL with logo
+      generateQRCodeWithLogo(url)
       .then((dataUrl) => {
         if (!isMounted) return;
         setQrDataUrl(dataUrl);
