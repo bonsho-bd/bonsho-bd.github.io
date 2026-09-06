@@ -74,6 +74,7 @@ export function generateQRUrlForTree(tree: FamilyTree): {
   // Clean base path (e.g. "" or repository path if in subfolder)
   const basePath = window.location.pathname
     .replace(/\/view\/.*$/, '')
+    .replace(/index\.html$/, '')
     .replace(/\/$/, '');
 
   // Hash route allows instant, 0-redirect loading on GitHub Pages and static hosts
@@ -143,7 +144,7 @@ export async function generateQRCodeWithLogo(text: string): Promise<string> {
   const size = 1000;
   canvas.width = size;
   canvas.height = size;
-  
+
   await QRCode.toCanvas(canvas, text, {
     width: size,
     margin: 1,
@@ -158,15 +159,16 @@ export async function generateQRCodeWithLogo(text: string): Promise<string> {
   if (!ctx) return canvas.toDataURL('image/png');
 
   const logo = new Image();
-  logo.src = '/tree-icon.svg';
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  logo.src = `${baseUrl.replace(/\/$/, '')}/tree-icon.svg`;
   await new Promise((resolve) => {
     logo.onload = resolve;
-    logo.onerror = resolve; 
+    logo.onerror = resolve;
   });
 
   const logoSize = size * 0.22;
   const offset = (size - logoSize) / 2;
-  
+
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.arc(size / 2, size / 2, (logoSize / 2) + (size * 0.02), 0, Math.PI * 2);

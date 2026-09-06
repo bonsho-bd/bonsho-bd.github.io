@@ -221,7 +221,6 @@ bonsho/
 │   ├── lib/
 │   │   ├── dictionary.ts       # Bilingual key-value normalizer
 │   │   ├── googleAuth.ts       # GIS and Drive Picker client wrapper
-│   │   ├── kinship.ts          # Bangladeshi kinship calculator (চাচা, মামা, খালা, etc.)
 │   │   ├── parser.ts           # 2-column block parser (CSV/TSV/Sheet -> Graph)
 │   │   ├── qrCodec.ts          # Pako DEFLATE + Base64URL codec, URL parser, & QR logo generator
 │   │   ├── sampleData.ts       # Bengali demo family tree dataset

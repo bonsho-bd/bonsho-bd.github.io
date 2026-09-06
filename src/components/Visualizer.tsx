@@ -60,8 +60,11 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       tree.rootIds = [Object.keys(tree.people)[0]];
     }
 
-    // Helper to calculate subtree width
-    function calculateSubtreeWidth(personId: string): number {
+    // Helper to calculate subtree width (with cycle protection)
+    function calculateSubtreeWidth(personId: string, visitedNodes = new Set<string>()): number {
+      if (visitedNodes.has(personId)) return CARD_WIDTH;
+      visitedNodes.add(personId);
+
       const p = tree.people[personId];
       if (!p) return CARD_WIDTH;
 
@@ -80,7 +83,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
 
       let childrenTotalWidth = 0;
       for (const cId of allChildren) {
-        childrenTotalWidth += calculateSubtreeWidth(cId) + HORIZONTAL_GAP;
+        childrenTotalWidth += calculateSubtreeWidth(cId, new Set(visitedNodes)) + HORIZONTAL_GAP;
       }
       childrenTotalWidth -= HORIZONTAL_GAP;
 
@@ -774,7 +777,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
                   {(() => {
                     if (person.birth && person.death) return `${person.birth} - ${person.death}`;
                     if (person.birth && !person.death) {
-                      if (person.isDeceased) return `${person.birth} - $প্রয়াত`;
+                      if (person.isDeceased) return `${person.birth} - প্রয়াত`;
                       return `জন্ম: ${person.birth}`;
                     }
                     if (!person.birth && person.death) return `? - ${person.death}`;

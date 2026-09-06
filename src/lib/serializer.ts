@@ -5,7 +5,11 @@ import Papa from 'papaparse';
 /**
  * Serializes a Person into 2-column Key-Value rows
  */
-function serializePersonToRows(person: Person, people: Record<string, Person>): [string, string][] {
+function serializePersonToRows(
+  person: Person,
+  people: Record<string, Person>,
+  serializedMarriages: Set<string>
+): [string, string][] {
   const rows: [string, string][] = [];
 
   rows.push(['Name', person.name]);
@@ -31,8 +35,9 @@ function serializePersonToRows(person: Person, people: Record<string, Person>): 
     rows.push(['Notes', person.notes]);
   }
 
-  // Custom properties
+  // Custom properties (skip internal coordinates)
   for (const [key, val] of Object.entries(person.customProperties)) {
+    if (key.startsWith('_')) continue;
     rows.push([key, val]);
   }
 
@@ -44,10 +49,16 @@ function serializePersonToRows(person: Person, people: Record<string, Person>): 
     }
   }
 
-  // Marriages and their grouped children
+  // Marriages and their grouped children (only serialized once per couple)
   for (const marriage of person.marriages) {
     const spouse = people[marriage.spouseId];
     if (spouse) {
+      const pairKey = [person.id, spouse.id].sort().join(':::');
+      if (serializedMarriages.has(pairKey)) {
+        continue;
+      }
+      serializedMarriages.add(pairKey);
+
       const spouseKey = spouse.gender === 'female' ? 'Wife' : spouse.gender === 'male' ? 'Husband' : 'Spouse';
       rows.push([spouseKey, spouse.name]);
 
@@ -69,6 +80,7 @@ function serializePersonToRows(person: Person, people: Record<string, Person>): 
 export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
   const allRows: [string, string][] = [];
   const processedPeople = new Set<string>();
+  const serializedMarriages = new Set<string>();
 
   // Process from roots downward (hierarchical order for pleasant reading)
   function traverse(personId: string) {
@@ -78,7 +90,7 @@ export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
     const person = tree.people[personId];
     if (!person) return;
 
-    const personRows = serializePersonToRows(person, tree.people);
+    const personRows = serializePersonToRows(person, tree.people, serializedMarriages);
     allRows.push(...personRows);
     allRows.push(['', '']); // Blank row block separator
 

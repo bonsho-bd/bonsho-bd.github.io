@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { parseRawText } from './lib/parser';
+import { parseRawText, parseKeyValueBlocksToTree } from './lib/parser';
 import { downloadTreeAsExcel, downloadTreeAsCSV, treeToCSV } from './lib/serializer';
 import { SAMPLE_FAMILY_TEXT } from './lib/sampleData';
 import { Header } from './components/Header';
@@ -121,24 +121,24 @@ export const App: React.FC = () => {
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
           const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          
+
           if (!rows || rows.length === 0) return;
 
-          let rawText = '';
-          rows.forEach((row) => {
-            if (row.length >= 2) {
-              const name = String(row[0] || '').trim();
-              const relation = String(row[1] || '').trim();
-              if (name) {
-                rawText += `${name}${relation ? `, ${relation}` : ''}\n`;
-              }
-            }
-          });
+          const rawRows = rows
+            .map((row) => ({
+              key: String(row?.[0] || '').trim(),
+              value: String(row?.[1] || '').trim(),
+            }))
+            .filter((r) => r.key || r.value);
 
-          const success = handleParseText(rawText);
-          if (!success) {
-            showToast('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।', 'error');
-          }
+          if (rawRows.length === 0) return;
+
+          const parsedTree = parseKeyValueBlocksToTree(rawRows);
+          setTree(parsedTree);
+          disconnectSheet();
+          markAsSynced(parsedTree);
+          navigateTo({}, true, parsedTree);
+          showToast('এক্সেল ফাইল সফলভাবে লোড করা হয়েছে!', 'success');
         } catch (err) {
           showToast('এক্সেল ফাইল পড়তে সমস্যা হয়েছে। নিশ্চিত করুন ফাইলটিতে ২টি কলাম রয়েছে।', 'error');
           console.error(err);

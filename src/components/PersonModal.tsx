@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Person, FamilyTree } from '../types/family';
-import { calculateKinship } from '../lib/kinship';
-import { X, User, Heart, Baby, MapPin, Calendar, Briefcase, FileText, Edit2, Plus, Sparkles, ArrowLeft } from 'lucide-react';
+import { X, User, Heart, Baby, MapPin, Calendar, Briefcase, FileText, Edit2, Plus, ArrowLeft } from 'lucide-react';
 
 interface PersonModalProps {
   person: Person | null;
@@ -28,15 +27,10 @@ export const PersonModal: React.FC<PersonModalProps> = ({
   onBack,
   canGoBack,
 }) => {
-  const [kinshipTargetId, setKinshipTargetId] = useState<string>('');
-
   if (!isOpen || !person) return null;
 
   const father = person.fatherId ? tree.people[person.fatherId] : null;
   const mother = person.motherId ? tree.people[person.motherId] : null;
-
-  const kinshipResult = kinshipTargetId ? calculateKinship(tree, person.id, kinshipTargetId) : null;
-  const otherPeople = Object.values(tree.people).filter(p => p.id !== person.id);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
@@ -286,38 +280,6 @@ export const PersonModal: React.FC<PersonModalProps> = ({
               </div>
             </div>
           )}
-
-          {/* Kinship Calculator Section */}
-          <div className="pt-2 border-t border-slate-100">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>বংশীয় সম্পর্ক নির্ণয় করুন:</span>
-            </div>
-
-            <div className="space-y-2">
-              <select
-                value={kinshipTargetId}
-                onChange={(e) => setKinshipTargetId(e.target.value)}
-                className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="">অন্য আত্মীয় নির্বাচন করুন...</option>
-                {otherPeople.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-
-              {kinshipResult && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-950 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-emerald-700 block font-bold uppercase">সম্পর্ক</span>
-                    <span className="text-sm font-bold text-emerald-900">{kinshipResult.termBn}</span>
-                    <span className="text-[11px] text-emerald-700 ml-1.5">({kinshipResult.termEn})</span>
-                  </div>
-                  <p className="text-[11px] text-emerald-800 text-right">{kinshipResult.description}</p>
-                </div>
-              )}
-            </div>
-          </div>
 
         </div>
 

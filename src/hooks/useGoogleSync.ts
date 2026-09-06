@@ -8,7 +8,7 @@ export const useGoogleSync = (tree: FamilyTree) => {
     const saved = localStorage.getItem('bonsho_connected_sheet');
     return saved ? JSON.parse(saved) : null;
   });
-  
+
   const [accessToken, setAccessToken] = useState<string>(() => localStorage.getItem('bonsho_access_token') || '');
   const [lastSyncedTree, setLastSyncedTree] = useState<string>(() => localStorage.getItem('bonsho_last_synced_tree') || '');
   const [isSyncing, setIsSyncing] = useState(false);
@@ -63,6 +63,9 @@ export const useGoogleSync = (tree: FamilyTree) => {
       // Removed native alert: The UI naturally dismissing itself is the success indicator.
     } catch (err: any) {
       setSyncError(err.message);
+      if (err.message && err.message.includes('Session Expired')) {
+        setAccessToken('');
+      }
     } finally {
       setIsSyncing(false);
     }
@@ -71,7 +74,7 @@ export const useGoogleSync = (tree: FamilyTree) => {
   const disconnectSheet = () => {
     setConnectedSheet(null);
   };
-  
+
   const markAsSynced = (explicitTree?: FamilyTree) => {
     setLastSyncedTree(explicitTree ? JSON.stringify(explicitTree) : currentTreeStr);
   };

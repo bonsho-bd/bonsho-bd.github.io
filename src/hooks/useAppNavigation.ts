@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Person, FamilyTree } from '../types/family';
 
 interface AddRelativeState {
@@ -38,11 +38,11 @@ export const useAppNavigation = (tree: FamilyTree) => {
     }
   }, [tree]);
 
-  const navigateTo = (params: NavigateParams, replace = false, currentTree: FamilyTree = tree) => {
+  const navigateTo = useCallback((params: NavigateParams, replace = false, currentTree: FamilyTree = tree) => {
     // Determine new states based on params
     const nextSelected = params.person ? currentTree.people[params.person] || null : null;
     const nextEditing = params.edit ? currentTree.people[params.edit] || null : null;
-    
+
     let nextAddState: AddRelativeState = { isOpen: false, mode: 'child', person: null };
     if (params.add) {
       if (params.add === 'person') {
@@ -67,10 +67,23 @@ export const useAppNavigation = (tree: FamilyTree) => {
     // Any modal open?
     const isAnyModalOpen = nextSelected || nextEditing || nextAddState.isOpen || nextPaste || nextGoogle || nextQR;
 
-    // Build URL (we use hash for state, but keep search params)
+    // Build URL (preserve QR view routes so they are never destroyed)
     const url = new URL(window.location.href);
-    if (params.person) url.hash = `#person-${params.person}`;
-    else url.hash = '';
+    const isQRViewRoute = url.hash.includes('view/qr-v0/');
+
+    if (params.person) {
+      if (!isQRViewRoute) {
+        url.hash = `#person-${encodeURIComponent(params.person)}`;
+      } else {
+        url.searchParams.set('person', params.person);
+      }
+    } else {
+      if (!isQRViewRoute) {
+        url.hash = '';
+      } else {
+        url.searchParams.delete('person');
+      }
+    }
 
     const newDepth = isAnyModalOpen ? modalDepth + 1 : 0;
     setModalDepth(newDepth);
@@ -80,20 +93,20 @@ export const useAppNavigation = (tree: FamilyTree) => {
     } else {
       window.history.pushState({ modalDepth: newDepth }, '', url.toString());
     }
-  };
+  }, [modalDepth, tree]);
 
-  const closeActiveModal = () => {
+  const closeActiveModal = useCallback(() => {
     if (modalDepth > 0) {
       window.history.back();
     } else {
       navigateTo({});
     }
-  };
+  }, [modalDepth, navigateTo]);
 
   // Handle browser back button
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
-      const stateDepth = e.state?.modalDepth as number || 0;
+      const stateDepth = (e.state?.modalDepth as number) || 0;
       setModalDepth(stateDepth);
 
       if (stateDepth === 0) {
@@ -106,8 +119,10 @@ export const useAppNavigation = (tree: FamilyTree) => {
         return;
       }
 
-      // Restore state from hash if possible (simple version)
+      // Restore state from hash or search param
       const hash = window.location.hash;
+      const searchPerson = new URLSearchParams(window.location.search).get('person');
+
       if (hash.startsWith('#person-')) {
         const id = decodeURIComponent(hash.replace('#person-', ''));
         setSelectedPerson(tree.people[id] || null);
@@ -116,9 +131,21 @@ export const useAppNavigation = (tree: FamilyTree) => {
         setIsPasteModalOpen(false);
         setIsGoogleModalOpen(false);
         setIsQRModalOpen(false);
+      } else if (searchPerson && tree.people[searchPerson]) {
+        setSelectedPerson(tree.people[searchPerson]);
+        setEditingPerson(null);
+        setAddRelativeState({ isOpen: false, mode: 'child', person: null });
+        setIsPasteModalOpen(false);
+        setIsGoogleModalOpen(false);
+        setIsQRModalOpen(false);
       } else {
-        // Fallback for modal closing via back button when no specific hash
-        navigateTo({});
+        // Reset without triggering another pushState
+        setSelectedPerson(null);
+        setEditingPerson(null);
+        setAddRelativeState({ isOpen: false, mode: 'child', person: null });
+        setIsPasteModalOpen(false);
+        setIsGoogleModalOpen(false);
+        setIsQRModalOpen(false);
       }
     };
 
@@ -126,7 +153,7 @@ export const useAppNavigation = (tree: FamilyTree) => {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [tree, navigateTo]);
+  }, [tree]);
 
   return {
     isPasteModalOpen,

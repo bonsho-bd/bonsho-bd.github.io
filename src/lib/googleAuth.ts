@@ -184,6 +184,10 @@ export async function fetchGoogleSheetValues(
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('bonsho_access_token');
+      throw new Error('গুগল সাইন-ইনের মেয়াদ শেষ হয়েছে (Session Expired)। অনুগ্রহ করে পুনরায় গুগল সাইন-ইন করুন।');
+    }
     const errorData = await res.json().catch(() => ({}));
     const rawMsg = errorData.error?.message || `HTTP ${res.status}`;
     if (res.status === 404 || rawMsg.includes('Requested entity was not found')) {
@@ -235,6 +239,10 @@ export async function createGoogleSheet(
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('bonsho_access_token');
+      throw new Error('গুগল সাইন-ইনের মেয়াদ শেষ হয়েছে (Session Expired)। অনুগ্রহ করে পুনরায় গুগল সাইন-ইন করুন।');
+    }
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.error?.message || `Failed to create sheet: HTTP ${res.status}`);
   }
@@ -285,6 +293,10 @@ export async function saveGoogleSheetValues(
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('bonsho_access_token');
+      throw new Error('গুগল সাইন-ইনের মেয়াদ শেষ হয়েছে (Session Expired)। অনুগ্রহ করে পুনরায় গুগল সাইন-ইন করুন।');
+    }
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.error?.message || `Failed to save sheet: HTTP ${res.status}`);
   }

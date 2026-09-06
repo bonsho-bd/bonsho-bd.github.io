@@ -35,9 +35,3 @@ export interface FamilyTree {
   };
 }
 
-export interface KinshipResult {
-  termBn: string;
-  termEn: string;
-  description: string;
-}
-
