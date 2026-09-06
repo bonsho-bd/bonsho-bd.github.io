@@ -8,7 +8,7 @@ interface VisualizerProps {
   onSelectPerson: (person: Person) => void;
   onAddChild: (parent: Person) => void;
   onAddSpouse: (person: Person) => void;
-  onAddPerson: () => void;
+  onAddPerson: (x?: number, y?: number) => void;
 }
 
 interface NodeLayout {
@@ -47,7 +47,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
-  const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number } | null>(null);
+  const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number; logicalX: number; logicalY: number } | null>(null);
 
   // Compute Tree Layout
   const { nodes, links, bounds } = React.useMemo(() => {
@@ -89,7 +89,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     // Recursive layout placement
     let currentXOffset = 0;
 
-    function layoutPerson(personId: string, depth: number, startX: number): number {
+    function layoutPerson(personId: string, startX: number, startY: number, forceX?: number): number {
       if (visited.has(personId)) return startX;
       visited.add(personId);
 
@@ -112,11 +112,16 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       allChildren.push(...person.unassociatedChildren);
 
       const subtreeWidth = calculateSubtreeWidth(personId);
-      const y = depth * VERTICAL_GAP;
-
-      // Center the couple within the subtree
       const coupleWidth = CARD_WIDTH + (spouses.length * (CARD_WIDTH + 20));
-      const personX = startX + (subtreeWidth - coupleWidth) / 2;
+      
+      let personX = startX + (subtreeWidth - coupleWidth) / 2;
+      let usedStartX = startX;
+      if (forceX !== undefined) {
+        personX = forceX;
+        usedStartX = forceX - (subtreeWidth - coupleWidth) / 2;
+      }
+
+      const y = startY;
 
       layoutMap.set(personId, {
         id: personId,
@@ -131,10 +136,10 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       });
 
       // Layout children recursively
-      let childX = startX;
+      let childX = usedStartX;
       for (const childId of allChildren) {
         const childWidth = calculateSubtreeWidth(childId);
-        layoutPerson(childId, depth + 1, childX);
+        layoutPerson(childId, childX, startY + VERTICAL_GAP);
 
         // Create link from parent couple to child
         const childLayout = layoutMap.get(childId);
@@ -156,17 +161,31 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         childX += childWidth + HORIZONTAL_GAP;
       }
 
-      return startX + subtreeWidth + HORIZONTAL_GAP;
+      return usedStartX + subtreeWidth + HORIZONTAL_GAP;
     }
 
     for (const rootId of tree.rootIds) {
-      currentXOffset = layoutPerson(rootId, 0, currentXOffset);
+      const p = tree.people[rootId];
+      if (p && p.customProperties['_x'] && p.customProperties['_y']) {
+        const cx = parseFloat(p.customProperties['_x']);
+        const cy = parseFloat(p.customProperties['_y']);
+        layoutPerson(rootId, currentXOffset, cy, cx);
+      } else {
+        currentXOffset = layoutPerson(rootId, currentXOffset, 0);
+      }
     }
 
     // Include any unlinked components
     for (const pId of Object.keys(tree.people)) {
       if (!visited.has(pId)) {
-        currentXOffset = layoutPerson(pId, 0, currentXOffset);
+        const p = tree.people[pId];
+        if (p && p.customProperties['_x'] && p.customProperties['_y']) {
+          const cx = parseFloat(p.customProperties['_x']);
+          const cy = parseFloat(p.customProperties['_y']);
+          layoutPerson(pId, currentXOffset, cy, cx);
+        } else {
+          currentXOffset = layoutPerson(pId, currentXOffset, 0);
+        }
       }
     }
 
@@ -219,12 +238,18 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   }, [nodes.length, bounds]);
 
   // Auto-center on initial mount and when tree structure changes
+  // Keep track of initial load
+  const isInitialLoad = useRef(true);
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      centerTree();
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [centerTree]);
+    if (isInitialLoad.current && nodes.length > 0) {
+      const frame = requestAnimationFrame(() => {
+        centerTree();
+        isInitialLoad.current = false;
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [nodes.length, centerTree]);
+
 
   // Pan & Zoom & Click handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -273,11 +298,16 @@ export const Visualizer: React.FC<VisualizerProps> = ({
 
         if (isBackground) {
           if (nodes.length === 0) {
-            onAddPerson();
+            onAddPerson(floatingAddBtnPos?.logicalX, floatingAddBtnPos?.logicalY);
           } else {
             const rect = containerRef.current?.getBoundingClientRect();
             if (rect) {
-              setFloatingAddBtnPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+              setFloatingAddBtnPos({ 
+                x: e.clientX - rect.left, 
+                y: e.clientY - rect.top,
+                logicalX: ((e.clientX - rect.left) - pan.x) / zoom,
+                logicalY: ((e.clientY - rect.top) - pan.y) / zoom
+              });
             }
           }
         }
@@ -296,6 +326,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const handleZoomOut = () => setZoom(prev => Math.max(prev * 0.8, 0.2));
   const handleResetZoom = () => {
     centerTree();
+    window.dispatchEvent(new CustomEvent('bonsho-reset-layout'));
   };
 
   return (
@@ -323,7 +354,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               setFloatingAddBtnPos(null);
-              onAddPerson();
+              onAddPerson(floatingAddBtnPos?.logicalX, floatingAddBtnPos?.logicalY);
             }}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xl transition hover:scale-105 active:scale-95 -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none"
             title="নতুন ব্যক্তি যোগ করুন"
@@ -439,7 +470,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
               </p>
             </div>
             <button
-              onClick={onAddPerson}
+              onClick={() => onAddPerson()}
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition inline-flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />

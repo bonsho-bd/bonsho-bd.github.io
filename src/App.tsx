@@ -19,6 +19,7 @@ const STORAGE_KEY = 'bonsho_family_tree_data';
 
 export const App: React.FC = () => {
   // Tree state
+  const [newPersonCoords, setNewPersonCoords] = useState<{x: number, y: number} | null>(null);
   const [tree, setTree] = useState<FamilyTree>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -468,10 +469,13 @@ export const App: React.FC = () => {
       village: data.village,
       notes: data.notes,
       isDeceased: Boolean(data.death || (data.notes && (data.notes.includes('মরহুম') || data.notes.includes('মরহুমা')))),
-      customProperties: {},
+      customProperties: {
+        ...(newPersonCoords ? { _x: newPersonCoords.x.toString(), _y: newPersonCoords.y.toString() } : {})
+      },
       marriages: [],
       unassociatedChildren: [],
     };
+    setNewPersonCoords(null);
 
     setTree(prev => {
       const updatedPeople = { ...prev.people, [newPerson.id]: newPerson };
@@ -548,7 +552,14 @@ export const App: React.FC = () => {
           onSelectPerson={(p) => navigateTo({ person: p.id })}
           onAddChild={(p) => navigateTo({ person: p.id, add: 'child', target: p.id })}
           onAddSpouse={(p) => navigateTo({ person: p.id, add: 'spouse', target: p.id })}
-          onAddPerson={() => navigateTo({ add: 'person' })}
+          onAddPerson={(x, y) => {
+            if (x !== undefined && y !== undefined) {
+              setNewPersonCoords({ x, y });
+            } else {
+              setNewPersonCoords(null);
+            }
+            navigateTo({ add: 'person' });
+          }}
         />
       </main>
 
