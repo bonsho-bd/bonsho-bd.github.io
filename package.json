@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "trim": "node scripts/trim-trailing-spaces.js",
+    "build": "npm run trim && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  TreePine, ClipboardPaste, Upload, Sparkles, 
-  FileSpreadsheet, FileText, Search, PlusCircle,  
+import {
+  TreePine, ClipboardPaste, Upload, Sparkles,
+  FileSpreadsheet, FileText, Search, PlusCircle,
   QrCode, Share2, Database, Copy, ChevronDown, Camera
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header ref={headerRef} className="bg-white/90 backdrop-blur border-b border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm z-40 shrink-0">
       <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
-        
+
         {/* Top Row: Logo & Search */}
         <div className="flex items-center justify-between w-full lg:w-auto gap-3 shrink-0">
           <div className="flex items-center gap-2">
@@ -135,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {showSyncMenu && (
               <div className="absolute right-0 lg:right-auto lg:left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm">
-                
+
 
 
                 <div className="relative group">
@@ -208,7 +208,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <QrCode className="w-4 h-4 text-emerald-600" />
                   <span>QR কোড ও লিংক</span>
                 </button>
-                
+
                 <div className="h-px bg-slate-100 my-1"></div>
 
                 <button
@@ -227,7 +227,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <TreePine className="w-4 h-4 text-purple-600" />
                   <span>ডাউনলোড ইমেজ (PNG)</span>
                 </button>
-                
+
                 {onCopyToClipboard && (
                   <button
                     disabled={totalPeopleCount === 0}

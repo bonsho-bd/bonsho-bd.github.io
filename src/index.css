@@ -7,7 +7,7 @@
   body {
     font-family: 'Hind Siliguri', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
-  
+
   /* Global a11y focus states */
   :focus-visible {
     @apply outline-none ring-2 ring-emerald-500 ring-offset-2;
@@ -25,13 +25,13 @@
   }
 
   /* Standardize input fields UX */
-  input[type="text"], 
+  input[type="text"],
   input[type="url"],
   textarea {
     @apply transition-all duration-200 border-slate-200 placeholder:text-slate-400;
   }
-  
-  input[type="text"]:focus, 
+
+  input[type="text"]:focus,
   input[type="url"]:focus,
   textarea:focus {
     @apply border-emerald-500 outline-none;

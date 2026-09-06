@@ -23,13 +23,13 @@ import { ToastContainer } from './components/Toast';
 
 export const App: React.FC = () => {
   // Use custom hooks
-  const { 
-    tree, 
-    setTree, 
-    setNewPersonCoords, 
-    savePerson, 
-    deletePerson, 
-    addPerson 
+  const {
+    tree,
+    setTree,
+    setNewPersonCoords,
+    savePerson,
+    deletePerson,
+    addPerson
   } = useFamilyTree();
 
   const {
@@ -184,7 +184,7 @@ export const App: React.FC = () => {
     const handleExportViewport = async () => {
     const visualizerEl = document.querySelector('main > div') as HTMLElement;
     if (!visualizerEl) return;
-    
+
     // Inject QR code for viewport export
     const qrUrl = generateQRUrlForTree(tree).url;
     const qrDataUrl = await generateQRCodeWithLogo(qrUrl);
@@ -201,7 +201,7 @@ export const App: React.FC = () => {
     qrImg.style.boxShadow = '0 10px 15px -3px rgb(0 0 0 / 0.1)';
     qrImg.style.zIndex = '50';
     qrImg.id = 'temp-qr-viewport';
-    
+
     visualizerEl.appendChild(qrImg);
 
     // Wait for reflow and image load
@@ -254,8 +254,8 @@ export const App: React.FC = () => {
     }
 
     const padding = 150;
-    const nodeWidth = 250; 
-    const nodeHeight = 150; 
+    const nodeWidth = 250;
+    const nodeHeight = 150;
     const fullWidth = (maxX - minX) + nodeWidth + padding * 2;
     const fullHeight = (maxY - minY) + nodeHeight + padding * 2;
 
@@ -294,8 +294,8 @@ export const App: React.FC = () => {
       await new Promise(r => setTimeout(r, 150));
 
       // Capture using the root, overriding its dimensions temporarily
-      const dataUrl = await toPng(visualizerRoot, { 
-        quality: 1, 
+      const dataUrl = await toPng(visualizerRoot, {
+        quality: 1,
         pixelRatio: 2,
         width: fullWidth,
         height: fullHeight,
@@ -308,7 +308,7 @@ export const App: React.FC = () => {
         },
         skipFonts: false
       });
-      
+
       const link = document.createElement('a');
       link.download = 'bonsho-full-tree.png';
       link.href = dataUrl;
@@ -321,7 +321,7 @@ export const App: React.FC = () => {
       nodesContainer.style.transform = origNodesTransform;
       svgGroup.setAttribute('transform', origSvgTransform);
       if (bgGrid) bgGrid.setAttribute('style', origBgStyle);
-      
+
       const qrEl = document.getElementById('temp-qr-full');
       if (qrEl) qrEl.remove();
     }
@@ -366,8 +366,8 @@ export const App: React.FC = () => {
             <div className="flex items-center gap-2 text-xs font-semibold text-amber-800">
               <AlertCircle className="w-4 h-4 text-amber-600" />
               <span>
-                {syncError 
-                  ? `সেভ করতে সমস্যা হয়েছে: ${syncError}` 
+                {syncError
+                  ? `সেভ করতে সমস্যা হয়েছে: ${syncError}`
                   : 'গুগল শিটে কিছু পরিবর্তন সেভ করা বাকি আছে।'}
               </span>
             </div>
