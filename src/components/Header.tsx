@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   TreePine, Table2, Sparkles,
   FileSpreadsheet, Search, PlusCircle,
-  QrCode, Share2, Copy, ChevronDown, Camera
+  QrCode, Share2, Copy, ChevronDown
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
@@ -12,7 +12,6 @@ interface HeaderProps {
   onOpenQRCode: () => void;
   onLoadSample: () => void;
   onNewTree: () => void;
-  onExportFullTree: () => void;
   onExportViewport: () => void;
   onCopyToClipboard?: () => void;
   searchQuery: string;
@@ -27,7 +26,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenQRCode,
   onLoadSample,
   onNewTree,
-  onExportFullTree,
   onExportViewport,
   onCopyToClipboard,
   searchQuery,
@@ -174,15 +172,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
 
                 <div className="h-px bg-slate-100 my-1"></div>
-
-                <button
-                  disabled={totalPeopleCount === 0}
-                  onClick={() => { onExportFullTree(); setShowShareMenu(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Camera className="w-4 h-4 text-emerald-600" />
-                  <span>সম্পূর্ণ গ্রাফ ছবি হিসেবে সেভ করুন</span>
-                </button>
                 <button
                   disabled={totalPeopleCount === 0}
                   onClick={() => { onExportViewport(); setShowShareMenu(false); }}
