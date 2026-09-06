@@ -168,6 +168,7 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
 ## 5. Technology Stack
 
 - **Application Framework**: Vite + React 18+ + TypeScript
+  - Modular Custom Hooks (`useFamilyTree`, `useGoogleSync`, `useAppNavigation`) for state management and separation of concerns
 - **Styling**: Tailwind CSS + Lucide Icons
 - **Bangla Typography**: Google Fonts (`Hind Siliguri` / `Noto Sans Bengali`)
 - **Data Parsing, Serialization & Compression**:
@@ -222,6 +223,10 @@ bonsho/
 │   │   ├── qrCodec.ts          # Pako DEFLATE + Base64URL codec & URL route parser
 │   │   ├── sampleData.ts       # Bengali demo family tree dataset
 │   │   └── serializer.ts       # Graph -> 2-column block format (for saving/exporting)
+│   ├── hooks/
+│   │   ├── useAppNavigation.ts # Custom router, history, and modal orchestrator
+│   │   ├── useFamilyTree.ts    # Tree mutation logic, add/edit/delete, localStorage
+│   │   └── useGoogleSync.ts    # Google Sheets connection, quick sync, unload warnings
 │   ├── types/
 │   │   └── family.ts           # TypeScript interfaces for Person, Marriage, Graph
 │   ├── App.tsx
