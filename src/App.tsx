@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FamilyTree, Person, Gender } from './types/family';
 import { parseRawText, parseKeyValueBlocksToTree } from './lib/parser';
-import { downloadTreeAsExcel, downloadTreeAsCSV } from './lib/serializer';
+import { downloadTreeAsExcel, downloadTreeAsCSV, treeToCSV } from './lib/serializer';
 import { SAMPLE_FAMILY_TEXT } from './lib/sampleData';
 import { Header } from './components/Header';
 import { Visualizer } from './components/Visualizer';
@@ -529,6 +529,11 @@ export const App: React.FC = () => {
         onExportExcel={() => downloadTreeAsExcel(tree)}
         onExportCSV={() => downloadTreeAsCSV(tree)}
         onExportPoster={handleExportPoster}
+        onCopyToClipboard={() => {
+          navigator.clipboard.writeText(treeToCSV(tree))
+            .then(() => alert('ট্রি ডেটা ক্লিপবোর্ডে কপি করা হয়েছে!'))
+            .catch(() => alert('কপি করতে সমস্যা হয়েছে।'));
+        }}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         totalPeopleCount={Object.keys(tree.people).length}

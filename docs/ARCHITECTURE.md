@@ -209,7 +209,7 @@ bonsho/
 │   │   ├── AddRelativeModal.tsx# Quick relative addition modal
 │   │   ├── EditPersonModal.tsx # Full profile editor modal
 │   │   ├── GoogleSyncModal.tsx # Google Drive picker and sync controls
-│   │   ├── Header.tsx          # Top bar with modes (Paste, Upload, Google, Export, QR)
+│   │   ├── Header.tsx          # Top bar with consolidated Sync # Top bar with modes (Paste, Upload, Google, Export, QR) Share menus
 │   │   ├── PasteModal.tsx      # Clipboard Sync modal (Export text & Import paste)
 │   │   ├── PersonModal.tsx     # Detail drawer and editor (+ Add Child, + Add Spouse)
 │   │   ├── QRCodeModal.tsx     # QR code display, copy link, and PNG download modal

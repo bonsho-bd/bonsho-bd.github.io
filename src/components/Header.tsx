@@ -1,5 +1,9 @@
-import React from 'react';
-import { TreePine, ClipboardPaste, Upload, Download, Sparkles, FileSpreadsheet, FileText, Search, PlusCircle, AlertCircle, QrCode } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  TreePine, ClipboardPaste, Upload, Sparkles, 
+  FileSpreadsheet, FileText, Search, PlusCircle,  
+  QrCode, Share2, Database, Copy, ChevronDown
+} from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
 interface HeaderProps {
@@ -12,6 +16,7 @@ interface HeaderProps {
   onExportExcel: () => void;
   onExportCSV: () => void;
   onExportPoster: () => void;
+  onCopyToClipboard?: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   totalPeopleCount: number;
@@ -28,31 +33,48 @@ export const Header: React.FC<HeaderProps> = ({
   onExportExcel,
   onExportCSV,
   onExportPoster,
+  onCopyToClipboard,
   searchQuery,
   onSearchChange,
   totalPeopleCount,
   connectedSheet,
 }) => {
-  const [showExportMenu, setShowExportMenu] = React.useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showSyncMenu, setShowSyncMenu] = useState(false);
   const isGoogleAvailable = isGoogleSyncAvailable();
 
-  return (
-    <header className="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-30 px-4 py-2.5 shadow-sm">
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+  // Close menus on outside click
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setShowShareMenu(false);
+        setShowSyncMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-        {/* Logo & Title */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-emerald-200 shadow-md">
-            <TreePine className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-800 tracking-tight">বংশ <span className="text-emerald-600 font-medium text-base">Bonsho</span></h1>
-              <span className="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">
-                {totalPeopleCount} জন সদস্য
-              </span>
+  return (
+    <header ref={headerRef} className="bg-white/90 backdrop-blur border-b border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm z-40 shrink-0">
+      <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
+        
+        {/* Top Row: Logo & Search */}
+        <div className="flex items-center justify-between w-full lg:w-auto gap-3 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
+              <img src="/tree-icon.svg" alt="Bonsho Logo" className="w-5 h-5 sm:w-6 sm:h-6 opacity-80" />
             </div>
-            <p className="text-xs text-slate-500 hidden sm:block">প্রাইভেসি-বান্ধব বাংলাদেশী ফ্যামিলি ট্রি ভিজ্যুয়ালাইজার</p>
+            <div>
+              <div className="flex items-baseline gap-2">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-800 leading-none">বংশ</h1>
+                <span className="text-[10px] sm:text-xs font-semibold text-emerald-700 bg-emerald-50 px-1.5 sm:px-2 py-0.5 rounded-full">
+                  {totalPeopleCount} জন সদস্য
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs text-slate-500 hidden sm:block">প্রাইভেসি-বান্ধব বাংলাদেশী ফ্যামিলি ট্রি</p>
+            </div>
           </div>
         </div>
 
@@ -68,133 +90,149 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:mx-0 lg:px-0 lg:pb-0 scrollbar-hide w-full lg:w-auto shrink-0">
+        {/* Action Buttons (Just Sync and Share) */}
+        <div className="flex items-center gap-2 w-full lg:w-auto shrink-0 ml-auto justify-end">
 
-          {/* Direct Paste */}
-          <button
-            onClick={onOpenPasteModal}
-            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm transition"
-            title="ক্লিপবোর্ডের মাধ্যমে ডেটা কপি বা পেস্ট করুন"
-          >
-            <ClipboardPaste className="w-4 h-4" />
-            <span className="hidden sm:inline">ক্লিপবোর্ড</span>
-          </button>
-
-          {/* Upload File */}
-          <button
-            onClick={onOpenUpload}
-            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg border border-slate-200 transition"
-            title="CSV বা Excel ফাইল আপলোড করুন"
-          >
-            <Upload className="w-4 h-4 text-slate-500" />
-            <span className="hidden md:inline">আপলোড</span>
-          </button>
-
-          {/* Google Sheets Sync */}
-          <div className="relative group">
+          {/* Sync & Data Dropdown */}
+          <div className="relative">
             <button
-              onClick={isGoogleAvailable ? onOpenGoogleModal : undefined}
-              disabled={!isGoogleAvailable}
-              className={`flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium rounded-lg border transition ${
-                !isGoogleAvailable
-                  ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
-                  : connectedSheet
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200'
-              }`}
-              title={
-                !isGoogleAvailable
-                  ? 'গুগল শিট সিঙ্ক নিষ্ক্রিয়: Google OAuth টোকেন / Client ID অনুপস্থিত'
-                  : 'গুগল শিটের সাথে সরাসরি যুক্ত করুন'
-              }
+              onClick={() => {
+                setShowSyncMenu(!showSyncMenu);
+                setShowShareMenu(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-blue-50 text-blue-700 rounded-lg border border-blue-200 hover:bg-blue-100 shadow-sm transition whitespace-nowrap"
             >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span className="hidden sm:inline">
-                {connectedSheet ? `শিট: ${connectedSheet.name.slice(0, 10)}...` : 'গুগল শিট'}
-              </span>
-              {connectedSheet && <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>}
+              <Database className="w-4 h-4" />
+              <span>সিঙ্ক ও ডেটা</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSyncMenu ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Error Tooltip when Google OAuth is not present */}
-            {!isGoogleAvailable && (
-              <div className="absolute right-0 sm:left-1/2 sm:-translate-x-1/2 top-full mt-2 hidden group-hover:flex flex-col items-center z-50 w-72 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
-                <div className="w-2.5 h-2.5 bg-slate-900 rotate-45 -mb-1 hidden sm:block"></div>
-                <div className="bg-slate-900 text-white text-xs rounded-xl p-3 shadow-xl border border-slate-700 text-left space-y-1">
-                  <div className="flex items-center gap-1.5 text-rose-400 font-semibold">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>গুগল শিট সিঙ্ক নিষ্ক্রিয়</span>
-                  </div>
-                  <p className="text-slate-300 text-[11px] leading-relaxed">
-                    Google OAuth Token / Client ID কনফিগার করা নেই। অনুগ্রহ করে <strong>পেস্ট করুন</strong> বা <strong>আপলোড</strong> বিকল্পটি ব্যবহার করুন।
-                  </p>
+            {showSyncMenu && (
+              <div className="absolute right-0 lg:right-auto lg:left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm">
+                
+                <button
+                  onClick={() => { onNewTree(); setShowSyncMenu(false); }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                >
+                  <PlusCircle className="w-4 h-4 text-slate-500" />
+                  <span>খালি ট্রি শুরু করুন</span>
+                </button>
+                <button
+                  onClick={() => { onLoadSample(); setShowSyncMenu(false); }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span>নমুনা ট্রি লোড করুন</span>
+                </button>
+
+                <div className="h-px bg-slate-100 my-1"></div>
+
+                <div className="relative group">
+                  <button
+                    onClick={() => {
+                      if (isGoogleAvailable) {
+                        onOpenGoogleModal();
+                        setShowSyncMenu(false);
+                      }
+                    }}
+                    disabled={!isGoogleAvailable}
+                    className={`w-full px-3 py-2 text-left flex items-center justify-between group ${
+                      !isGoogleAvailable ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                      <span>গুগল শিট</span>
+                    </div>
+                    {connectedSheet && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
+                  </button>
+                  {!isGoogleAvailable && (
+                    <div className="absolute left-0 top-full mt-1 hidden group-hover:block w-48 bg-slate-800 text-white text-[11px] p-2 rounded shadow-lg z-50">
+                      Google OAuth টোকেন / Client ID অনুপস্থিত।
+                    </div>
+                  )}
                 </div>
+
+                <button
+                  onClick={() => { onOpenPasteModal(); setShowSyncMenu(false); }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                >
+                  <ClipboardPaste className="w-4 h-4 text-blue-500" />
+                  <span>ক্লিপবোর্ড থেকে পেস্ট</span>
+                </button>
+
+                <button
+                  onClick={() => { onOpenUpload(); setShowSyncMenu(false); }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                >
+                  <Upload className="w-4 h-4 text-slate-500" />
+                  <span>আপলোড (CSV/Excel)</span>
+                </button>
               </div>
             )}
           </div>
 
-          {/* Load Sample Family */}
-          <button
-            onClick={onLoadSample}
-            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition"
-            title="নমুনা পরিবার দেখুন"
-          >
-            <Sparkles className="w-4 h-4 text-amber-600" />
-            <span className="hidden lg:inline">নমুনা</span>
-          </button>
-
-          {/* Start New / Blank */}
-          <button
-            onClick={onNewTree}
-            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
-            title="নতুন খালি ট্রি শুরু করুন"
-          >
-            <PlusCircle className="w-4 h-4 text-slate-500" />
-            <span className="hidden lg:inline">নতুন</span>
-          </button>
-
-          {/* Export Dropdown */}
+          {/* Share Dropdown */}
           <div className="relative">
             <button
-              onClick={() => setShowExportMenu(!showExportMenu)}
-              className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 whitespace-nowrap text-sm font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-sm transition"
+              onClick={() => {
+                setShowShareMenu(!showShareMenu);
+                setShowSyncMenu(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-sm transition whitespace-nowrap"
             >
-              <Download className="w-4 h-4" />
-              <span>ডাউনলোড</span>
+              <Share2 className="w-4 h-4" />
+              <span>শেয়ার</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${showShareMenu ? 'rotate-180' : ''}`} />
             </button>
 
-            {showExportMenu && (
+            {showShareMenu && (
               <div
-                className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm"
-                onClick={() => setShowExportMenu(false)}
+                className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm"
               >
                 <button
-                  onClick={onExportExcel}
+                  onClick={() => { onOpenQRCode(); setShowShareMenu(false); }}
+                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 font-medium bg-emerald-50/50"
+                >
+                  <QrCode className="w-4 h-4 text-emerald-600" />
+                  <span>QR কোড ও লিংক</span>
+                </button>
+                
+                <div className="h-px bg-slate-100 my-1"></div>
+
+                <button
+                  onClick={() => { onExportPoster(); setShowShareMenu(false); }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                >
+                  <TreePine className="w-4 h-4 text-purple-600" />
+                  <span>ডাউনলোড ইমেজ (PNG)</span>
+                </button>
+                
+                {onCopyToClipboard && (
+                  <button
+                    onClick={() => { onCopyToClipboard(); setShowShareMenu(false); }}
+                    className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                  >
+                    <Copy className="w-4 h-4 text-slate-500" />
+                    <span>ক্লিপবোর্ডে কপি করুন</span>
+                  </button>
+                )}
+
+                <div className="h-px bg-slate-100 my-1"></div>
+
+                <button
+                  onClick={() => { onExportExcel(); setShowShareMenu(false); }}
                   className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
                 >
                   <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                  <span>এক্সেল ফাইল (.xlsx)</span>
+                  <span>ডাউনলোড .xlsx</span>
                 </button>
                 <button
-                  onClick={onExportCSV}
+                  onClick={() => { onExportCSV(); setShowShareMenu(false); }}
                   className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
                 >
                   <FileText className="w-4 h-4 text-blue-600" />
-                  <span>CSV ফাইল (.csv)</span>
-                </button>
-                <button
-                  onClick={onExportPoster}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 border-t border-slate-100"
-                >
-                  <TreePine className="w-4 h-4 text-purple-600" />
-                  <span>পোস্টার ছবি (PNG)</span>
-                </button>
-                <button
-                  onClick={onOpenQRCode}
-                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 border-t border-slate-100 font-medium"
-                >
-                  <QrCode className="w-4 h-4 text-emerald-600" />
-                  <span>QR কোড শেয়ার</span>
+                  <span>ডাউনলোড .csv</span>
                 </button>
               </div>
             )}
@@ -206,4 +244,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-
