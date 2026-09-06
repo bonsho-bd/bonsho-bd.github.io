@@ -34,16 +34,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
     onClose();
   };
 
-  const handlePasteFromClipboard = async () => {
-    try {
-      const clipText = await navigator.clipboard.readText();
-      if (clipText) {
-        setText(clipText);
-      }
-    } catch {
-      // Fallback for browsers with strict permissions
-    }
-  };
+
 
   const handleCopy = async () => {
     try {
@@ -92,16 +83,9 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
                 className="text-xs text-blue-700 hover:text-blue-800 font-medium flex items-center gap-1 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200 transition"
               >
                 {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'কপি হয়েছে!' : 'কপি করুন'}</span>
+                <span>{copied ? 'কপি হয়েছে!' : 'সব টেক্সট কপি করুন'}</span>
               </button>
-              <button
-                type="button"
-                onClick={handlePasteFromClipboard}
-                className="text-xs text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200"
-              >
-                <ClipboardPaste className="w-3.5 h-3.5" />
-                <span>পেস্ট করুন</span>
-              </button>
+
               <button
                 type="button"
                 onClick={() => setShowHelp(!showHelp)}
