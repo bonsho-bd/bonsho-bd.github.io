@@ -99,8 +99,6 @@ Id              | akkas-1                  (Optional, defaults to Name)
 Gender          | Male
 Date of birth   | 1935
 Date of death   | 2012                     (Automatically adds প্রয়াত badge)
-পেশা            | শিক্ষকতা
-উপাধি           | বীর মুক্তিযোদ্ধা
 Wife            | সালেহা বেগম              (1st Wife)
 Child           | মতিউর রহমান              (Child of 1st Wife)
 Child           | রোকসানা আক্তার           (Child of 1st Wife)
@@ -115,7 +113,6 @@ Key             | Value
 ----------------+-------------------------
 Name            | মেবেল মারাক
 Gender          | Female
-Clan / মাহারি   | মারাক (Marak)
 Husband         | জন নকরেক                 (1st Husband)
 Child           | সিলভিয়া মারাক
 Child           | প্রবীর মারাক
@@ -131,7 +128,6 @@ Key             | Value
 Name            | মতিউর রহমান
 Gender          | Male
 Date of birth   | 1965
-Profession      | অধ্যাপক (Professor)
 Wife            | নাজনীন আক্তার
 Child           | নাদিম রহমান
 Child           | তাসনিম রহমান

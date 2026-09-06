@@ -19,7 +19,7 @@
   - Handles matrilineal / mother-centric societies (e.g. Garo / Khasi communities or maternal trees).
   - Multi-spouse (polygyny / remarriage) with clear child grouping.
   - Native Bengali honorifics & badges (মরহুম / মরহুমা / স্বর্গীয়).
-  - Custom attributes: গ্রামের বাড়ি, পেশা, রক্তের গ্রুপ, খেতাব (বীর মুক্তিযোদ্ধা, ইত্যাদি).
+  - Custom attributes: Attach any key-value information directly to family members.
 - 🌐 **Bilingual (বাংলা / English)**: Keys and values work interchangeably in Bangla or English (`নাম` or `Name`, `স্ত্রী` or `Wife`, `সন্তান` or `Child`).
 - ✏️ **Interactive In-App Editing**: Add children, add spouses, and edit details directly on the visual tree.
 - 🔄 **Two-Way Google Sheets Sync**: Connect your private Google Sheet via Google Drive Picker (read & write directly to your sheet with 0 server transit).

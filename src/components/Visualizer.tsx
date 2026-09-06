@@ -117,7 +117,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
 
       const subtreeWidth = calculateSubtreeWidth(personId);
       const coupleWidth = CARD_WIDTH + (spouses.length * (CARD_WIDTH + 20));
-      
+
       let personX = startX + (subtreeWidth - coupleWidth) / 2;
       let usedStartX = startX;
       if (forceX !== undefined) {
@@ -306,8 +306,8 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           } else {
             const rect = containerRef.current?.getBoundingClientRect();
             if (rect) {
-              setFloatingAddBtnPos({ 
-                x: e.clientX - rect.left, 
+              setFloatingAddBtnPos({
+                x: e.clientX - rect.left,
                 y: e.clientY - rect.top,
                 logicalX: ((e.clientX - rect.left) - pan.x) / zoom,
                 logicalY: ((e.clientY - rect.top) - pan.y) / zoom
@@ -330,7 +330,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     ) {
       return;
     }
-    
+
     if (e.touches.length === 1) {
       setIsDragging(true);
       setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
@@ -358,7 +358,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         e.touches[0].clientY - e.touches[1].clientY
       );
       const zoomDelta = dist / lastPinchDist;
-      
+
       setZoom(prevZoom => {
         const newZoom = Math.min(Math.max(prevZoom * zoomDelta, 0.2), 2.5);
         if (newZoom !== prevZoom) {
@@ -366,14 +366,14 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             if (!containerRef.current) return prevPan;
             const pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
             const pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-            
+
             const rect = containerRef.current.getBoundingClientRect();
             const pointerX = pinchCenterX - rect.left;
             const pointerY = pinchCenterY - rect.top;
-            
+
             const logicalX = (pointerX - prevPan.x) / prevZoom;
             const logicalY = (pointerY - prevPan.y) / prevZoom;
-            
+
             return {
               x: pointerX - logicalX * newZoom,
               y: pointerY - logicalY * newZoom,
@@ -382,7 +382,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         }
         return newZoom;
       });
-      
+
       setLastPinchDist(dist);
     }
   };
@@ -391,10 +391,10 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     if (e.touches.length < 2) {
       setLastPinchDist(null);
     }
-    
+
     if (e.touches.length === 0) {
       setIsDragging(false);
-      
+
       // Simulate tap on background (like handleMouseUp)
       if (clickStartPos && e.changedTouches.length === 1) {
         const distance = Math.hypot(e.changedTouches[0].clientX - clickStartPos.x, e.changedTouches[0].clientY - clickStartPos.y);
@@ -410,8 +410,8 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             } else {
               const rect = containerRef.current?.getBoundingClientRect();
               if (rect) {
-                setFloatingAddBtnPos({ 
-                  x: e.changedTouches[0].clientX - rect.left, 
+                setFloatingAddBtnPos({
+                  x: e.changedTouches[0].clientX - rect.left,
                   y: e.changedTouches[0].clientY - rect.top,
                   logicalX: ((e.changedTouches[0].clientX - rect.left) - pan.x) / zoom,
                   logicalY: ((e.changedTouches[0].clientY - rect.top) - pan.y) / zoom
@@ -430,7 +430,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-    
+
     setZoom(prevZoom => {
       const newZoom = Math.min(Math.max(prevZoom * zoomFactor, 0.2), 2.5);
       if (newZoom !== prevZoom) {
@@ -439,10 +439,10 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           const rect = containerRef.current.getBoundingClientRect();
           const pointerX = e.clientX - rect.left;
           const pointerY = e.clientY - rect.top;
-          
+
           const logicalX = (pointerX - prevPan.x) / prevZoom;
           const logicalY = (pointerY - prevPan.y) / prevZoom;
-          
+
           return {
             x: pointerX - logicalX * newZoom,
             y: pointerY - logicalY * newZoom,
@@ -462,10 +462,10 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           const rect = containerRef.current.getBoundingClientRect();
           const pointerX = rect.width / 2;
           const pointerY = rect.height / 2;
-          
+
           const logicalX = (pointerX - prevPan.x) / prevZoom;
           const logicalY = (pointerY - prevPan.y) / prevZoom;
-          
+
           return {
             x: pointerX - logicalX * newZoom,
             y: pointerY - logicalY * newZoom,
