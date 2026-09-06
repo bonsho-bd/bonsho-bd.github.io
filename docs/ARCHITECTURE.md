@@ -231,3 +231,26 @@ bonsho/
 └── README.md
 ```
 
+
+---
+
+## 7. Critical User Journeys (CUJs)
+
+1. **Zero-Setup Graph Exploration**
+   - User opens the app.
+   - User clicks "Sample Graph" to instantly load and interact with a generated graph.
+   - User clicks on people to view the slide-out drawer, pans the canvas, and uses the scroll wheel/pinch to zoom.
+   - User exports a high-resolution PNG poster of the graph.
+
+2. **Google Sheets Sync & Paste Workflow**
+   - User connects their Google account via the "Google Sheet" button.
+   - User selects an existing spreadsheet from their Drive, which loads the family data.
+   - User clicks "Paste Data" to overwrite the graph state in-memory with new raw data from their clipboard.
+   - *Result*: The sheet does **not** disconnect. Instead, the UI lights up indicating unsaved changes. The user can then click the "Save to Sheets" button to sync the new pasted data back to their connected spreadsheet.
+
+3. **In-App Editing & Deep Linking**
+   - User clicks on a node and uses the drawer to add a child or spouse.
+   - User edits an existing person's details or deletes them.
+   - The UI auto-recalculates and smooth-transitions the layout.
+   - User clicks "Share" to generate a compressed QR URL.
+   - User sends the URL to a family member, who opens it and immediately sees the exact graph state with zero server interaction.

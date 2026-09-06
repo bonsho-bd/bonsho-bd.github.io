@@ -86,8 +86,6 @@ export const App: React.FC = () => {
     try {
       const parsedGraph = parseRawText(rawText);
       setTree(parsedGraph);
-      disconnectSheet();
-      markAsSynced(parsedGraph);
       navigateTo({}, true, parsedGraph);
       showToast('গ্রাফ সফলভাবে আপডেট করা হয়েছে!', 'success');
       return true;
