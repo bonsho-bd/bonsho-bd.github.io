@@ -107,7 +107,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
         {/* Header */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-          <h2 className="text-base font-bold text-slate-800">তথ্য সম্পাদন করুন</h2>
+          <h2 className="text-base font-bold text-slate-800">তথ্য সম্পাদন করুন <span className="text-xs font-mono text-slate-400 font-normal ml-2">#{person.id}</span></h2>
           <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition">
             <X className="w-5 h-5" />
           </button>

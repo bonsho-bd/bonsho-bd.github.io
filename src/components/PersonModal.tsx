@@ -74,6 +74,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             <div className="flex-1 min-w-0 pr-6">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-bold text-slate-900 truncate">{person.name}</h2>
+                <div className="text-xs text-slate-500 font-mono mt-0.5">#{person.id}</div>
                 {Boolean(person.death) && (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
                     প্রয়াত
