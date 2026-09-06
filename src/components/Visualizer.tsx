@@ -198,6 +198,10 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   // Pan & Zoom & Click handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // only left click
+    const target = e.target as HTMLElement;
+    if (target.closest('.floating-add-btn')) {
+      return;
+    }
     setIsDragging(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
     setClickStartPos({ x: e.clientX, y: e.clientY });
@@ -215,11 +219,15 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const handleMouseUp = (e: React.MouseEvent) => {
     setIsDragging(false);
 
+    const target = e.target as HTMLElement;
+    if (target.closest('.floating-add-btn')) {
+      return;
+    }
+
     // If mouse didn't drag/move, it is a click on canvas background!
     if (clickStartPos) {
       const distance = Math.hypot(e.clientX - clickStartPos.x, e.clientY - clickStartPos.y);
       if (distance < 5) {
-        const target = e.target as HTMLElement;
         const isBackground =
           target === containerRef.current ||
           target.tagName.toLowerCase() === 'svg' ||
@@ -272,16 +280,20 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       {/* Floating Add Person Button on Canvas (Click triggered) */}
       {floatingAddBtnPos && (
         <div
-          className="absolute z-30 animate-in fade-in zoom-in-95 duration-200 pointer-events-none"
+          className="absolute z-30 animate-in fade-in zoom-in-95 duration-200 floating-add-btn"
           style={{ left: floatingAddBtnPos.x, top: floatingAddBtnPos.y }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               setFloatingAddBtnPos(null);
               onAddPerson();
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xl transition hover:scale-105 active:scale-95 -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xl transition hover:scale-105 active:scale-95 -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none"
             title="নতুন ব্যক্তি যোগ করুন"
           >
             <Plus className="w-4 h-4" />
