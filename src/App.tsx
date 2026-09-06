@@ -1,6 +1,5 @@
 import React from 'react';
 import { parseRawText } from './lib/parser';
-import { graphToCSV } from './lib/serializer';
 import { SAMPLE_FAMILY_TEXT } from './lib/sampleData';
 import { Header } from './components/Header';
 import { Visualizer } from './components/Visualizer';
@@ -170,11 +169,6 @@ export const App: React.FC = () => {
         onLoadSample={handleLoadSample}
         onNewTree={handleNewTree}
         onExportViewport={handleExportViewport}
-        onCopyToClipboard={() => {
-          navigator.clipboard.writeText(graphToCSV(graph))
-            .then(() => showToast('গ্রাফ ডেটা ক্লিপবোর্ডে কপি করা হয়েছে!', 'success'))
-            .catch(() => showToast('কপি করতে সমস্যা হয়েছে।', 'error'));
-        }}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         totalPeopleCount={Object.keys(graph.people).length}

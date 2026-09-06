@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   TreePine, Table2, Sparkles,
   FileSpreadsheet, Search, PlusCircle,
-  QrCode, Share2, Copy, ChevronDown
+  QrCode, Share2, ChevronDown
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
@@ -13,7 +13,6 @@ interface HeaderProps {
   onLoadSample: () => void;
   onNewTree: () => void;
   onExportViewport: () => void;
-  onCopyToClipboard?: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   totalPeopleCount: number;
@@ -27,7 +26,6 @@ export const Header: React.FC<HeaderProps> = ({
   onLoadSample,
   onNewTree,
   onExportViewport,
-  onCopyToClipboard,
   searchQuery,
   onSearchChange,
   totalPeopleCount,
@@ -164,33 +162,23 @@ export const Header: React.FC<HeaderProps> = ({
                 className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm"
               >
                 <button
-                  onClick={() => { onOpenQRCode(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 font-medium bg-emerald-50/50"
-                >
-                  <QrCode className="w-4 h-4 text-emerald-600" />
-                  <span>QR কোড ও লিংক</span>
-                </button>
-
-                <div className="h-px bg-slate-100 my-1"></div>
-                <button
                   disabled={totalPeopleCount === 0}
                   onClick={() => { onExportViewport(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
+                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 font-medium bg-emerald-50/50 transition-colors"
                 >
-                  <TreePine className="w-4 h-4 text-purple-600" />
+                  <TreePine className="w-4 h-4 text-emerald-600" />
                   <span>ডাউনলোড ইমেজ (PNG)</span>
                 </button>
 
-                {onCopyToClipboard && (
-                  <button
-                    disabled={totalPeopleCount === 0}
-                    onClick={() => { onCopyToClipboard(); setShowShareMenu(false); }}
-                    className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
-                  >
-                    <Copy className="w-4 h-4 text-slate-500" />
-                    <span>ক্লিপবোর্ডে কপি করুন</span>
-                  </button>
-                )}
+                <div className="h-px bg-slate-100 my-1"></div>
+
+                <button
+                  onClick={() => { onOpenQRCode(); setShowShareMenu(false); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <QrCode className="w-4 h-4 text-slate-500" />
+                  <span>QR কোড ও লিংক</span>
+                </button>
 
 
               </div>
