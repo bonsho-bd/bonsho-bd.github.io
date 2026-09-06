@@ -606,9 +606,17 @@ const PersonCard: React.FC<PersonCardProps> = ({
             {/* Dates */}
             {(person.birth || person.death) && (
               <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
-                <Calendar className="w-3 h-3 text-slate-300" />
-                <span>
-                  {person.birth || '?'} - {person.death || (person.isDeceased ? 'মরহুম' : 'জীবিত')}
+                <Calendar className="w-3 h-3 text-slate-300 shrink-0" />
+                <span className="truncate">
+                  {(() => {
+                    if (person.birth && person.death) return `${person.birth} - ${person.death}`;
+                    if (person.birth && !person.death) {
+                      if (person.isDeceased) return `${person.birth} - ${person.gender === 'female' ? 'মরহুমা' : 'মরহুম'}`;
+                      return `জন্ম: ${person.birth}`;
+                    }
+                    if (!person.birth && person.death) return `? - ${person.death}`;
+                    return '';
+                  })()}
                 </span>
               </div>
             )}
