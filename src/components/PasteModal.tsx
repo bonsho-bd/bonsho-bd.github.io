@@ -154,8 +154,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
           </button>
           <button
             onClick={handleApply}
-            disabled={!text.trim()}
-            className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition"
+            className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm transition"
           >
             <Check className="w-4 h-4" />
             <span>গ্রাফ আপডেট করুন</span>
