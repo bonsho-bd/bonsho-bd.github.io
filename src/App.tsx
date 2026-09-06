@@ -1,6 +1,6 @@
 import React from 'react';
 import { parseRawText } from './lib/parser';
-import { downloadTreeAsExcel, downloadTreeAsCSV, treeToCSV } from './lib/serializer';
+import { treeToCSV } from './lib/serializer';
 import { SAMPLE_FAMILY_TEXT } from './lib/sampleData';
 import { Header } from './components/Header';
 import { Visualizer } from './components/Visualizer';
@@ -283,8 +283,6 @@ export const App: React.FC = () => {
         onOpenQRCode={() => navigateTo({ modal: 'qr' })}
         onLoadSample={handleLoadSample}
         onNewTree={handleNewTree}
-        onExportExcel={() => downloadTreeAsExcel(tree)}
-        onExportCSV={() => downloadTreeAsCSV(tree)}
         onExportFullTree={handleExportFullTree}
         onExportViewport={handleExportViewport}
         onCopyToClipboard={() => {

@@ -1,6 +1,5 @@
 import { FamilyTree, Person } from '../types/family';
 import { computeRootIds } from './parser';
-import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
 /**
@@ -112,33 +111,5 @@ export function treeToCSV(tree: FamilyTree): string {
   return Papa.unparse(rows);
 }
 
-/**
- * Downloads the tree as an Excel (.xlsx) workbook
- */
-export function downloadTreeAsExcel(tree: FamilyTree, filename = 'bonsho-family-tree.xlsx') {
-  const rows = treeToKeyValueRows(tree);
-  const worksheet = XLSX.utils.aoa_to_sheet([['Property', 'Value'], ...rows]);
 
-  // Set column widths
-  worksheet['!cols'] = [{ wch: 20 }, { wch: 35 }];
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'FamilyTree');
-  XLSX.writeFile(workbook, filename);
-}
-
-/**
- * Downloads the tree as a CSV file
- */
-export function downloadTreeAsCSV(tree: FamilyTree, filename = 'bonsho-family-tree.csv') {
-  const csv = treeToCSV(tree);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
 

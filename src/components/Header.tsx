@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   TreePine, ClipboardPaste, Sparkles,
-  FileSpreadsheet, FileText, Search, PlusCircle,
+  FileSpreadsheet, Search, PlusCircle,
   QrCode, Share2, Database, Copy, ChevronDown, Camera
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
@@ -12,8 +12,6 @@ interface HeaderProps {
   onOpenQRCode: () => void;
   onLoadSample: () => void;
   onNewTree: () => void;
-  onExportExcel: () => void;
-  onExportCSV: () => void;
   onExportFullTree: () => void;
   onExportViewport: () => void;
   onCopyToClipboard?: () => void;
@@ -29,8 +27,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenQRCode,
   onLoadSample,
   onNewTree,
-  onExportExcel,
-  onExportCSV,
   onExportFullTree,
   onExportViewport,
   onCopyToClipboard,
@@ -230,24 +226,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 )}
 
-                <div className="h-px bg-slate-100 my-1"></div>
 
-                <button
-                  disabled={totalPeopleCount === 0}
-                  onClick={() => { onExportExcel(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
-                >
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                  <span>ডাউনলোড .xlsx</span>
-                </button>
-                <button
-                  disabled={totalPeopleCount === 0}
-                  onClick={() => { onExportCSV(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-slate-700 transition-colors"
-                >
-                  <FileText className="w-4 h-4 text-blue-600" />
-                  <span>ডাউনলোড .csv</span>
-                </button>
               </div>
             )}
           </div>

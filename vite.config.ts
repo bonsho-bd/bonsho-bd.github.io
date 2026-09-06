@@ -9,7 +9,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          xlsx: ['xlsx'],
           export: ['html-to-image', 'qrcode'],
         },
       },
