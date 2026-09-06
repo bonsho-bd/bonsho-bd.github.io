@@ -52,7 +52,7 @@ graph TD
 
 
     D --> E2["Export: Sync back to Google Sheet"]
-    D --> E3["Export: High-Res Poster (PNG / PDF)"]
+    D --> E3["Export: Viewport Image Snapshot (PNG)"]
     D --> E4["Export: QR Code URL (DEFLATE + Base64URL)"]
 ```
 
@@ -172,9 +172,7 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
   - `qrcode` for high-resolution client-side QR code canvas generation with embedded Bangladesh coin logo
 - **Visualization Engine & Export**:
   - SVG + custom hierarchical DAG layout tailored for multi-spouse family graphs
-  - Dual-mode PNG image export via `html-to-image`:
-    1. **Full Graph Export**: Hidden DOM cloning boundary calculation and auto-alignment at 100% scale with embedded text watermark
-    2. **Viewport Export**: Instant snapshot of current zoom/pan with stamped text watermark
+  - PNG image export via `html-to-image`: Instant snapshot of current zoom/pan viewport with stamped text watermark
   - Interactive pan, pinch-to-zoom (cursor/pinch-centered), search, branch highlighting, and person detail drawer
 - **Google Cloud Services (Optional Cloud Sync)**:
   - Google Identity Services (GIS) Token Client (via `VITE_GOOGLE_CLIENT_ID` injected at build-time)
@@ -242,7 +240,7 @@ bonsho/
    - User opens the app.
    - User clicks "Sample Graph" to instantly load and interact with a generated graph.
    - User clicks on people to view the slide-out drawer, pans the canvas, and uses the scroll wheel/pinch to zoom.
-   - User exports a high-resolution PNG poster of the graph.
+   - User frames the graph in their viewport and exports a PNG image snapshot.
 
 2. **Google Sheets Sync & Paste Workflow**
    - User connects their Google account via the "Google Sheet" button.
