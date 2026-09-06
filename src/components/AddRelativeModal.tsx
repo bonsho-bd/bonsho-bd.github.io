@@ -147,7 +147,9 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {/* Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              {mode === 'child' ? 'সন্তানের নাম *' : mode === 'spouse' ? 'স্বামী/স্ত্রীর নাম *' : 'ব্যক্তির নাম *'}
+              {mode === 'child' ? 'সন্তানের নাম *' :
+               mode === 'spouse' ? (person?.gender === 'male' ? 'স্ত্রীর নাম *' : 'স্বামীর নাম *') :
+               'ব্যক্তির নাম *'}
             </label>
             <input
               type="text"
