@@ -700,9 +700,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
                 </span>
               )}
             </div>
-            <div className="text-[9px] text-slate-400 font-mono truncate" title={`ID: ${person.id}`}>
-              #{person.id}
-            </div>
+
             {/* Hint for unknown spouse */}
             {isUnknown && !person.birth && !person.death && (
               <span className="text-[10px] text-slate-400 italic">নাম দিতে ক্লিক করুন</span>
