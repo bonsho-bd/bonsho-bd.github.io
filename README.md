@@ -1,6 +1,6 @@
 # Bonsho (বংশ) 🌳
 
-> **বংশ (Bonsho)** is an open-source, privacy-first family tree visualizer designed specifically for Bangladeshi lineage traditions. It stores **zero data on servers** and renders trees completely in the browser from simple 2-column Google Sheets, CSV/Excel files, or direct copy-paste.
+> **বংশ (Bonsho)** is an open-source, privacy-first family tree visualizer designed specifically for Bangladeshi lineage traditions. It stores **zero data on servers** and renders trees completely in the browser from simple 2-column Google Sheets or direct copy-paste.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Hosted on GitHub Pages](https://img.shields.io/badge/Hosted%20on-GitHub%20Pages-success.svg)](https://bonsho-bd.github.io)
@@ -23,7 +23,7 @@
 - 🌐 **Bilingual (বাংলা / English)**: Keys and values work interchangeably in Bangla or English (`নাম` or `Name`, `স্ত্রী` or `Wife`, `সন্তান` or `Child`).
 - ✏️ **Interactive In-App Editing**: Add children, add spouses, and edit details directly on the visual tree.
 - 🔄 **Two-Way Google Sheets Sync**: Connect your private Google Sheet via Google Drive Picker (read & write directly to your sheet with 0 server transit).
-- 💾 **Local File & Poster Export**: Download your updated tree as `.csv`, `.xlsx`, or export high-resolution posters (PNG/PDF) for family reunions (মিলনমেলা).
+- 💾 **Poster Export**: Export high-resolution posters (PNG) of your tree for family reunions (মিলনমেলা).
 
 ---
 
@@ -64,7 +64,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## 🔑 Google Sheets Sync Setup (গুগল শিট সিঙ্ক কনফিগারেশন)
 
-Bonsho-তে গুগল শিটের সাথে দ্বি-মুখী সিঙ্কের জন্য Google Identity Services (GIS) OAuth 2.0 Web Client ID প্রয়োজন। টোকেন বা Client ID কনফিগার না থাকলে UI-তে "গুগল শিট" বাটনটি ডিসেবল থাকবে (ব্যবহারকারী তখনও পেস্ট বা ফাইল আপলোড দিয়ে কাজ করতে পারবেন)।
+Bonsho-তে গুগল শিটের সাথে দ্বি-মুখী সিঙ্কের জন্য Google Identity Services (GIS) OAuth 2.0 Web Client ID প্রয়োজন। টোকেন বা Client ID কনফিগার না থাকলে UI-তে "গুগল শিট" বাটনটি ডিসেবল থাকবে (ব্যবহারকারী তখনও পেস্ট দিয়ে কাজ করতে পারবেন)।
 
 ### ১. Google Cloud Console থেকে Client ID তৈরি করার নিয়ম
 

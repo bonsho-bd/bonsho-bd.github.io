@@ -1,6 +1,6 @@
 # Bonsho (বংশ) - System Architecture & Design Document
 
-> **Bonsho (বংশ)** is a privacy-first, zero-data-retention family tree visualizer designed specifically for Bangladeshi genealogical traditions, powered by simple 2-column Google Sheets, CSV/Excel files, or direct clipboard copy-paste.
+> **Bonsho (বংশ)** is a privacy-first, zero-data-retention family tree visualizer designed specifically for Bangladeshi genealogical traditions, powered by simple 2-column Google Sheets or direct clipboard copy-paste.
 
 ---
 
@@ -19,7 +19,7 @@
    - End-users **never** configure Google Cloud Platform (GCP).
    - Users can start immediately without any login or account.
    - For cloud sync, the app uses standard Google Identity Services (GIS) OAuth 2.0 with the restrictive `drive.file` and `spreadsheets` scopes.
-   - **Graceful Degradation**: If `VITE_GOOGLE_CLIENT_ID` is not configured at build time (e.g. via GitHub Repository Variables), the "গুগল শিট" sync button is gracefully disabled with an explanatory hover tooltip directing users to the friction-free Paste and File Upload modes. No browser prompts or credential dialogs are ever shown to end users.
+   - **Graceful Degradation**: If `VITE_GOOGLE_CLIENT_ID` is not configured at build time (e.g. via GitHub Repository Variables), the "গুগল শিট" sync button is gracefully disabled with an explanatory hover tooltip directing users to the friction-free Paste mode. No browser prompts or credential dialogs are ever shown to end users.
 
 4. **Native Browser Navigation & Deep Linking**:
    - All interactive states (viewing a person, editing details, adding relatives, opening clipboard or Google sync, and search queries) sync bidirectionally with browser history via HTML5 `pushState` and `popstate`.
@@ -50,7 +50,7 @@ graph TD
 
     C --> D[Interactive Visualizer & In-App Editor]
 
-    D --> E1["Export: Download CSV / Excel"]
+
     D --> E2["Export: Sync back to Google Sheet"]
     D --> E3["Export: High-Res Poster (PNG / PDF)"]
     D --> E4["Export: QR Code URL (DEFLATE + Base64URL)"]
@@ -164,15 +164,15 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
 - **Data Parsing, Serialization & Compression**:
   - Custom Key-Value Block Parser (`src/lib/parser.ts`)
   - `papaparse` for CSV & TSV parsing
-  - `xlsx` for Excel export
+
 
   - `pako` for cross-browser, synchronous raw DEFLATE compression & decompression
   - `qrcode` for high-resolution client-side QR code canvas generation with embedded Bangladesh coin logo
 - **Visualization Engine & Export**:
   - SVG + custom hierarchical DAG layout tailored for multi-spouse family trees
   - Dual-mode PNG image export via `html-to-image`:
-    1. **Full Tree Export**: Live DOM boundary calculation and auto-alignment at 100% scale with embedded branded QR code
-    2. **Viewport Export**: Instant snapshot of current zoom/pan with stamped QR code
+    1. **Full Tree Export**: Hidden DOM cloning boundary calculation and auto-alignment at 100% scale with embedded text watermark
+    2. **Viewport Export**: Instant snapshot of current zoom/pan with stamped text watermark
   - Interactive pan, pinch-to-zoom (cursor/pinch-centered), search, branch highlighting, and person detail drawer
 - **Google Cloud Services (Optional Cloud Sync)**:
   - Google Identity Services (GIS) Token Client (via `VITE_GOOGLE_CLIENT_ID` injected at build-time)
