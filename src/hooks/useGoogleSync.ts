@@ -12,6 +12,7 @@ export const useGoogleSync = (tree: FamilyTree) => {
   const [accessToken, setAccessToken] = useState<string>(() => localStorage.getItem('bonsho_access_token') || '');
   const [lastSyncedTree, setLastSyncedTree] = useState<string>(() => localStorage.getItem('bonsho_last_synced_tree') || '');
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   // Sync to LocalStorage for persistence
   useEffect(() => {
@@ -55,12 +56,13 @@ export const useGoogleSync = (tree: FamilyTree) => {
     if (!connectedSheet || !accessToken) return;
     try {
       setIsSyncing(true);
+      setSyncError(null);
       const rows = treeToKeyValueRows(tree);
       await saveGoogleSheetValues(connectedSheet.id, accessToken, rows);
       setLastSyncedTree(currentTreeStr);
-      alert('সফলভাবে গুগল শিটে সেভ হয়েছে!');
+      // Removed native alert: The UI naturally dismissing itself is the success indicator.
     } catch (err: any) {
-      alert('সেভ করতে সমস্যা হয়েছে: ' + err.message);
+      setSyncError(err.message);
     } finally {
       setIsSyncing(false);
     }
@@ -83,6 +85,7 @@ export const useGoogleSync = (tree: FamilyTree) => {
     setLastSyncedTree,
     isSyncing,
     hasUnsavedChanges,
+    syncError,
     handleQuickSync,
     disconnectSheet,
     markAsSynced

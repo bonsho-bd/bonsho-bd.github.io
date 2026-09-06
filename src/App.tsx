@@ -40,6 +40,7 @@ export const App: React.FC = () => {
     setAccessToken,
     isSyncing,
     hasUnsavedChanges,
+    syncError,
     handleQuickSync,
     disconnectSheet,
     markAsSynced
@@ -220,7 +221,11 @@ export const App: React.FC = () => {
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-sm border border-amber-200 shadow-xl rounded-2xl p-3 flex flex-col sm:flex-row items-center gap-3 animate-in slide-in-from-top-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-amber-800">
               <AlertCircle className="w-4 h-4 text-amber-600" />
-              <span>গুগল শিটে কিছু পরিবর্তন সেভ করা বাকি আছে।</span>
+              <span>
+                {syncError 
+                  ? `সেভ করতে সমস্যা হয়েছে: ${syncError}` 
+                  : 'গুগল শিটে কিছু পরিবর্তন সেভ করা বাকি আছে।'}
+              </span>
             </div>
             <button
               onClick={handleQuickSync}
