@@ -1,5 +1,6 @@
 import React from 'react';
 import { Person, FamilyTree } from '../types/family';
+import { getParents } from '../lib/parser';
 import { X, User, Heart, Baby, Calendar, FileText, Edit2, Plus, ArrowLeft } from 'lucide-react';
 
 interface PersonModalProps {
@@ -29,8 +30,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
 }) => {
   if (!isOpen || !person) return null;
 
-  const father = person.fatherId ? tree.people[person.fatherId] : null;
-  const mother = person.motherId ? tree.people[person.motherId] : null;
+  const { father, mother } = getParents(tree, person.id);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">

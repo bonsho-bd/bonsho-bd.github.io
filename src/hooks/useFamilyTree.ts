@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FamilyTree, Person, Gender, Marriage } from '../types/family';
-import { createUnknownSpouse } from '../lib/parser';
+import { createUnknownSpouse, computeRootIds } from '../lib/parser';
 
 const STORAGE_KEY = 'bonsho_family_tree_data';
 
@@ -58,15 +58,7 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
 
       // Clean up references in remaining people
       Object.values(updatedPeople).forEach((person) => {
-        // 1. Clean up parent IDs if pointing to the deleted person
-        if (person.fatherId === personId) {
-          delete person.fatherId;
-        }
-        if (person.motherId === personId) {
-          delete person.motherId;
-        }
-
-        // 2. Clean up marriages pointing to deleted spouse
+        // Clean up marriages pointing to deleted spouse
         if (person.marriages) {
           const survivingMarriages: Marriage[] = [];
           person.marriages.forEach((marriage) => {
@@ -74,22 +66,11 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
               const remainingChildren = marriage.children.filter((childId) => childId !== personId);
               if (remainingChildren.length > 0) {
                 // Synthesize an Unknown spouse to hold the remaining children with this person
-                const { spouse: unknownSpouse, marriage: unknownMarriage } = createUnknownSpouse(
+                const { marriage: unknownMarriage } = createUnknownSpouse(
                   updatedPeople,
                   person
                 );
                 unknownMarriage.children = remainingChildren;
-                // Update parent references on remaining children
-                remainingChildren.forEach((childId) => {
-                  const child = updatedPeople[childId];
-                  if (child) {
-                    if (person.gender === 'male') {
-                      child.motherId = unknownSpouse.id;
-                    } else if (person.gender === 'female') {
-                      child.fatherId = unknownSpouse.id;
-                    }
-                  }
-                });
                 survivingMarriages.push(unknownMarriage);
               }
             } else {
@@ -102,33 +83,7 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
         }
       });
 
-      // Recalculate roots: people with no parents, avoiding spouse duplicates
-      const remainingList = Object.values(updatedPeople);
-      const rootCandidates = remainingList.filter(p => !p.fatherId && !p.motherId);
-      const updatedRoots: string[] = [];
-      const covered = new Set<string>();
-
-      // Preserve order of existing roots where possible
-      for (const rId of prev.rootIds) {
-        if (rId !== personId && updatedPeople[rId] && !covered.has(rId)) {
-          updatedRoots.push(rId);
-          covered.add(rId);
-          for (const m of updatedPeople[rId].marriages || []) {
-            covered.add(m.spouseId);
-          }
-        }
-      }
-
-      // Add any new root candidates that became roots after deletion
-      for (const candidate of rootCandidates) {
-        if (!covered.has(candidate.id)) {
-          updatedRoots.push(candidate.id);
-          covered.add(candidate.id);
-          for (const m of candidate.marriages || []) {
-            covered.add(m.spouseId);
-          }
-        }
-      }
+      const updatedRoots = computeRootIds(updatedPeople);
 
       return {
         ...prev,
@@ -198,29 +153,12 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
             targetMarriage = unknownMarriage;
           }
 
-          const spouse = updatedPeople[targetMarriage.spouseId];
-
-          // Set parent references on the child
-          if (parent.gender === 'male') {
-            newPerson.fatherId = parent.id;
-            if (spouse && spouse.gender === 'female') {
-              newPerson.motherId = spouse.id;
-            }
-          } else if (parent.gender === 'female') {
-            newPerson.motherId = parent.id;
-            if (spouse && spouse.gender === 'male') {
-              newPerson.fatherId = spouse.id;
-            }
-          } else {
-            if (spouse?.gender === 'female') newPerson.motherId = spouse.id;
-            else if (spouse?.gender === 'male') newPerson.fatherId = spouse.id;
-          }
-
           if (!targetMarriage.children.includes(newPerson.id)) {
             targetMarriage.children.push(newPerson.id);
           }
 
           // Sync reciprocal marriage on spouse
+          const spouse = updatedPeople[targetMarriage.spouseId];
           if (spouse) {
             const updatedSpouse = {
               ...spouse,

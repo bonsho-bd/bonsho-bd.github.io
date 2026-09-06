@@ -216,12 +216,21 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
         if (currentPerson && value) {
           const father = getOrCreatePerson(people, value);
           father.gender = 'male';
-          currentPerson.fatherId = father.id;
 
           let targetMarriage: Marriage | undefined;
-          if (currentPerson.motherId) {
-            targetMarriage = father.marriages.find(m => m.spouseId === currentPerson!.motherId);
+          for (const p of Object.values(people)) {
+            if (p.gender === 'female') {
+              for (const m of p.marriages) {
+                if (m.children.includes(currentPerson.id)) {
+                  if (m.spouseId === father.id) {
+                    targetMarriage = father.marriages.find(fm => fm.spouseId === p.id);
+                  }
+                  break;
+                }
+              }
+            }
           }
+
           if (!targetMarriage && father.marriages.length > 0) {
             targetMarriage = father.marriages[0];
           }
@@ -233,9 +242,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
           if (!targetMarriage.children.includes(currentPerson.id)) {
             targetMarriage.children.push(currentPerson.id);
           }
-          if (!currentPerson.motherId) {
-            currentPerson.motherId = targetMarriage.spouseId;
-          }
         }
         break;
       }
@@ -244,12 +250,21 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
         if (currentPerson && value) {
           const mother = getOrCreatePerson(people, value);
           mother.gender = 'female';
-          currentPerson.motherId = mother.id;
 
           let targetMarriage: Marriage | undefined;
-          if (currentPerson.fatherId) {
-            targetMarriage = mother.marriages.find(m => m.spouseId === currentPerson!.fatherId);
+          for (const p of Object.values(people)) {
+            if (p.gender === 'male') {
+              for (const m of p.marriages) {
+                if (m.children.includes(currentPerson.id)) {
+                  if (m.spouseId === mother.id) {
+                    targetMarriage = mother.marriages.find(mm => mm.spouseId === p.id);
+                  }
+                  break;
+                }
+              }
+            }
           }
+
           if (!targetMarriage && mother.marriages.length > 0) {
             targetMarriage = mother.marriages[0];
           }
@@ -260,9 +275,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
 
           if (!targetMarriage.children.includes(currentPerson.id)) {
             targetMarriage.children.push(currentPerson.id);
-          }
-          if (!currentPerson.fatherId) {
-            currentPerson.fatherId = targetMarriage.spouseId;
           }
         }
         break;
@@ -314,13 +326,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
         if (currentPerson && value) {
           const child = getOrCreatePerson(people, value);
 
-          // Link parent references
-          if (currentPerson.gender === 'male') {
-            child.fatherId = currentPerson.id;
-          } else if (currentPerson.gender === 'female') {
-            child.motherId = currentPerson.id;
-          }
-
           // If no active marriage in current block, create a new Unknown spouse!
           if (!currentMarriage) {
             const { marriage } = createUnknownSpouse(people, currentPerson);
@@ -330,14 +335,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
           // Group under the active spouse!
           if (!currentMarriage.children.includes(child.id)) {
             currentMarriage.children.push(child.id);
-          }
-          const spouse = people[currentMarriage.spouseId];
-          if (spouse) {
-            if (spouse.gender === 'female' && !child.motherId) {
-              child.motherId = spouse.id;
-            } else if (spouse.gender === 'male' && !child.fatherId) {
-              child.fatherId = spouse.id;
-            }
           }
         }
         break;
@@ -355,11 +352,28 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
 
   finishCurrentPerson();
 
-  // Find root ancestors: People who have no parents recorded in the tree
-  const allPeopleList = Object.values(people);
-  const rootCandidates = allPeopleList.filter(p => !p.fatherId && !p.motherId);
+  const rootIds = computeRootIds(people);
 
-  // Support multiple roots: Include all root candidates while avoiding spouse duplication
+  return {
+    people,
+    rootIds,
+  };
+}
+
+/**
+ * Computes root ancestor IDs from a people map (people who are not children of any couple)
+ */
+export function computeRootIds(people: Record<string, Person>): string[] {
+  const allChildIds = new Set<string>();
+  for (const p of Object.values(people)) {
+    for (const m of p.marriages) {
+      for (const cId of m.children) {
+        allChildIds.add(cId);
+      }
+    }
+  }
+
+  const rootCandidates = Object.values(people).filter(p => !allChildIds.has(p.id));
   const rootIds: string[] = [];
   const coveredPeople = new Set<string>();
 
@@ -372,10 +386,34 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
     }
   }
 
-  return {
-    people,
-    rootIds,
-  };
+  return rootIds;
+}
+
+/**
+ * Finds the parent(s) of a person by inspecting marriages containing the person as a child
+ */
+export function getParents(tree: FamilyTree, personId: string): { father: Person | null; mother: Person | null; parents: Person[] } {
+  for (const p of Object.values(tree.people)) {
+    for (const m of p.marriages) {
+      if (m.children.includes(personId)) {
+        const spouse = tree.people[m.spouseId];
+        let father: Person | null = null;
+        let mother: Person | null = null;
+
+        if (p.gender === 'male') father = p;
+        else if (p.gender === 'female') mother = p;
+
+        if (spouse) {
+          if (spouse.gender === 'male') father = spouse;
+          else if (spouse.gender === 'female') mother = spouse;
+        }
+
+        const parents = [father, mother].filter(Boolean) as Person[];
+        return { father, mother, parents };
+      }
+    }
+  }
+  return { father: null, mother: null, parents: [] };
 }
 
 /**

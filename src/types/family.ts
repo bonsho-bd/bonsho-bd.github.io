@@ -14,9 +14,6 @@ export interface Person {
   death?: string;
   attributes: Record<string, string>;
 
-  // Lineage connections
-  fatherId?: string;
-  motherId?: string;
   marriages: Marriage[];
 }
 
