@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   TreePine, ClipboardPaste, Sparkles,
   FileSpreadsheet, Search, PlusCircle,
-  QrCode, Share2, Database, Copy, ChevronDown, Camera
+  QrCode, Share2, Copy, ChevronDown, Camera
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
@@ -36,7 +36,6 @@ export const Header: React.FC<HeaderProps> = ({
   connectedSheet,
 }) => {
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [showSyncMenu, setShowSyncMenu] = useState(false);
   const isGoogleAvailable = isGoogleSyncAvailable();
 
   // Close menus on outside click
@@ -45,7 +44,6 @@ export const Header: React.FC<HeaderProps> = ({
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
         setShowShareMenu(false);
-        setShowSyncMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -113,59 +111,41 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden sm:inline">নমুনা ট্রি</span>
           </button>
 
-          {/* Sync & Data Dropdown */}
-          <div className="relative">
+          {/* Paste Data Button */}
+          <button
+            onClick={onOpenPasteModal}
+            className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 shadow-sm transition whitespace-nowrap"
+            title="ক্লিপবোর্ড থেকে টেক্সট পেস্ট করুন"
+          >
+            <ClipboardPaste className="w-4 h-4 text-blue-600" />
+            <span className="hidden sm:inline">পেস্ট ডেটা</span>
+          </button>
+
+          {/* Google Sheets Sync Button */}
+          <div className="relative group">
             <button
               onClick={() => {
-                setShowSyncMenu(!showSyncMenu);
-                setShowShareMenu(false);
+                if (isGoogleAvailable) {
+                  onOpenGoogleModal();
+                }
               }}
-              className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-blue-50 text-blue-700 rounded-lg border border-blue-200 hover:bg-blue-100 shadow-sm transition whitespace-nowrap"
+              disabled={!isGoogleAvailable}
+              className={`flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium border rounded-lg shadow-sm transition whitespace-nowrap ${
+                !isGoogleAvailable
+                  ? 'opacity-50 cursor-not-allowed bg-slate-50 text-slate-400 border-slate-200'
+                  : connectedSheet
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+              }`}
+              title={isGoogleAvailable ? "গুগল শিটের সাথে সিঙ্ক করুন" : "Google OAuth টোকেন অনুপস্থিত"}
             >
-              <Database className="w-4 h-4" />
-              <span>সিঙ্ক ও ডেটা</span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSyncMenu ? 'rotate-180' : ''}`} />
+              <FileSpreadsheet className={`w-4 h-4 ${connectedSheet ? 'text-emerald-600' : 'text-emerald-600'}`} />
+              <span className="hidden sm:inline">গুগল শিট</span>
+              {connectedSheet && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-1"></span>}
             </button>
-
-            {showSyncMenu && (
-              <div className="absolute right-0 lg:right-auto lg:left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm">
-
-
-
-                <div className="relative group">
-                  <button
-                    onClick={() => {
-                      if (isGoogleAvailable) {
-                        onOpenGoogleModal();
-                        setShowSyncMenu(false);
-                      }
-                    }}
-                    disabled={!isGoogleAvailable}
-                    className={`w-full px-3 py-2 text-left flex items-center justify-between group ${
-                      !isGoogleAvailable ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                      <span>গুগল শিট</span>
-                    </div>
-                    {connectedSheet && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
-                  </button>
-                  {!isGoogleAvailable && (
-                    <div className="absolute left-0 top-full mt-1 hidden group-hover:block w-48 bg-slate-800 text-white text-[11px] p-2 rounded shadow-lg z-50">
-                      Google OAuth টোকেন / Client ID অনুপস্থিত।
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => { onOpenPasteModal(); setShowSyncMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
-                >
-                  <ClipboardPaste className="w-4 h-4 text-blue-500" />
-                  <span>ক্লিপবোর্ড থেকে পেস্ট</span>
-                </button>
-
+            {!isGoogleAvailable && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:block w-48 bg-slate-800 text-white text-[11px] p-2 rounded shadow-lg z-50 before:content-[''] before:absolute before:bottom-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-b-slate-800">
+                Google OAuth টোকেন / Client ID অনুপস্থিত।
               </div>
             )}
           </div>
@@ -173,10 +153,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Share Dropdown */}
           <div className="relative">
             <button
-              onClick={() => {
-                setShowShareMenu(!showShareMenu);
-                setShowSyncMenu(false);
-              }}
+              onClick={() => setShowShareMenu(!showShareMenu)}
               className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-sm transition whitespace-nowrap"
             >
               <Share2 className="w-4 h-4" />
