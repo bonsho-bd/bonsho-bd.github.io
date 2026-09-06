@@ -180,6 +180,7 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
   - Google Identity Services (GIS) Token Client (via `VITE_GOOGLE_CLIENT_ID` injected at build-time)
   - Google Sheets API v4 (Client-side REST via user's ephemeral token)
   - (Optional) Google Drive Picker API v1 (via `VITE_GOOGLE_API_KEY`)
+  - **Architecture**: Structured using explicit Domain Models (`AccessToken`, `SheetId`, `ConnectedSheet`) and Functional Programming abstractions (`fetchApi`, `handleApiError`) for safe side-effects and error handling.
 - **Deployment & Routing**:
   - GitHub Pages (`https://bonsho-bd.github.io`) via GitHub Actions
   - Native 0-redirect query parameter router (`/?qr-v0=<data>`) composable with other parameters (e.g. `?lang=en`)
