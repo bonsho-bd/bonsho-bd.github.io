@@ -5,7 +5,6 @@ import {
   ShieldCheck,
   FolderOpen,
   RefreshCw,
-  Save,
   LogOut,
   ExternalLink,
   CheckCircle2,
@@ -18,7 +17,6 @@ import {
   requestGoogleAccessToken,
   openGoogleDrivePicker,
   fetchGoogleSheetValues,
-  saveGoogleSheetValues,
   createGoogleSheet,
   extractSheetId
 } from '../lib/googleAuth';
@@ -35,7 +33,6 @@ interface GoogleSyncModalProps {
   onSetConnectedSheet: (sheet: { id: string; name: string } | null) => void;
   accessToken: string;
   onSetAccessToken: (token: string) => void;
-  onMarkAsSynced: () => void;
 }
 
 export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
@@ -47,7 +44,6 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   onSetConnectedSheet,
   accessToken,
   onSetAccessToken,
-  onMarkAsSynced,
 }) => {
   const [config] = useState(getGoogleConfig());
   const [manualSheetInput, setManualSheetInput] = useState('');
@@ -178,25 +174,6 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
     }
   };
 
-  // Push / Save in-app edits back to the Sheet
-  const handlePushToSheet = async () => {
-    if (!connectedSheet?.id || !accessToken) return;
-
-    try {
-      setLoading(true);
-      setStatusMessage({ text: 'আপনার গুগল শিটে পরিবর্তনগুলো সংরক্ষণ করা হচ্ছে...', type: 'info' });
-
-      const rows = graphToKeyValueRows(graph);
-      await saveGoogleSheetValues(connectedSheet.id, accessToken, rows);
-
-      setStatusMessage({ text: 'আপনার গুগল শিটে সফলভাবে সেভ হয়েছে!', type: 'success' });
-      onMarkAsSynced();
-    } catch (err: any) {
-      setStatusMessage({ text: `সেভ করতে ব্যর্থ: ${err.message}`, type: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Disconnect
   const handleDisconnect = () => {
@@ -315,24 +292,15 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                   </div>
 
                   {/* Two-Way Sync Actions */}
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+                  <div className="pt-2 border-t border-slate-200">
                     <button
                       type="button"
                       disabled={loading}
                       onClick={() => handlePullFromSheet()}
-                      className="flex items-center justify-center gap-1.5 py-2 px-3 bg-white border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-100 transition"
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-white border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-100 transition"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
                       <span>শিট থেকে রিফ্রেশ</span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={loading}
-                      onClick={handlePushToSheet}
-                      className="flex items-center justify-center gap-1.5 py-2 px-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 shadow-sm transition"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                      <span>শিটে সেভ করুন</span>
                     </button>
                   </div>
                 </div>

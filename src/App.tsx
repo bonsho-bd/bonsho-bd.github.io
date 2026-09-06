@@ -348,7 +348,6 @@ export const App: React.FC = () => {
         onSetConnectedSheet={setConnectedSheet}
         accessToken={accessToken}
         onSetAccessToken={setAccessToken}
-        onMarkAsSynced={markAsSynced}
       />
 
       <QRCodeModal
