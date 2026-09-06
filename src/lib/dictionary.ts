@@ -128,10 +128,3 @@ export function normalizeGender(val: string): Gender {
   return 'other';
 }
 
-/**
- * Checks if a death date is provided
- */
-export function checkIsDeceased(death?: string): boolean {
-  return Boolean(death && death.trim().length > 0);
-}
-

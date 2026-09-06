@@ -1,5 +1,5 @@
 import { FamilyTree, Person, Marriage, Gender } from '../types/family';
-import { normalizeKey, normalizeGender, checkIsDeceased } from './dictionary';
+import { normalizeKey, normalizeGender } from './dictionary';
 import Papa from 'papaparse';
 
 interface RawRow {
@@ -83,9 +83,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
   let currentMarriage: Marriage | null = null;
 
   function finishCurrentPerson() {
-    if (currentPerson) {
-      currentPerson.isDeceased = checkIsDeceased(currentPerson.death);
-    }
     currentPerson = null;
     currentMarriage = null;
   }
@@ -154,7 +151,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
       case 'death': {
         if (currentPerson) {
           currentPerson.death = value;
-          currentPerson.isDeceased = true;
         }
         break;
       }

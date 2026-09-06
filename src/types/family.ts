@@ -12,7 +12,6 @@ export interface Person {
   gender: Gender;
   birth?: string;
   death?: string;
-  isDeceased?: boolean;
   attributes: Record<string, string>;
 
   // Lineage connections

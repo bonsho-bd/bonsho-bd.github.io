@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Person, Gender } from '../types/family';
-import { checkIsDeceased } from '../lib/dictionary';
 import { X, Check, Trash2, Plus, AlertCircle } from 'lucide-react';
 
 interface EditPersonModalProps {
@@ -101,7 +100,6 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
       gender,
       birth: (visibleFields.birth && birth.trim()) ? birth.trim() : undefined,
       death: (visibleFields.death && death.trim()) ? death.trim() : undefined,
-      isDeceased: checkIsDeceased((visibleFields.death && death.trim()) ? death.trim() : undefined),
       attributes,
     };
 

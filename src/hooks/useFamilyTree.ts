@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { FamilyTree, Person, Gender, Marriage } from '../types/family';
-import { checkIsDeceased } from '../lib/dictionary';
 
 const STORAGE_KEY = 'bonsho_family_tree_data';
 
@@ -141,15 +140,12 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
       id = `${cleanName} (${counter})`;
     }
 
-    const isDeceased = checkIsDeceased(input.death);
-
     const newPerson: Person = {
       id,
       name: cleanName,
       gender: input.gender,
       birth: input.birth,
       death: input.death,
-      isDeceased,
       attributes: {
         ...(input.attributes || {}),
         ...(newPersonCoords ? { _x: newPersonCoords.x.toString(), _y: newPersonCoords.y.toString() } : {})
