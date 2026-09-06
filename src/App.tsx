@@ -463,7 +463,6 @@ export const App: React.FC = () => {
         onAdd={(data) => {
           const newPerson = addPerson(data);
           if (newPerson) {
-            disconnectSheet();
             showToast(`${newPerson.name} যোগ করা হয়েছে!`, 'success');
             navigateTo({ person: newPerson.id }, true);
           }
