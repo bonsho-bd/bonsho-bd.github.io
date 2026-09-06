@@ -21,6 +21,11 @@
    - For cloud sync, the app uses standard Google Identity Services (GIS) OAuth 2.0 with the restrictive `drive.file` and `spreadsheets` scopes.
    - **Graceful Degradation**: If `VITE_GOOGLE_CLIENT_ID` is not configured at build time (e.g. via GitHub Repository Variables), the "গুগল শিট" sync button is gracefully disabled with an explanatory hover tooltip directing users to the friction-free Paste and File Upload modes. No browser prompts or credential dialogs are ever shown to end users.
 
+4. **Native Browser Navigation & Deep Linking**:
+   - All interactive states (viewing a person, editing details, adding relatives, opening clipboard or Google sync, and search queries) sync bidirectionally with browser history via HTML5 `pushState` and `popstate`.
+   - The browser's Back and Forward buttons work seamlessly across all modal and relative inspection levels without trapping the user or accidentally leaving the site.
+   - Deep linking is supported: bookmarking or sharing a URL with `?person=Name` opens that exact person's profile drawer instantly.
+
 ---
 
 ## 2. Supported Input & Onboarding Modes

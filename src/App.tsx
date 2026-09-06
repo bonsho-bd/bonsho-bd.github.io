@@ -30,7 +30,9 @@ export const App: React.FC = () => {
   });
 
   // Search state
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => {
+    return new URLSearchParams(window.location.search).get('q') || '';
+  });
 
   // Google Sheet connection state
   const [connectedSheet, setConnectedSheet] = useState<{ id: string; name: string } | null>(null);
@@ -50,7 +52,140 @@ export const App: React.FC = () => {
     mode: 'person',
   });
 
+  const [modalDepth, setModalDepth] = useState<number>(() => (window.history.state?.modalDepth as number) || 0);
+  const treeRef = useRef<FamilyTree>(tree);
+  treeRef.current = tree;
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Synchronize modal state with URL parameters
+  const syncStateFromUrl = (currentTreeOverride?: FamilyTree) => {
+    const currentTree = currentTreeOverride || treeRef.current;
+    const params = new URLSearchParams(window.location.search);
+    const personId = params.get('person');
+    const editId = params.get('edit');
+    const addMode = params.get('add') as 'child' | 'spouse' | 'person' | null;
+    const targetId = params.get('target');
+    const modalType = params.get('modal');
+    const q = params.get('q');
+
+    if (q !== null && q !== searchQuery) {
+      setSearchQuery(q);
+    }
+
+    setIsPasteModalOpen(modalType === 'clipboard');
+    setIsGoogleModalOpen(modalType === 'google');
+
+    if (editId && currentTree.people[editId]) {
+      setEditingPerson(currentTree.people[editId]);
+    } else {
+      setEditingPerson(null);
+    }
+
+    if (addMode === 'child' || addMode === 'spouse' || addMode === 'person') {
+      const targetPerson = targetId ? (currentTree.people[targetId] || null) : null;
+      setAddRelativeState({
+        isOpen: true,
+        mode: addMode,
+        person: targetPerson,
+      });
+    } else {
+      setAddRelativeState(prev => prev.isOpen ? { ...prev, isOpen: false } : prev);
+    }
+
+    if (personId && currentTree.people[personId]) {
+      setSelectedPerson(currentTree.people[personId]);
+    } else {
+      setSelectedPerson(null);
+    }
+
+    const depth = (window.history.state?.modalDepth as number) || 0;
+    setModalDepth(depth);
+  };
+
+  interface NavParams {
+    person?: string | null;
+    edit?: string | null;
+    add?: 'child' | 'spouse' | 'person' | null;
+    target?: string | null;
+    modal?: 'clipboard' | 'google' | null;
+  }
+
+  const navigateTo = (nav: NavParams, replace = false, currentTreeOverride?: FamilyTree) => {
+    const url = new URL(window.location.href);
+    const q = url.searchParams.get('q');
+
+    url.searchParams.delete('person');
+    url.searchParams.delete('edit');
+    url.searchParams.delete('add');
+    url.searchParams.delete('target');
+    url.searchParams.delete('modal');
+
+    if (q) url.searchParams.set('q', q);
+
+    if (nav.person) url.searchParams.set('person', nav.person);
+    if (nav.edit) url.searchParams.set('edit', nav.edit);
+    if (nav.add) url.searchParams.set('add', nav.add);
+    if (nav.target) url.searchParams.set('target', nav.target);
+    if (nav.modal) url.searchParams.set('modal', nav.modal);
+
+    const isModalOpen = Boolean(nav.person || nav.edit || nav.add || nav.modal);
+    const prevDepth = (window.history.state?.modalDepth as number) || 0;
+    const newDepth = isModalOpen ? (replace ? prevDepth : prevDepth + 1) : 0;
+
+    const stateObj = { bonshoNav: true, modalDepth: newDepth };
+
+    if (replace) {
+      window.history.replaceState(stateObj, '', url.toString());
+    } else {
+      window.history.pushState(stateObj, '', url.toString());
+    }
+
+    setModalDepth(newDepth);
+    syncStateFromUrl(currentTreeOverride || tree);
+  };
+
+  const closeActiveModal = () => {
+    const depth = (window.history.state?.modalDepth as number) || 0;
+    if (depth > 0) {
+      window.history.back();
+    } else {
+      navigateTo({}, true);
+    }
+  };
+
+  const handleClosePersonModal = () => {
+    const depth = (window.history.state?.modalDepth as number) || 0;
+    if (depth > 0) {
+      window.history.go(-depth);
+    } else {
+      navigateTo({}, true);
+    }
+  };
+
+  const handleSearchChange = (q: string) => {
+    setSearchQuery(q);
+    const url = new URL(window.location.href);
+    if (q.trim()) {
+      url.searchParams.set('q', q.trim());
+    } else {
+      url.searchParams.delete('q');
+    }
+    window.history.replaceState(window.history.state, '', url.toString());
+  };
+
+  // Listen for browser back / forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      syncStateFromUrl();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    syncStateFromUrl();
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   // Sync with selectedPerson when tree updates
   useEffect(() => {
@@ -76,6 +211,7 @@ export const App: React.FC = () => {
     const sampleTree = parseRawText(SAMPLE_FAMILY_TEXT);
     setTree(sampleTree);
     localStorage.setItem(STORAGE_KEY, SAMPLE_FAMILY_TEXT);
+    navigateTo({}, true, sampleTree);
   };
 
   // Start a new blank family (empty tree)
@@ -89,6 +225,7 @@ export const App: React.FC = () => {
       setTree(blankTree);
       setSelectedPerson(null);
       localStorage.setItem(STORAGE_KEY, '');
+      navigateTo({}, true, blankTree);
     }
   };
 
@@ -114,6 +251,7 @@ export const App: React.FC = () => {
           }));
           const parsedTree = parseKeyValueBlocksToTree(rawRows);
           setTree(parsedTree);
+          navigateTo({}, true, parsedTree);
         } catch (err) {
           alert('এক্সেল ফাইল পড়তে সমস্যা হয়েছে। নিশ্চিত করুন ফাইলটিতে ২টি কলাম রয়েছে।');
           console.error(err);
@@ -125,6 +263,7 @@ export const App: React.FC = () => {
         const text = evt.target?.result as string;
         if (text) {
           handleParseText(text);
+          navigateTo({}, true);
         }
       };
       reader.readAsText(file);
@@ -169,7 +308,7 @@ export const App: React.FC = () => {
     });
 
     if (selectedPerson?.id === personId) {
-      setSelectedPerson(null);
+      handleClosePersonModal();
     }
   };
 
@@ -371,16 +510,16 @@ export const App: React.FC = () => {
 
       {/* Top Header */}
       <Header
-        onOpenPasteModal={() => setIsPasteModalOpen(true)}
+        onOpenPasteModal={() => navigateTo({ modal: 'clipboard' })}
         onOpenUpload={() => fileInputRef.current?.click()}
-        onOpenGoogleModal={() => setIsGoogleModalOpen(true)}
+        onOpenGoogleModal={() => navigateTo({ modal: 'google' })}
         onLoadSample={handleLoadSample}
         onNewTree={handleNewTree}
         onExportExcel={() => downloadTreeAsExcel(tree)}
         onExportCSV={() => downloadTreeAsCSV(tree)}
         onExportPoster={handleExportPoster}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         totalPeopleCount={Object.keys(tree.people).length}
         connectedSheet={connectedSheet}
       />
@@ -390,17 +529,17 @@ export const App: React.FC = () => {
         <Visualizer
           tree={tree}
           searchQuery={searchQuery}
-          onSelectPerson={(p) => setSelectedPerson(p)}
-          onAddChild={(p) => setAddRelativeState({ isOpen: true, person: p, mode: 'child' })}
-          onAddSpouse={(p) => setAddRelativeState({ isOpen: true, person: p, mode: 'spouse' })}
-          onAddPerson={() => setAddRelativeState({ isOpen: true, person: null, mode: 'person' })}
+          onSelectPerson={(p) => navigateTo({ person: p.id })}
+          onAddChild={(p) => navigateTo({ person: p.id, add: 'child', target: p.id })}
+          onAddSpouse={(p) => navigateTo({ person: p.id, add: 'spouse', target: p.id })}
+          onAddPerson={() => navigateTo({ add: 'person' })}
         />
       </main>
 
       {/* Direct Paste Modal */}
       <PasteModal
         isOpen={isPasteModalOpen}
-        onClose={() => setIsPasteModalOpen(false)}
+        onClose={closeActiveModal}
         onParseText={handleParseText}
         tree={tree}
       />
@@ -408,9 +547,12 @@ export const App: React.FC = () => {
       {/* Google Sheets Modal (Method 2: OAuth + Picker + 2-Way Sync) */}
       <GoogleSyncModal
         isOpen={isGoogleModalOpen}
-        onClose={() => setIsGoogleModalOpen(false)}
+        onClose={closeActiveModal}
         tree={tree}
-        onTreeLoaded={(newTree) => setTree(newTree)}
+        onTreeLoaded={(newTree) => {
+          setTree(newTree);
+          navigateTo({}, true, newTree);
+        }}
         connectedSheet={connectedSheet}
         onSetConnectedSheet={setConnectedSheet}
       />
@@ -419,19 +561,21 @@ export const App: React.FC = () => {
       <PersonModal
         person={selectedPerson}
         tree={tree}
-        isOpen={Boolean(selectedPerson)}
-        onClose={() => setSelectedPerson(null)}
-        onSelectPerson={(id) => setSelectedPerson(tree.people[id] || null)}
-        onEditPerson={(p) => setEditingPerson(p)}
-        onAddChild={(p) => setAddRelativeState({ isOpen: true, person: p, mode: 'child' })}
-        onAddSpouse={(p) => setAddRelativeState({ isOpen: true, person: p, mode: 'spouse' })}
+        isOpen={Boolean(selectedPerson) && !editingPerson && !addRelativeState.isOpen}
+        onClose={handleClosePersonModal}
+        onSelectPerson={(id) => navigateTo({ person: id })}
+        onEditPerson={(p) => navigateTo({ person: p.id, edit: p.id })}
+        onAddChild={(p) => navigateTo({ person: p.id, add: 'child', target: p.id })}
+        onAddSpouse={(p) => navigateTo({ person: p.id, add: 'spouse', target: p.id })}
+        canGoBack={modalDepth > 1}
+        onBack={closeActiveModal}
       />
 
       {/* Edit Person Modal */}
       <EditPersonModal
         person={editingPerson}
         isOpen={Boolean(editingPerson)}
-        onClose={() => setEditingPerson(null)}
+        onClose={closeActiveModal}
         onSave={handleSavePerson}
         onDeletePerson={handleDeletePerson}
       />
@@ -442,7 +586,7 @@ export const App: React.FC = () => {
         mode={addRelativeState.mode}
         tree={tree}
         isOpen={addRelativeState.isOpen}
-        onClose={() => setAddRelativeState(prev => ({ ...prev, isOpen: false }))}
+        onClose={closeActiveModal}
         onAdd={(data) => {
           if (addRelativeState.mode === 'child') {
             handleAddChild(data);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Person, FamilyTree } from '../types/family';
 import { calculateKinship } from '../lib/kinship';
-import { X, User, Heart, Baby, MapPin, Calendar, Briefcase, FileText, Edit2, Plus, Sparkles } from 'lucide-react';
+import { X, User, Heart, Baby, MapPin, Calendar, Briefcase, FileText, Edit2, Plus, Sparkles, ArrowLeft } from 'lucide-react';
 
 interface PersonModalProps {
   person: Person | null;
@@ -12,6 +12,8 @@ interface PersonModalProps {
   onEditPerson: (person: Person) => void;
   onAddChild: (parent: Person) => void;
   onAddSpouse: (person: Person) => void;
+  onBack?: () => void;
+  canGoBack?: boolean;
 }
 
 export const PersonModal: React.FC<PersonModalProps> = ({
@@ -23,6 +25,8 @@ export const PersonModal: React.FC<PersonModalProps> = ({
   onEditPerson,
   onAddChild,
   onAddSpouse,
+  onBack,
+  canGoBack,
 }) => {
   const [kinshipTargetId, setKinshipTargetId] = useState<string>('');
 
@@ -44,12 +48,25 @@ export const PersonModal: React.FC<PersonModalProps> = ({
           person.gender === 'male' ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-100' :
           'bg-gradient-to-r from-slate-50 to-gray-50 border-slate-100'
         }`}>
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-white/80 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="absolute right-4 top-4 flex items-center gap-1.5 z-10">
+            {canGoBack && onBack && (
+              <button
+                onClick={onBack}
+                title="পূর্ববর্তী ব্যক্তি (Back)"
+                className="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white/80 transition flex items-center gap-1 text-xs font-semibold px-2 py-1 border border-slate-200/60 bg-white/40 shadow-xs"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span className="text-[11px] hidden sm:inline">পূর্ববর্তী</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              title="বন্ধ করুন (Close)"
+              className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-white/80 transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
           <div className="flex items-start gap-4">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-md ${
