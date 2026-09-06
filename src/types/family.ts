@@ -18,7 +18,6 @@ export interface Person {
   fatherId?: string;
   motherId?: string;
   marriages: Marriage[];
-  unassociatedChildren: string[]; // children born without a declared spouse
 }
 
 export interface FamilyTree {

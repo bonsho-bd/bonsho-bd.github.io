@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FamilyTree, Person, Gender, Marriage } from '../types/family';
+import { createUnknownSpouse } from '../lib/parser';
 
 const STORAGE_KEY = 'bonsho_family_tree_data';
 
@@ -70,12 +71,27 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
           const survivingMarriages: Marriage[] = [];
           person.marriages.forEach((marriage) => {
             if (marriage.spouseId === personId) {
-              // Migrate children of this dissolved marriage to unassociatedChildren so they are not lost
-              marriage.children.forEach((childId) => {
-                if (childId !== personId && !person.unassociatedChildren.includes(childId)) {
-                  person.unassociatedChildren.push(childId);
-                }
-              });
+              const remainingChildren = marriage.children.filter((childId) => childId !== personId);
+              if (remainingChildren.length > 0) {
+                // Synthesize an Unknown spouse to hold the remaining children with this person
+                const { spouse: unknownSpouse, marriage: unknownMarriage } = createUnknownSpouse(
+                  updatedPeople,
+                  person
+                );
+                unknownMarriage.children = remainingChildren;
+                // Update parent references on remaining children
+                remainingChildren.forEach((childId) => {
+                  const child = updatedPeople[childId];
+                  if (child) {
+                    if (person.gender === 'male') {
+                      child.motherId = unknownSpouse.id;
+                    } else if (person.gender === 'female') {
+                      child.fatherId = unknownSpouse.id;
+                    }
+                  }
+                });
+                survivingMarriages.push(unknownMarriage);
+              }
             } else {
               // Remove deleted person from children list
               marriage.children = marriage.children.filter((id) => id !== personId);
@@ -83,11 +99,6 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
             }
           });
           person.marriages = survivingMarriages;
-        }
-
-        // 3. Clean up unassociatedChildren
-        if (person.unassociatedChildren) {
-          person.unassociatedChildren = person.unassociatedChildren.filter((id) => id !== personId);
         }
       });
 
@@ -151,7 +162,6 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
         ...(newPersonCoords ? { _x: newPersonCoords.x.toString(), _y: newPersonCoords.y.toString() } : {})
       },
       marriages: [],
-      unassociatedChildren: [],
     };
 
     setNewPersonCoords(null);
@@ -171,14 +181,24 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
           const updatedParent = {
             ...parent,
             marriages: parent.marriages.map(m => ({ ...m, children: [...m.children] })),
-            unassociatedChildren: [...parent.unassociatedChildren],
           };
 
-          const targetMarriage = input.relation.spouseId
-            ? updatedParent.marriages.find(m => m.spouseId === input.relation!.spouseId)
-            : (updatedParent.marriages.length > 0 ? updatedParent.marriages[0] : undefined);
+          let targetMarriage: Marriage | undefined;
+          if (input.relation.spouseId) {
+            targetMarriage = updatedParent.marriages.find(m => m.spouseId === input.relation!.spouseId);
+          } else if (updatedParent.marriages.length > 0) {
+            targetMarriage = updatedParent.marriages[0];
+          }
 
-          const spouse = targetMarriage ? updatedPeople[targetMarriage.spouseId] : undefined;
+          if (!targetMarriage) {
+            const { marriage: unknownMarriage } = createUnknownSpouse(
+              updatedPeople,
+              updatedParent
+            );
+            targetMarriage = unknownMarriage;
+          }
+
+          const spouse = updatedPeople[targetMarriage.spouseId];
 
           // Set parent references on the child
           if (parent.gender === 'male') {
@@ -196,28 +216,21 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
             else if (spouse?.gender === 'male') newPerson.fatherId = spouse.id;
           }
 
-          if (targetMarriage) {
-            if (!targetMarriage.children.includes(newPerson.id)) {
-              targetMarriage.children.push(newPerson.id);
-            }
+          if (!targetMarriage.children.includes(newPerson.id)) {
+            targetMarriage.children.push(newPerson.id);
+          }
 
-            // Sync reciprocal marriage on spouse
-            if (spouse) {
-              const updatedSpouse = {
-                ...spouse,
-                marriages: spouse.marriages.map(m => ({ ...m, children: [...m.children] })),
-              };
-              const reciprocal = updatedSpouse.marriages.find(m => m.spouseId === parent.id);
-              if (reciprocal && !reciprocal.children.includes(newPerson.id)) {
-                reciprocal.children.push(newPerson.id);
-              }
-              updatedPeople[spouse.id] = updatedSpouse;
+          // Sync reciprocal marriage on spouse
+          if (spouse) {
+            const updatedSpouse = {
+              ...spouse,
+              marriages: spouse.marriages.map(m => ({ ...m, children: [...m.children] })),
+            };
+            const reciprocal = updatedSpouse.marriages.find(m => m.spouseId === parent.id);
+            if (reciprocal && !reciprocal.children.includes(newPerson.id)) {
+              reciprocal.children.push(newPerson.id);
             }
-          } else {
-            // Unassociated child
-            if (!updatedParent.unassociatedChildren.includes(newPerson.id)) {
-              updatedParent.unassociatedChildren.push(newPerson.id);
-            }
+            updatedPeople[spouse.id] = updatedSpouse;
           }
 
           updatedPeople[parent.id] = updatedParent;

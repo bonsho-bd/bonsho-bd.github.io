@@ -32,14 +32,6 @@ function serializePersonToRows(
     rows.push([key, val]);
   }
 
-  // Children without spouse
-  for (const childId of person.unassociatedChildren) {
-    const child = people[childId];
-    if (child) {
-      rows.push(['Child', child.name]);
-    }
-  }
-
   // Marriages and their grouped children (only serialized once per couple)
   for (const marriage of person.marriages) {
     const spouse = people[marriage.spouseId];
@@ -90,9 +82,6 @@ export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
       for (const childId of marriage.children) {
         traverse(childId);
       }
-    }
-    for (const childId of person.unassociatedChildren) {
-      traverse(childId);
     }
   }
 

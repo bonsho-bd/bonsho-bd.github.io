@@ -235,32 +235,6 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             </div>
           )}
 
-          {/* Unassociated Children */}
-          {person.unassociatedChildren.length > 0 && (
-            <div className="space-y-1.5">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Baby className="w-3.5 h-3.5 text-emerald-600" />
-                <span>সন্তানসন্ততি</span>
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {person.unassociatedChildren.map(cId => {
-                  const child = tree.people[cId];
-                  if (!child) return null;
-                  return (
-                    <button
-                      key={cId}
-                      onClick={() => onSelectPerson(child.id)}
-                      className="px-2.5 py-1 text-xs bg-slate-50 border border-slate-200 rounded-lg hover:border-emerald-500 hover:text-emerald-700 flex items-center gap-1 transition"
-                    >
-                      <Baby className="w-3 h-3 text-slate-400" />
-                      <span>{child.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
         </div>
 
       </div>

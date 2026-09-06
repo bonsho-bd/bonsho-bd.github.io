@@ -41,9 +41,27 @@ export function parseRawTextToRows(text: string): RawRow[] {
 }
 
 /**
+ * Computes English ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
+ */
+export function getOrdinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+/**
+ * Generates an ID for an unknown spouse using person.id
+ * e.g., 1st_wife_of_akkas-1 or 1st_husband_of_মেবেল মারাক
+ */
+export function generateUnknownSpouseId(person: Person, spouseIndex: number): string {
+  const relation = person.gender === 'female' ? 'husband' : person.gender === 'male' ? 'wife' : 'spouse';
+  return `${getOrdinal(spouseIndex)}_${relation}_of_${person.id}`;
+}
+
+/**
  * Creates or retrieves a person from the people map
  */
-function getOrCreatePerson(
+export function getOrCreatePerson(
   people: Record<string, Person>,
   idOrName: string,
   explicitId?: string
@@ -67,11 +85,50 @@ function getOrCreatePerson(
     gender: 'other',
     attributes: {},
     marriages: [],
-    unassociatedChildren: [],
   };
 
   people[id] = newPerson;
   return newPerson;
+}
+
+/**
+ * Creates and registers a synthetic Unknown spouse for a parent
+ */
+export function createUnknownSpouse(
+  people: Record<string, Person>,
+  parent: Person,
+  spouseIndex: number = parent.marriages.length + 1
+): { spouse: Person; marriage: Marriage } {
+  const spouseGender: Gender =
+    parent.gender === 'female' ? 'male' :
+    parent.gender === 'male' ? 'female' : 'other';
+
+  const spouseId = generateUnknownSpouseId(parent, spouseIndex);
+
+  const spouse = getOrCreatePerson(people, 'Unknown', spouseId);
+  spouse.gender = spouseGender;
+
+  let marriage = parent.marriages.find(m => m.spouseId === spouse.id);
+  if (!marriage) {
+    marriage = {
+      id: `m_${parent.id}_${spouse.id}`,
+      spouseId: spouse.id,
+      children: [],
+    };
+    parent.marriages.push(marriage);
+  }
+
+  let reverseMarriage = spouse.marriages.find(m => m.spouseId === parent.id);
+  if (!reverseMarriage) {
+    reverseMarriage = {
+      id: `m_${spouse.id}_${parent.id}`,
+      spouseId: parent.id,
+      children: marriage.children,
+    };
+    spouse.marriages.push(reverseMarriage);
+  }
+
+  return { spouse, marriage };
 }
 
 /**
@@ -160,8 +217,24 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
           const father = getOrCreatePerson(people, value);
           father.gender = 'male';
           currentPerson.fatherId = father.id;
-          if (!father.unassociatedChildren.includes(currentPerson.id)) {
-            father.unassociatedChildren.push(currentPerson.id);
+
+          let targetMarriage: Marriage | undefined;
+          if (currentPerson.motherId) {
+            targetMarriage = father.marriages.find(m => m.spouseId === currentPerson!.motherId);
+          }
+          if (!targetMarriage && father.marriages.length > 0) {
+            targetMarriage = father.marriages[0];
+          }
+          if (!targetMarriage) {
+            const { marriage } = createUnknownSpouse(people, father);
+            targetMarriage = marriage;
+          }
+
+          if (!targetMarriage.children.includes(currentPerson.id)) {
+            targetMarriage.children.push(currentPerson.id);
+          }
+          if (!currentPerson.motherId) {
+            currentPerson.motherId = targetMarriage.spouseId;
           }
         }
         break;
@@ -172,8 +245,24 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
           const mother = getOrCreatePerson(people, value);
           mother.gender = 'female';
           currentPerson.motherId = mother.id;
-          if (!mother.unassociatedChildren.includes(currentPerson.id)) {
-            mother.unassociatedChildren.push(currentPerson.id);
+
+          let targetMarriage: Marriage | undefined;
+          if (currentPerson.fatherId) {
+            targetMarriage = mother.marriages.find(m => m.spouseId === currentPerson!.fatherId);
+          }
+          if (!targetMarriage && mother.marriages.length > 0) {
+            targetMarriage = mother.marriages[0];
+          }
+          if (!targetMarriage) {
+            const { marriage } = createUnknownSpouse(people, mother);
+            targetMarriage = marriage;
+          }
+
+          if (!targetMarriage.children.includes(currentPerson.id)) {
+            targetMarriage.children.push(currentPerson.id);
+          }
+          if (!currentPerson.fatherId) {
+            currentPerson.fatherId = targetMarriage.spouseId;
           }
         }
         break;
@@ -232,23 +321,22 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
             child.motherId = currentPerson.id;
           }
 
-          if (currentMarriage) {
-            // Group under the active spouse!
-            if (!currentMarriage.children.includes(child.id)) {
-              currentMarriage.children.push(child.id);
-            }
-            const spouse = people[currentMarriage.spouseId];
-            if (spouse) {
-              if (spouse.gender === 'female' && !child.motherId) {
-                child.motherId = spouse.id;
-              } else if (spouse.gender === 'male' && !child.fatherId) {
-                child.fatherId = spouse.id;
-              }
-            }
-          } else {
-            // Child before any declared spouse
-            if (!currentPerson.unassociatedChildren.includes(child.id)) {
-              currentPerson.unassociatedChildren.push(child.id);
+          // If no active marriage in current block, create a new Unknown spouse!
+          if (!currentMarriage) {
+            const { marriage } = createUnknownSpouse(people, currentPerson);
+            currentMarriage = marriage;
+          }
+
+          // Group under the active spouse!
+          if (!currentMarriage.children.includes(child.id)) {
+            currentMarriage.children.push(child.id);
+          }
+          const spouse = people[currentMarriage.spouseId];
+          if (spouse) {
+            if (spouse.gender === 'female' && !child.motherId) {
+              child.motherId = spouse.id;
+            } else if (spouse.gender === 'male' && !child.fatherId) {
+              child.fatherId = spouse.id;
             }
           }
         }

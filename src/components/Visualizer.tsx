@@ -75,7 +75,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       for (const m of p.marriages) {
         allChildren.push(...m.children);
       }
-      allChildren.push(...p.unassociatedChildren);
 
       if (allChildren.length === 0) {
         return unitWidth;
@@ -113,7 +112,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       for (const m of person.marriages) {
         allChildren.push(...m.children);
       }
-      allChildren.push(...person.unassociatedChildren);
 
       const subtreeWidth = calculateSubtreeWidth(personId);
       const coupleWidth = CARD_WIDTH + (spouses.length * (CARD_WIDTH + 20));
@@ -715,6 +713,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
 }) => {
   const isFemale = person.gender === 'female';
   const isMale = person.gender === 'male';
+  const isUnknown = person.name.toLowerCase() === 'unknown';
 
   return (
     <div
@@ -728,6 +727,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
       }}
       className={`group relative w-[190px] h-[105px] bg-white rounded-2xl shadow-sm border transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer focus-visible ${
         isMatch ? 'ring-4 ring-amber-400 border-amber-500 shadow-amber-200' :
+        isUnknown ? 'border-dashed border-slate-300 bg-slate-50/70 hover:border-slate-400' :
         isFemale ? 'border-rose-200 hover:border-rose-400' :
         isMale ? 'border-emerald-200 hover:border-emerald-400' :
         'border-slate-200 hover:border-slate-400'
@@ -736,6 +736,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
     >
       {/* Top Banner with Badges */}
       <div className={`h-2 rounded-t-2xl ${
+        isUnknown ? 'bg-slate-300' :
         isFemale ? 'bg-gradient-to-r from-rose-400 to-pink-500' :
         isMale ? 'bg-gradient-to-r from-emerald-500 to-teal-600' :
         'bg-gradient-to-r from-slate-400 to-gray-500'
@@ -744,19 +745,23 @@ const PersonCard: React.FC<PersonCardProps> = ({
       <div className="p-2.5 flex items-start gap-2.5 h-[calc(100%-8px)]">
         {/* Avatar */}
         <div className={`w-9 h-9 rounded-xl shrink-0 flex items-center justify-center text-white text-xs font-bold shadow-2xs ${
+          isUnknown ? 'bg-slate-400' :
           isFemale ? 'bg-rose-500' :
           isMale ? 'bg-emerald-600' :
           'bg-slate-600'
         }`}>
-          {person.name ? person.name.charAt(0) : <User className="w-5 h-5" />}
+          {isUnknown ? <User className="w-5 h-5 text-white/90" /> : (person.name ? person.name.charAt(0) : <User className="w-5 h-5" />)}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0 flex flex-col justify-between h-full">
           <div>
             <div className="flex items-center justify-between gap-1">
-              <h4 className="font-bold text-xs text-slate-800 truncate" title={person.name}>
-                {person.name}
+              <h4
+                className={`font-bold text-xs truncate ${isUnknown ? 'text-slate-500 italic' : 'text-slate-800'}`}
+                title={isUnknown ? 'অজানা (Unknown)' : person.name}
+              >
+                {isUnknown ? 'অজানা (Unknown)' : person.name}
               </h4>
               {Boolean(person.death) && (
                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 shrink-0">
@@ -764,6 +769,11 @@ const PersonCard: React.FC<PersonCardProps> = ({
                 </span>
               )}
             </div>
+
+            {/* Hint for unknown spouse */}
+            {isUnknown && !person.birth && !person.death && (
+              <span className="text-[10px] text-slate-400 italic">নাম দিতে ক্লিক করুন</span>
+            )}
 
             {/* Dates */}
             {(person.birth || person.death) && (
