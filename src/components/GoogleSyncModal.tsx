@@ -33,6 +33,9 @@ interface GoogleSyncModalProps {
   onTreeLoaded: (tree: FamilyTree) => void;
   connectedSheet: { id: string; name: string } | null;
   onSetConnectedSheet: (sheet: { id: string; name: string } | null) => void;
+  accessToken: string;
+  onSetAccessToken: (token: string) => void;
+  onMarkAsSynced: () => void;
 }
 
 export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
@@ -42,8 +45,10 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   onTreeLoaded,
   connectedSheet,
   onSetConnectedSheet,
+  accessToken,
+  onSetAccessToken,
+  onMarkAsSynced,
 }) => {
-  const [accessToken, setAccessToken] = useState<string>('');
   const [config] = useState(getGoogleConfig());
   const [manualSheetInput, setManualSheetInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -74,7 +79,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       }
 
       const token = await requestGoogleAccessToken(clientId);
-      setAccessToken(token);
+      onSetAccessToken(token);
       setStatusMessage({ text: 'গুগল একাউন্টের সাথে সফলভাবে যুক্ত হয়েছে!', type: 'success' });
     } catch (err: any) {
       setStatusMessage({ text: err.message || 'গুগল সাইন-ইন ব্যর্থ হয়েছে', type: 'error' });
@@ -183,6 +188,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       await saveGoogleSheetValues(connectedSheet.id, accessToken, rows);
 
       setStatusMessage({ text: 'আপনার গুগল শিটে সফলভাবে সেভ হয়েছে!', type: 'success' });
+      onMarkAsSynced();
     } catch (err: any) {
       setStatusMessage({ text: `সেভ করতে ব্যর্থ: ${err.message}`, type: 'error' });
     } finally {
@@ -192,7 +198,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
 
   // Disconnect
   const handleDisconnect = () => {
-    setAccessToken('');
+    onSetAccessToken('');
     onSetConnectedSheet(null);
     setStatusMessage(null);
   };

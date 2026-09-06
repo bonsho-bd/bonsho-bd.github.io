@@ -14,6 +14,9 @@ import { QRCodeModal } from './components/QRCodeModal';
 import { extractTreeFromCurrentUrl } from './lib/qrCodec';
 import * as XLSX from 'xlsx';
 import { toPng } from 'html-to-image';
+import { CloudUpload, AlertCircle, Loader2 } from 'lucide-react';
+import { saveGoogleSheetValues } from './lib/googleAuth';
+import { treeToKeyValueRows } from './lib/serializer';
 
 const STORAGE_KEY = 'bonsho_family_tree_data';
 
@@ -38,7 +41,60 @@ export const App: React.FC = () => {
   });
 
   // Google Sheet connection state
-  const [connectedSheet, setConnectedSheet] = useState<{ id: string; name: string } | null>(null);
+  const [connectedSheet, setConnectedSheet] = useState<{ id: string; name: string } | null>(() => {
+    const saved = localStorage.getItem('bonsho_connected_sheet');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [accessToken, setAccessToken] = useState<string>(() => localStorage.getItem('bonsho_access_token') || '');
+  const [lastSyncedTree, setLastSyncedTree] = useState<string>(() => localStorage.getItem('bonsho_last_synced_tree') || '');
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Sync to LocalStorage for persistence
+  useEffect(() => {
+    if (accessToken) localStorage.setItem('bonsho_access_token', accessToken);
+    else localStorage.removeItem('bonsho_access_token');
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (connectedSheet) localStorage.setItem('bonsho_connected_sheet', JSON.stringify(connectedSheet));
+    else localStorage.removeItem('bonsho_connected_sheet');
+  }, [connectedSheet]);
+
+  useEffect(() => {
+    if (lastSyncedTree) localStorage.setItem('bonsho_last_synced_tree', lastSyncedTree);
+  }, [lastSyncedTree]);
+
+  // Derived state for unsaved changes
+  // We stringify the current tree to compare with last synced tree
+  const currentTreeStr = JSON.stringify(tree);
+  const hasUnsavedChanges = connectedSheet && lastSyncedTree && currentTreeStr !== lastSyncedTree;
+
+  // Unload warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  const handleQuickSync = async () => {
+    if (!connectedSheet || !accessToken) return;
+    try {
+      setIsSyncing(true);
+      const rows = treeToKeyValueRows(tree);
+      await saveGoogleSheetValues(connectedSheet.id, accessToken, rows);
+      setLastSyncedTree(currentTreeStr);
+      alert('সফলভাবে গুগল শিটে সেভ হয়েছে!');
+    } catch (err: any) {
+      alert('সেভ করতে সমস্যা হয়েছে: ' + err.message);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Modals state
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
@@ -546,6 +602,31 @@ export const App: React.FC = () => {
 
       {/* Main Visualizer Canvas */}
       <main className="flex-1 relative">
+        {hasUnsavedChanges && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-sm border border-amber-200 shadow-xl rounded-2xl p-3 flex flex-col sm:flex-row items-center gap-3 animate-in slide-in-from-top-4">
+            <div className="flex items-center gap-2 text-xs font-semibold text-amber-800">
+              <AlertCircle className="w-4 h-4 text-amber-600" />
+              <span>গুগল শিটে কিছু পরিবর্তন সেভ করা বাকি আছে।</span>
+            </div>
+            <button
+              onClick={handleQuickSync}
+              disabled={isSyncing}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-lg text-xs font-bold transition shadow-sm whitespace-nowrap disabled:opacity-50"
+            >
+              {isSyncing ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  সেভ হচ্ছে...
+                </>
+              ) : (
+                <>
+                  <CloudUpload className="w-3.5 h-3.5" />
+                  গুগল শিটে সেভ করুন
+                </>
+              )}
+            </button>
+          </div>
+        )}
         <Visualizer
           tree={tree}
           searchQuery={searchQuery}
@@ -582,6 +663,9 @@ export const App: React.FC = () => {
         }}
         connectedSheet={connectedSheet}
         onSetConnectedSheet={setConnectedSheet}
+        accessToken={accessToken}
+        onSetAccessToken={setAccessToken}
+        onMarkAsSynced={() => setLastSyncedTree(JSON.stringify(tree))}
       />
 
       {/* QR Code Export Modal */}
