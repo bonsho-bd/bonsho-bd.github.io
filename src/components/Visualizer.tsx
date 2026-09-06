@@ -355,7 +355,31 @@ export const Visualizer: React.FC<VisualizerProps> = ({
         e.touches[0].clientY - e.touches[1].clientY
       );
       const zoomDelta = dist / lastPinchDist;
-      setZoom(prev => Math.min(Math.max(prev * zoomDelta, 0.2), 2.5));
+      
+      setZoom(prevZoom => {
+        const newZoom = Math.min(Math.max(prevZoom * zoomDelta, 0.2), 2.5);
+        if (newZoom !== prevZoom) {
+          setPan(prevPan => {
+            if (!containerRef.current) return prevPan;
+            const pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            
+            const rect = containerRef.current.getBoundingClientRect();
+            const pointerX = pinchCenterX - rect.left;
+            const pointerY = pinchCenterY - rect.top;
+            
+            const logicalX = (pointerX - prevPan.x) / prevZoom;
+            const logicalY = (pointerY - prevPan.y) / prevZoom;
+            
+            return {
+              x: pointerX - logicalX * newZoom,
+              y: pointerY - logicalY * newZoom,
+            };
+          });
+        }
+        return newZoom;
+      });
+      
       setLastPinchDist(dist);
     }
   };
@@ -403,11 +427,54 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-    setZoom(prev => Math.min(Math.max(prev * zoomFactor, 0.2), 2.5));
+    
+    setZoom(prevZoom => {
+      const newZoom = Math.min(Math.max(prevZoom * zoomFactor, 0.2), 2.5);
+      if (newZoom !== prevZoom) {
+        setPan(prevPan => {
+          if (!containerRef.current) return prevPan;
+          const rect = containerRef.current.getBoundingClientRect();
+          const pointerX = e.clientX - rect.left;
+          const pointerY = e.clientY - rect.top;
+          
+          const logicalX = (pointerX - prevPan.x) / prevZoom;
+          const logicalY = (pointerY - prevPan.y) / prevZoom;
+          
+          return {
+            x: pointerX - logicalX * newZoom,
+            y: pointerY - logicalY * newZoom,
+          };
+        });
+      }
+      return newZoom;
+    });
   };
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 2.5));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev * 0.8, 0.2));
+  const handleZoomWithCenter = (zoomFactor: number) => {
+    setZoom(prevZoom => {
+      const newZoom = Math.min(Math.max(prevZoom * zoomFactor, 0.2), 2.5);
+      if (newZoom !== prevZoom) {
+        setPan(prevPan => {
+          if (!containerRef.current) return prevPan;
+          const rect = containerRef.current.getBoundingClientRect();
+          const pointerX = rect.width / 2;
+          const pointerY = rect.height / 2;
+          
+          const logicalX = (pointerX - prevPan.x) / prevZoom;
+          const logicalY = (pointerY - prevPan.y) / prevZoom;
+          
+          return {
+            x: pointerX - logicalX * newZoom,
+            y: pointerY - logicalY * newZoom,
+          };
+        });
+      }
+      return newZoom;
+    });
+  };
+
+  const handleZoomIn = () => handleZoomWithCenter(1.2);
+  const handleZoomOut = () => handleZoomWithCenter(0.8);
   const handleResetZoom = () => {
     centerTree();
     window.dispatchEvent(new CustomEvent('bonsho-reset-layout'));
