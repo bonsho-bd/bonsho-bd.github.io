@@ -78,8 +78,8 @@ graph TD
 6. **QR Code URL Export & Direct Scan**:
    - Compresses the entire tree 100% client-side using `pako` (`deflateRaw` level 9) and converts it to a compact, URL-safe Base64URL string (`-`, `_`, no padding).
    - Preserves complete Unicode integrity for 3-byte Bengali text and complex multi-spouse genealogical trees via standard `TextEncoder` / `TextDecoder`.
-   - Encodes a self-contained, **0-redirect hash URL**: `<domain>/#/view/qr-v0/<compressed-data>` that works seamlessly across GitHub Pages without server-side routing or 404 delays.
-   - Includes a fallback SPA router (`public/404.html`) that gracefully intercepts legacy or direct pathname visits (`/view/qr-v0/...`) and translates them into the client hash route.
+   - Encodes a self-contained, **0-redirect query URL**: `<domain>/?qr-v0=<compressed-data>` that loads directly on GitHub Pages with zero server-side routing, zero redirects, and zero 404 delays.
+   - Cleanly composes with other query parameters (e.g. `?lang=en` for future internationalization).
    - Scanning or navigating to the link decompresses the tree data synchronously on page load and immediately renders the interactive visualizer.
    - Users can download the crisp QR code image (PNG rendered with error-correction `L` and 8x scaling), copy the full link, or take a screenshot to share with relatives.
 
@@ -190,8 +190,7 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
   - (Optional) Google Drive Picker API v1 (via `VITE_GOOGLE_API_KEY`)
 - **Deployment & Routing**:
   - GitHub Pages (`https://bonsho-bd.github.io`) via GitHub Actions
-  - Client-side 0-redirect hash router (`/#/view/qr-v0/<data>`)
-  - `public/404.html` SPA redirect fallback for direct subpath requests
+  - Native 0-redirect query parameter router (`/?qr-v0=<data>`) composable with other parameters (e.g. `?lang=en`)
 
 ---
 
@@ -205,7 +204,6 @@ bonsho/
 ├── docs/
 │   └── ARCHITECTURE.md         # This design document
 ├── public/
-│   ├── 404.html                # GitHub Pages SPA router fallback (redirects to hash routes)
 │   └── tree-icon.svg           # Site favicon & custom coin logo
 ├── src/
 │   ├── components/

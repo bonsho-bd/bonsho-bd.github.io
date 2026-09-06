@@ -57,7 +57,7 @@ export function decompressBase64UrlToText(base64Url: string): string {
 }
 
 /**
- * Generates the full QR URL (bonsho-bd.github.io/#/view/qr-v0/<compressed-data>)
+ * Generates the full QR URL (bonsho-bd.github.io/?qr-v0=<compressed-data>)
  */
 export function generateQRUrlForTree(tree: FamilyTree): {
   url: string;
@@ -77,8 +77,9 @@ export function generateQRUrlForTree(tree: FamilyTree): {
     .replace(/index\.html$/, '')
     .replace(/\/$/, '');
 
-  // Hash route allows instant, 0-redirect loading on GitHub Pages and static hosts
-  const url = `${origin}${basePath}/#/view/qr-v0/${compressedData}`;
+  // 0-redirect query param (?qr-v0=) allows instant loading on GitHub Pages and static hosts,
+  // and cleanly composes with other parameters (e.g. ?lang=en)
+  const url = `${origin}${basePath}/?qr-v0=${compressedData}`;
 
   return {
     url,
@@ -89,40 +90,47 @@ export function generateQRUrlForTree(tree: FamilyTree): {
 }
 
 /**
- * Reads and decompresses QR data from the URL path, hash, or redirect parameter
+ * Reads and decompresses QR data from URL query params, hash, or legacy path
  */
 export function extractTreeFromCurrentUrl(): FamilyTree | null {
   let qrData: string | null = null;
 
-  // 1. Check window.location.hash: e.g. #/view/qr-v0/<compressedData>
-  if (window.location.hash) {
+  // 1. Check primary query parameter: ?qr-v0=<compressedData>
+  if (window.location.search) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const qrParam = searchParams.get('qr-v0');
+    if (qrParam) {
+      qrData = qrParam;
+    } else {
+      // Fallback query parameters: ?d=<compressedData> or ?redirect=/view/qr-v0/<compressedData>
+      const dParam = searchParams.get('d');
+      if (dParam) {
+        qrData = dParam;
+      } else {
+        const redirectParam = searchParams.get('redirect');
+        if (redirectParam) {
+          const redirectMatch = decodeURIComponent(redirectParam).match(/view\/qr-v0\/([A-Za-z0-9_-]+)/);
+          if (redirectMatch) {
+            qrData = redirectMatch[1];
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Fallback check window.location.hash: e.g. #/view/qr-v0/<compressedData>
+  if (!qrData && window.location.hash) {
     const hashMatch = window.location.hash.match(/view\/qr-v0\/([A-Za-z0-9_-]+)/);
     if (hashMatch) {
       qrData = hashMatch[1];
     }
   }
 
-  // 2. Check window.location.pathname: e.g. /view/qr-v0/<compressedData>
+  // 3. Fallback check window.location.pathname: e.g. /view/qr-v0/<compressedData>
   if (!qrData && window.location.pathname) {
     const pathMatch = window.location.pathname.match(/\/view\/qr-v0\/([A-Za-z0-9_-]+)/);
     if (pathMatch) {
       qrData = pathMatch[1];
-    }
-  }
-
-  // 3. Check window.location.search: e.g. ?redirect=/view/qr-v0/<compressedData>
-  if (!qrData && window.location.search) {
-    const searchParams = new URLSearchParams(window.location.search);
-    const redirectParam = searchParams.get('redirect');
-    if (redirectParam) {
-      const redirectMatch = decodeURIComponent(redirectParam).match(/view\/qr-v0\/([A-Za-z0-9_-]+)/);
-      if (redirectMatch) {
-        qrData = redirectMatch[1];
-      }
-    }
-    const dParam = searchParams.get('d');
-    if (dParam) {
-      qrData = dParam;
     }
   }
 

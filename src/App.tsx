@@ -72,9 +72,14 @@ export const App: React.FC = () => {
     if (encodedTree) {
       setTree(encodedTree);
       markAsSynced(encodedTree); // Reset sync state for new tree
-      // Clean up URL
+      // Clean up encoded data from URL while preserving other params (e.g. lang=en)
       const url = new URL(window.location.href);
+      url.searchParams.delete('qr-v0');
       url.searchParams.delete('d');
+      url.searchParams.delete('redirect');
+      if (url.hash.includes('view/qr-v0/')) {
+        url.hash = '';
+      }
       window.history.replaceState({}, '', url.toString());
     }
   }, []); // Run once
