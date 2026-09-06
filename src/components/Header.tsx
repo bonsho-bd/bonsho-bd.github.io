@@ -1,11 +1,12 @@
 import React from 'react';
-import { TreePine, ClipboardPaste, Upload, Download, Sparkles, FileSpreadsheet, FileText, Search, PlusCircle, AlertCircle } from 'lucide-react';
+import { TreePine, ClipboardPaste, Upload, Download, Sparkles, FileSpreadsheet, FileText, Search, PlusCircle, AlertCircle, QrCode } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
 interface HeaderProps {
   onOpenPasteModal: () => void;
   onOpenUpload: () => void;
   onOpenGoogleModal: () => void;
+  onOpenQRCode: () => void;
   onLoadSample: () => void;
   onNewTree: () => void;
   onExportExcel: () => void;
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenPasteModal,
   onOpenUpload,
   onOpenGoogleModal,
+  onOpenQRCode,
   onLoadSample,
   onNewTree,
   onExportExcel,
@@ -186,6 +188,13 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <TreePine className="w-4 h-4 text-purple-600" />
                   <span>পোস্টার ছবি (PNG)</span>
+                </button>
+                <button
+                  onClick={onOpenQRCode}
+                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 border-t border-slate-100 font-medium"
+                >
+                  <QrCode className="w-4 h-4 text-emerald-600" />
+                  <span>QR কোড শেয়ার</span>
                 </button>
               </div>
             )}

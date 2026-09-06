@@ -10,6 +10,8 @@ import { PersonModal } from './components/PersonModal';
 import { EditPersonModal } from './components/EditPersonModal';
 import { AddRelativeModal } from './components/AddRelativeModal';
 import { GoogleSyncModal } from './components/GoogleSyncModal';
+import { QRCodeModal } from './components/QRCodeModal';
+import { extractTreeFromCurrentUrl } from './lib/qrCodec';
 import * as XLSX from 'xlsx';
 import { toPng } from 'html-to-image';
 
@@ -40,6 +42,7 @@ export const App: React.FC = () => {
   // Modals state
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [addRelativeState, setAddRelativeState] = useState<{
@@ -74,6 +77,7 @@ export const App: React.FC = () => {
 
     setIsPasteModalOpen(modalType === 'clipboard');
     setIsGoogleModalOpen(modalType === 'google');
+    setIsQRModalOpen(modalType === 'qr');
 
     if (editId && currentTree.people[editId]) {
       setEditingPerson(currentTree.people[editId]);
@@ -107,7 +111,7 @@ export const App: React.FC = () => {
     edit?: string | null;
     add?: 'child' | 'spouse' | 'person' | null;
     target?: string | null;
-    modal?: 'clipboard' | 'google' | null;
+    modal?: 'clipboard' | 'google' | 'qr' | null;
   }
 
   const navigateTo = (nav: NavParams, replace = false, currentTreeOverride?: FamilyTree) => {
@@ -173,7 +177,7 @@ export const App: React.FC = () => {
     window.history.replaceState(window.history.state, '', url.toString());
   };
 
-  // Listen for browser back / forward navigation
+  // Listen for browser back / forward navigation and load QR URL if present
   useEffect(() => {
     const handlePopState = () => {
       syncStateFromUrl();
@@ -181,6 +185,14 @@ export const App: React.FC = () => {
 
     window.addEventListener('popstate', handlePopState);
     syncStateFromUrl();
+
+    // Check if the page was opened with a QR code view link (/view/qr-v0/<data>)
+    (async () => {
+      const qrTree = await extractTreeFromCurrentUrl();
+      if (qrTree && Object.keys(qrTree.people).length > 0) {
+        setTree(qrTree);
+      }
+    })();
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
@@ -513,6 +525,7 @@ export const App: React.FC = () => {
         onOpenPasteModal={() => navigateTo({ modal: 'clipboard' })}
         onOpenUpload={() => fileInputRef.current?.click()}
         onOpenGoogleModal={() => navigateTo({ modal: 'google' })}
+        onOpenQRCode={() => navigateTo({ modal: 'qr' })}
         onLoadSample={handleLoadSample}
         onNewTree={handleNewTree}
         onExportExcel={() => downloadTreeAsExcel(tree)}
@@ -555,6 +568,13 @@ export const App: React.FC = () => {
         }}
         connectedSheet={connectedSheet}
         onSetConnectedSheet={setConnectedSheet}
+      />
+
+      {/* QR Code Export Modal */}
+      <QRCodeModal
+        isOpen={isQRModalOpen}
+        onClose={closeActiveModal}
+        tree={tree}
       />
 
       {/* Person Detail Modal */}

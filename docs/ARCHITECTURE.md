@@ -49,6 +49,7 @@ graph TD
     D --> E1["Export: Download CSV / Excel"]
     D --> E2["Export: Sync back to Google Sheet"]
     D --> E3["Export: High-Res Poster (PNG / PDF)"]
+    D --> E4["Export: QR Code URL (DEFLATE + Base64URL)"]
 ```
 
 1. **Clipboard Sync (Export & Import)**:
@@ -69,6 +70,11 @@ graph TD
    - 1-click spreadsheet creation directly in Google Drive, or connect an existing sheet via Google Drive Picker or URL.
    - Handles multi-account URLs (`/u/0/d/...`) and empty spreadsheets gracefully.
    - Supports two-way synchronization: in-app edits can be saved directly back to the Google Sheet.
+6. **QR Code URL Export & Direct Scan**:
+   - Compresses the entire tree via native browser `deflate-raw` into a compact URL-safe Base64URL string.
+   - Encodes a self-contained URL: `<domain>/view/qr-v0/<compressed-data>` that can be scanned by any smartphone camera.
+   - Scanning or navigating to the link decompresses the tree data 100% client-side and immediately renders the interactive visualizer.
+   - Users can download the crisp QR code image (PNG), copy the full link, or take a screenshot to share with relatives.
 
 ---
 
