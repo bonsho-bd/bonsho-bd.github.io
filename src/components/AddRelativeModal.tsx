@@ -171,12 +171,13 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                 <button
                   type="button"
                   key={val}
+                  disabled={mode === 'spouse'}
                   onClick={() => setGender(val as Gender)}
                   className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition ${
                     gender === val
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
                       : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
+                  } ${mode === 'spouse' ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
                   {label}
                 </button>
