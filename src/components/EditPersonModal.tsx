@@ -34,7 +34,6 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
   const [attributesList, setAttributesList] = useState<{ key: string; val: string }[]>(
     Object.entries(person.attributes || {})
-      .filter(([k]) => !k.startsWith('_'))
       .map(([key, val]) => ({ key, val }))
   );
 
@@ -57,7 +56,6 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
       });
       setAttributesList(
         Object.entries(person.attributes || {})
-          .filter(([k]) => !k.startsWith('_'))
           .map(([key, val]) => ({ key, val }))
       );
       setNewKey('');
@@ -81,10 +79,6 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
     if (!name.trim()) return;
 
     const attributes: Record<string, string> = {};
-    // Preserve internal _ properties if any
-    for (const [k, v] of Object.entries(person.attributes || {})) {
-      if (k.startsWith('_')) attributes[k] = v;
-    }
     for (const { key, val } of attributesList) {
       if (key.trim() && val.trim()) {
         attributes[key.trim()] = val.trim();

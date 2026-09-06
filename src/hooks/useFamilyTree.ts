@@ -30,7 +30,6 @@ export const useFamilyTree = () => {
     return { people: {} };
   });
 
-  const [newPersonCoords, setNewPersonCoords] = useState<{x: number, y: number} | null>(null);
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -109,13 +108,11 @@ export const useFamilyTree = () => {
       birth: input.birth,
       death: input.death,
       attributes: {
-        ...(input.attributes || {}),
-        ...(newPersonCoords ? { _x: newPersonCoords.x.toString(), _y: newPersonCoords.y.toString() } : {})
+        ...(input.attributes || {})
       },
       marriages: [],
     };
 
-    setNewPersonCoords(null);
 
     setTree((prev) => {
       const updatedPeople: Record<string, Person> = { ...prev.people, [newPerson.id]: newPerson };
@@ -200,8 +197,6 @@ export const useFamilyTree = () => {
   return {
     tree,
     setTree,
-    newPersonCoords,
-    setNewPersonCoords,
     savePerson,
     deletePerson,
     addPerson,

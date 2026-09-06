@@ -128,16 +128,14 @@ export const PersonModal: React.FC<PersonModalProps> = ({
           </div>
 
           {/* Attached Information (Key-Value Attributes) */}
-          {Object.keys(person.attributes || {}).filter(k => !k.startsWith('_')).length > 0 && (
+          {Object.keys(person.attributes || {}).length > 0 && (
             <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-3.5 text-xs space-y-2">
               <div className="font-semibold text-slate-700 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-slate-400" />
                 <span>সংযুক্ত তথ্য:</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {Object.entries(person.attributes)
-                  .filter(([k]) => !k.startsWith('_'))
-                  .map(([k, v]) => (
+                {Object.entries(person.attributes).map(([k, v]) => (
                     <div key={k} className="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
                       <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">{k}</span>
                       <span className="text-slate-800 font-medium whitespace-pre-wrap mt-0.5">{v}</span>

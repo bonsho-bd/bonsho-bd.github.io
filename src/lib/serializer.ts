@@ -29,7 +29,7 @@ function serializePersonToRows(
 
   // User-defined attributes (skip internal coordinates)
   for (const [key, val] of Object.entries(person.attributes || {})) {
-    if (key.startsWith('_')) continue;
+
     rows.push([key, val]);
   }
 

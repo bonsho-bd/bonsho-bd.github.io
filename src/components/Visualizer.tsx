@@ -9,7 +9,7 @@ interface VisualizerProps {
   onSelectPerson: (person: Person) => void;
   onAddChild: (parent: Person) => void;
   onAddSpouse: (person: Person) => void;
-  onAddPerson: (x?: number, y?: number) => void;
+  onAddPerson: () => void;
 }
 
 interface NodeLayout {
@@ -48,7 +48,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
-    const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number; logicalX: number; logicalY: number } | null>(null);
+    const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number } | null>(null);
   const [lastPinchDist, setLastPinchDist] = useState<number | null>(null);
 
   // Compute Tree Layout
@@ -165,27 +165,13 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     }
 
     for (const rootId of rootIds) {
-      const p = tree.people[rootId];
-      if (p && p.attributes['_x'] && p.attributes['_y']) {
-        const cx = parseFloat(p.attributes['_x']);
-        const cy = parseFloat(p.attributes['_y']);
-        layoutPerson(rootId, currentXOffset, cy, cx);
-      } else {
-        currentXOffset = layoutPerson(rootId, currentXOffset, 0);
-      }
+      currentXOffset = layoutPerson(rootId, currentXOffset, 0);
     }
 
     // Include any unlinked components
     for (const pId of Object.keys(tree.people)) {
       if (!visited.has(pId)) {
-        const p = tree.people[pId];
-        if (p && p.attributes['_x'] && p.attributes['_y']) {
-          const cx = parseFloat(p.attributes['_x']);
-          const cy = parseFloat(p.attributes['_y']);
-          layoutPerson(pId, currentXOffset, cy, cx);
-        } else {
-          currentXOffset = layoutPerson(pId, currentXOffset, 0);
-        }
+        currentXOffset = layoutPerson(pId, currentXOffset, 0);
       }
     }
 
@@ -298,15 +284,13 @@ export const Visualizer: React.FC<VisualizerProps> = ({
 
         if (isBackground) {
           if (nodes.length === 0) {
-            onAddPerson(floatingAddBtnPos?.logicalX, floatingAddBtnPos?.logicalY);
+            onAddPerson();
           } else {
             const rect = containerRef.current?.getBoundingClientRect();
             if (rect) {
               setFloatingAddBtnPos({
                 x: e.clientX - rect.left,
-                y: e.clientY - rect.top,
-                logicalX: ((e.clientX - rect.left) - pan.x) / zoom,
-                logicalY: ((e.clientY - rect.top) - pan.y) / zoom
+                y: e.clientY - rect.top
               });
             }
           }
@@ -402,15 +386,13 @@ export const Visualizer: React.FC<VisualizerProps> = ({
 
           if (isBackground) {
             if (nodes.length === 0) {
-              onAddPerson(floatingAddBtnPos?.logicalX, floatingAddBtnPos?.logicalY);
+              onAddPerson();
             } else {
               const rect = containerRef.current?.getBoundingClientRect();
               if (rect) {
                 setFloatingAddBtnPos({
                   x: e.changedTouches[0].clientX - rect.left,
-                  y: e.changedTouches[0].clientY - rect.top,
-                  logicalX: ((e.changedTouches[0].clientX - rect.left) - pan.x) / zoom,
-                  logicalY: ((e.changedTouches[0].clientY - rect.top) - pan.y) / zoom
+                  y: e.changedTouches[0].clientY - rect.top
                 });
               }
             }
@@ -508,7 +490,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               setFloatingAddBtnPos(null);
-              onAddPerson(floatingAddBtnPos?.logicalX, floatingAddBtnPos?.logicalY);
+              onAddPerson();
             }}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xl transition hover:scale-105 active:scale-95 -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none"
             title="নতুন ব্যক্তি যোগ করুন"
@@ -791,7 +773,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
 
           {/* First custom attribute if available */}
           {(() => {
-            const customEntries = Object.entries(person.attributes || {}).filter(([k]) => !k.startsWith('_'));
+            const customEntries = Object.entries(person.attributes || {});
             if (customEntries.length === 0) return null;
             const [firstKey, firstVal] = customEntries[0];
             return (

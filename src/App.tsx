@@ -26,7 +26,6 @@ export const App: React.FC = () => {
   const {
     tree,
     setTree,
-    setNewPersonCoords,
     savePerson,
     deletePerson,
     addPerson
@@ -396,12 +395,7 @@ export const App: React.FC = () => {
           onSelectPerson={(p) => navigateTo({ person: p.id })}
           onAddChild={(p) => navigateTo({ person: p.id, add: 'child', target: p.id })}
           onAddSpouse={(p) => navigateTo({ person: p.id, add: 'spouse', target: p.id })}
-          onAddPerson={(x, y) => {
-            if (x !== undefined && y !== undefined) {
-              setNewPersonCoords({ x, y });
-            } else {
-              setNewPersonCoords(null);
-            }
+          onAddPerson={() => {
             navigateTo({ add: 'person' });
           }}
         />
