@@ -715,7 +715,15 @@ const PersonCard: React.FC<PersonCardProps> = ({
 
   return (
     <div
-      className={`group relative w-[190px] h-[105px] bg-white rounded-2xl shadow-sm border transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer ${
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelectPerson();
+        }
+      }}
+      className={`group relative w-[190px] h-[105px] bg-white rounded-2xl shadow-sm border transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer focus-visible ${
         isMatch ? 'ring-4 ring-amber-400 border-amber-500 shadow-amber-200' :
         isFemale ? 'border-rose-200 hover:border-rose-400' :
         isMale ? 'border-emerald-200 hover:border-emerald-400' :
