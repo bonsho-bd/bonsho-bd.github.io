@@ -85,6 +85,8 @@ graph TD
 
 The spreadsheet format consists of a single tab with **two columns**: `Column A (Property / Key)` and `Column B (Value)`. Each person is defined as a contiguous block of rows. A new person block automatically starts whenever a `Name` (or its synonym) is encountered.
 
+> **Note on Relational Integrity:** Relationships (`Wife`, `Husband`, `Child`, `Father`, `Mother`) **must always link to the person's unique `Id`**, not their `Name`. This guarantees referential integrity even if display names change. If a person lacks an explicit `Id`, their `Name` is implicitly used as their `Id`.
+
 ### A. Patrilineal Example (Multi-Spouse & Child Association)
 Listing `Child` directly beneath a `Wife` row associates the child with that specific marriage:
 ```text
@@ -95,11 +97,11 @@ Id              | akkas-1                  (Optional, defaults to Name)
 Gender          | Male
 Date of birth   | 1935
 Date of death   | 2012                     (Automatically adds প্রয়াত badge)
-Wife            | সালেহা বেগম              (1st Wife)
-Child           | মতিউর রহমান              (Child of 1st Wife)
-Child           | রোকসানা আক্তার           (Child of 1st Wife)
-Wife            | খাদিজা খাতুন             (2nd Wife)
-Child           | সাজিদুর রহমান            (Child of 2nd Wife)
+Wife            | saleha-1                 (1st Wife ID)
+Child           | motiur-1                 (Child of 1st Wife ID)
+Child           | roksana-1                (Child of 1st Wife ID)
+Wife            | khadija-1                (2nd Wife ID)
+Child           | sajidur-1                (Child of 2nd Wife ID)
 ```
 
 ### B. Matrilineal / Mother-Centric Example (মাতৃতান্ত্রিক বা মাতুল বংশ)
