@@ -1,3 +1,4 @@
+import { deflateRaw, inflateRaw } from 'pako';
 import { FamilyTree } from '../types/family';
 import { treeToCSV } from './serializer';
 import { parseRawText } from './parser';
@@ -37,57 +38,45 @@ export function base64UrlToBytes(base64Url: string): Uint8Array {
 }
 
 /**
- * Compresses string to Base64URL using native browser CompressionStream ('deflate-raw')
+ * Compresses string to Base64URL using standard RFC 1951 raw deflate
  */
-export async function compressTextToBase64Url(text: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const rawBytes = encoder.encode(text);
-
-  const cs = new CompressionStream('deflate-raw');
-  const writer = cs.writable.getWriter();
-  await writer.write(rawBytes);
-  await writer.close();
-
-  const buffer = await new Response(cs.readable).arrayBuffer();
-  return bytesToBase64Url(new Uint8Array(buffer));
+export function compressTextToBase64Url(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  const compressed = deflateRaw(bytes, { level: 9 });
+  return bytesToBase64Url(compressed);
 }
 
 /**
- * Decompresses Base64URL string to original text using native browser DecompressionStream ('deflate-raw')
+ * Decompresses Base64URL string to original text using standard raw inflate
  */
-export async function decompressBase64UrlToText(base64Url: string): Promise<string> {
-  const compressedBytes = base64UrlToBytes(base64Url);
-
-  const ds = new DecompressionStream('deflate-raw');
-  const writer = ds.writable.getWriter();
-  await writer.write(compressedBytes);
-  await writer.close();
-
-  const buffer = await new Response(ds.readable).arrayBuffer();
-  return new TextDecoder().decode(buffer);
+export function decompressBase64UrlToText(base64Url: string): string {
+  const compressed = base64UrlToBytes(base64Url);
+  const decompressed = inflateRaw(compressed);
+  return new TextDecoder().decode(decompressed);
 }
 
 /**
- * Generates the full QR URL (bonsho-bd.github.io/view/qr-v0/<compressed-data>)
+ * Generates the full QR URL (bonsho-bd.github.io/#/view/qr-v0/<compressed-data>)
  */
-export async function generateQRUrlForTree(tree: FamilyTree): Promise<{
+export function generateQRUrlForTree(tree: FamilyTree): {
   url: string;
   compressedData: string;
   rawByteCount: number;
   compressedByteCount: number;
-}> {
+} {
   const csv = treeToCSV(tree);
   const rawByteCount = new TextEncoder().encode(csv).length;
-  const compressedData = await compressTextToBase64Url(csv);
+  const compressedData = compressTextToBase64Url(csv);
   const compressedByteCount = compressedData.length;
 
   const origin = window.location.origin;
-  // Strip any trailing slash or existing /view/ subpaths
+  // Clean base path (e.g. "" or repository path if in subfolder)
   const basePath = window.location.pathname
     .replace(/\/view\/.*$/, '')
     .replace(/\/$/, '');
 
-  const url = `${origin}${basePath}/view/qr-v0/${compressedData}`;
+  // Hash route allows instant, 0-redirect loading on GitHub Pages and static hosts
+  const url = `${origin}${basePath}/#/view/qr-v0/${compressedData}`;
 
   return {
     url,
@@ -100,20 +89,22 @@ export async function generateQRUrlForTree(tree: FamilyTree): Promise<{
 /**
  * Reads and decompresses QR data from the URL path, hash, or redirect parameter
  */
-export async function extractTreeFromCurrentUrl(): Promise<FamilyTree | null> {
+export function extractTreeFromCurrentUrl(): FamilyTree | null {
   let qrData: string | null = null;
 
-  // 1. Check window.location.pathname: e.g. /view/qr-v0/<compressedData>
-  const pathMatch = window.location.pathname.match(/\/view\/qr-v0\/([A-Za-z0-9_-]+)/);
-  if (pathMatch) {
-    qrData = pathMatch[1];
-  }
-
-  // 2. Check window.location.hash: e.g. #/view/qr-v0/<compressedData>
-  if (!qrData && window.location.hash) {
-    const hashMatch = window.location.hash.match(/\/view\/qr-v0\/([A-Za-z0-9_-]+)/);
+  // 1. Check window.location.hash: e.g. #/view/qr-v0/<compressedData>
+  if (window.location.hash) {
+    const hashMatch = window.location.hash.match(/view\/qr-v0\/([A-Za-z0-9_-]+)/);
     if (hashMatch) {
       qrData = hashMatch[1];
+    }
+  }
+
+  // 2. Check window.location.pathname: e.g. /view/qr-v0/<compressedData>
+  if (!qrData && window.location.pathname) {
+    const pathMatch = window.location.pathname.match(/\/view\/qr-v0\/([A-Za-z0-9_-]+)/);
+    if (pathMatch) {
+      qrData = pathMatch[1];
     }
   }
 
@@ -122,17 +113,21 @@ export async function extractTreeFromCurrentUrl(): Promise<FamilyTree | null> {
     const searchParams = new URLSearchParams(window.location.search);
     const redirectParam = searchParams.get('redirect');
     if (redirectParam) {
-      const redirectMatch = decodeURIComponent(redirectParam).match(/\/view\/qr-v0\/([A-Za-z0-9_-]+)/);
+      const redirectMatch = decodeURIComponent(redirectParam).match(/view\/qr-v0\/([A-Za-z0-9_-]+)/);
       if (redirectMatch) {
         qrData = redirectMatch[1];
       }
+    }
+    const dParam = searchParams.get('d');
+    if (dParam) {
+      qrData = dParam;
     }
   }
 
   if (!qrData) return null;
 
   try {
-    const decompressedText = await decompressBase64UrlToText(qrData);
+    const decompressedText = decompressBase64UrlToText(qrData);
     if (!decompressedText.trim()) return null;
     return parseRawText(decompressedText);
   } catch (err) {

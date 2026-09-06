@@ -27,33 +27,34 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
     setIsLoading(true);
     setCopied(false);
 
-    (async () => {
-      try {
-        const { url, rawByteCount, compressedByteCount } = await generateQRUrlForTree(tree);
-        if (!isMounted) return;
+    try {
+      const { url, rawByteCount, compressedByteCount } = generateQRUrlForTree(tree);
+      setQrUrl(url);
+      setStats({ rawBytes: rawByteCount, compressedBytes: compressedByteCount });
 
-        setQrUrl(url);
-        setStats({ rawBytes: rawByteCount, compressedBytes: compressedByteCount });
-
-        // Generate QR code data URL (High-res for crisp mobile scanning and printing)
-        const dataUrl = await QRCode.toDataURL(url, {
-          errorCorrectionLevel: 'L',
-          margin: 2,
-          scale: 8,
-          color: {
-            dark: '#0f172a',
-            light: '#ffffff',
-          },
-        });
-
+      // Generate QR code data URL (High-res for crisp mobile scanning and printing)
+      QRCode.toDataURL(url, {
+        errorCorrectionLevel: 'L',
+        margin: 2,
+        scale: 8,
+        color: {
+          dark: '#0f172a',
+          light: '#ffffff',
+        },
+      })
+      .then((dataUrl) => {
         if (!isMounted) return;
         setQrDataUrl(dataUrl);
-      } catch (err) {
-        console.error('Failed to generate QR code:', err);
-      } finally {
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error('QRCode.toDataURL error:', err);
         if (isMounted) setIsLoading(false);
-      }
-    })();
+      });
+    } catch (err) {
+      console.error('Failed to generate QR code URL:', err);
+      if (isMounted) setIsLoading(false);
+    }
 
     return () => {
       isMounted = false;

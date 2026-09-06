@@ -187,12 +187,10 @@ export const App: React.FC = () => {
     syncStateFromUrl();
 
     // Check if the page was opened with a QR code view link (/view/qr-v0/<data>)
-    (async () => {
-      const qrTree = await extractTreeFromCurrentUrl();
-      if (qrTree && Object.keys(qrTree.people).length > 0) {
-        setTree(qrTree);
-      }
-    })();
+    const qrTree = extractTreeFromCurrentUrl();
+    if (qrTree && Object.keys(qrTree.people).length > 0) {
+      setTree(qrTree);
+    }
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
