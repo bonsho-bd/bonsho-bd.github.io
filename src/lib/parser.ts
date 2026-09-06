@@ -82,7 +82,7 @@ export function getOrCreatePerson(
   const newPerson: Person = {
     id,
     name: cleanName,
-    gender: 'other',
+    gender: 'male',
     attributes: {},
     marriages: [],
   };
@@ -101,7 +101,7 @@ export function createUnknownSpouse(
 ): { spouse: Person; marriage: Marriage } {
   const spouseGender: Gender =
     parent.gender === 'female' ? 'male' :
-    parent.gender === 'male' ? 'female' : 'other';
+    parent.gender === 'male' ? 'female' : 'male';
 
   const spouseId = generateUnknownSpouseId(parent, spouseIndex);
 
@@ -288,13 +288,17 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
             canonical === 'spouse_female' ? 'female' :
             canonical === 'spouse_male' ? 'male' :
             currentPerson.gender === 'male' ? 'female' :
-            currentPerson.gender === 'female' ? 'male' : 'other';
+            currentPerson.gender === 'female' ? 'male' : 'female';
 
           const spouse = getOrCreatePerson(people, value);
-          if (spouse.gender === 'other') {
-            spouse.gender = spouseGender;
-          }
 
+          // Apply inferred spouse gender, prioritizing specific synonyms
+          if (canonical === 'spouse_female' || canonical === 'spouse_male') {
+            spouse.gender = spouseGender;
+          } else if (spouse.gender === 'male' && spouseGender === 'female') {
+            // If it defaulted to male, but relationship implies female, switch it
+            spouse.gender = 'female';
+          }
           // Check if marriage already recorded
           let marriage = currentPerson.marriages.find(m => m.spouseId === spouse.id);
           if (!marriage) {

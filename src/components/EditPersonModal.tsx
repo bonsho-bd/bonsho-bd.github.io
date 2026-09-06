@@ -135,7 +135,6 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
               {[
                 { val: 'male', label: 'পুরুষ' },
                 { val: 'female', label: 'নারী' },
-                { val: 'other', label: 'অন্যান্য' },
               ].map(({ val, label }) => (
                 <button
                   type="button"

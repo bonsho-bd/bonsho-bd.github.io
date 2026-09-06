@@ -125,6 +125,6 @@ export function normalizeGender(val: string): Gender {
   if (['female', 'f', 'woman', 'girl', 'নারী', 'মহিলা', 'মেয়ে', 'কন্যা'].includes(cleaned)) {
     return 'female';
   }
-  return 'other';
+  return 'male';
 }
 

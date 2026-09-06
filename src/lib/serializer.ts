@@ -16,7 +16,7 @@ function serializePersonToRows(
   if (person.id !== person.name) {
     rows.push(['Id', person.id]);
   }
-  if (person.gender && person.gender !== 'other') {
+  if (person.gender) {
     rows.push(['Gender', person.gender === 'male' ? 'Male' : 'Female']);
   }
   if (person.birth) {
