@@ -9,15 +9,49 @@ export const useGoogleSync = (graph: FamilyGraph) => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [accessToken, setAccessToken] = useState<string>(() => localStorage.getItem('bonsho_access_token') || '');
+  const [accessToken, setAccessToken] = useState<string>(() => {
+    const token = localStorage.getItem('bonsho_access_token');
+    const expiresAt = localStorage.getItem('bonsho_access_token_expires_at');
+    if (token && expiresAt && Date.now() < parseInt(expiresAt, 10)) {
+      return token;
+    }
+    // Token expired or not found
+    localStorage.removeItem('bonsho_access_token');
+    localStorage.removeItem('bonsho_access_token_expires_at');
+    return '';
+  });
+
   const [lastSyncedTree, setLastSyncedTree] = useState<string>(() => localStorage.getItem('bonsho_last_synced_tree') || '');
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
 
-  // Sync to LocalStorage for persistence
+  // Sync to LocalStorage for persistence & auto-logout
   useEffect(() => {
-    if (accessToken) localStorage.setItem('bonsho_access_token', accessToken);
-    else localStorage.removeItem('bonsho_access_token');
+    if (accessToken) {
+      localStorage.setItem('bonsho_access_token', accessToken);
+      // Only set expiration if it doesn't exist, to prevent resetting the timer on re-renders
+      if (!localStorage.getItem('bonsho_access_token_expires_at')) {
+        // Google tokens typically last 1 hour (3600 seconds). Expire at 55 minutes to be safe.
+        localStorage.setItem('bonsho_access_token_expires_at', (Date.now() + 55 * 60 * 1000).toString());
+      }
+    } else {
+      localStorage.removeItem('bonsho_access_token');
+      localStorage.removeItem('bonsho_access_token_expires_at');
+    }
+  }, [accessToken]);
+
+  // Periodic check to auto-logout if token expires while app is open
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const interval = setInterval(() => {
+      const expiresAt = localStorage.getItem('bonsho_access_token_expires_at');
+      if (expiresAt && Date.now() > parseInt(expiresAt, 10)) {
+        setAccessToken(''); // Auto logout
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
   }, [accessToken]);
 
   useEffect(() => {

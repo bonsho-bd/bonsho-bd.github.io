@@ -48,6 +48,7 @@ export const isGoogleSyncAvailable = (): boolean =>
 const handleApiError = async (res: Response): Promise<never> => {
   if (res.status === 401) {
     localStorage.removeItem('bonsho_access_token');
+    localStorage.removeItem('bonsho_access_token_expires_at');
     throw new Error('গুগল সাইন-ইনের মেয়াদ শেষ হয়েছে (Session Expired)। অনুগ্রহ করে পুনরায় গুগল সাইন-ইন করুন।');
   }
 
