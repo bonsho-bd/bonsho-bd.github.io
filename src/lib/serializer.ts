@@ -10,51 +10,34 @@ function serializePersonToRows(
   people: Record<string, Person>,
   serializedMarriages: Set<string>
 ): [string, string][] {
-  const rows: [string, string][] = [];
+  const baseRows: [string, string][] = [
+    ['Name', person.name],
+    ...(person.id !== person.name ? [['Id', person.id] as [string, string]] : []),
+    ...(person.gender ? [['Gender', person.gender === 'male' ? 'Male' : 'Female'] as [string, string]] : []),
+    ...(person.birth ? [['Date of birth', person.birth] as [string, string]] : []),
+    ...(person.death ? [['Date of death', person.death] as [string, string]] : []),
+    ...Object.entries(person.attributes || {})
+  ];
 
-  rows.push(['Name', person.name]);
-  if (person.id !== person.name) {
-    rows.push(['Id', person.id]);
-  }
-  if (person.gender) {
-    rows.push(['Gender', person.gender === 'male' ? 'Male' : 'Female']);
-  }
-  if (person.birth) {
-    rows.push(['Date of birth', person.birth]);
-  }
-  if (person.death) {
-    rows.push(['Date of death', person.death]);
-  }
-
-  // User-defined attributes (skip internal coordinates)
-  for (const [key, val] of Object.entries(person.attributes || {})) {
-
-    rows.push([key, val]);
-  }
-
-  // Marriages and their grouped children (only serialized once per couple)
-  for (const marriage of person.marriages) {
+  const marriageRows = person.marriages.flatMap(marriage => {
     const spouse = people[marriage.spouseId];
-    if (spouse) {
-      const pairKey = [person.id, spouse.id].sort().join(':::');
-      if (serializedMarriages.has(pairKey)) {
-        continue;
-      }
-      serializedMarriages.add(pairKey);
+    if (!spouse) return [];
 
-      const spouseKey = spouse.gender === 'female' ? 'Wife' : spouse.gender === 'male' ? 'Husband' : 'Spouse';
-      rows.push([spouseKey, spouse.name]);
+    const pairKey = [person.id, spouse.id].sort().join(':::');
+    if (serializedMarriages.has(pairKey)) return [];
 
-      for (const childId of marriage.children) {
-        const child = people[childId];
-        if (child) {
-          rows.push(['Child', child.name]);
-        }
-      }
-    }
-  }
+    serializedMarriages.add(pairKey);
+    const spouseKey = spouse.gender === 'female' ? 'Wife' : spouse.gender === 'male' ? 'Husband' : 'Spouse';
 
-  return rows;
+    const childrenRows = marriage.children
+      .map(childId => people[childId])
+      .filter((child): child is Person => child !== undefined)
+      .map(child => ['Child', child.id] as [string, string]);
+
+    return [['' + spouseKey, spouse.id] as [string, string], ...childrenRows];
+  });
+
+  return [...baseRows, ...marriageRows];
 }
 
 /**
