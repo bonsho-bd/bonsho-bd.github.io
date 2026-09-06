@@ -190,8 +190,11 @@ export const App: React.FC = () => {
     
     visualizerEl.appendChild(qrImg);
 
+    // Wait for reflow and image load
+    await new Promise(r => setTimeout(r, 150));
+
     try {
-      const dataUrl = await toPng(visualizerEl, { quality: 1, pixelRatio: 2 });
+      const dataUrl = await toPng(visualizerEl, { quality: 1, pixelRatio: 2, skipFonts: false });
       const link = document.createElement('a');
       link.download = 'bonsho-viewport.png';
       link.href = dataUrl;
@@ -205,13 +208,18 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleExportFullTree = async () => {
-    const nodes = document.querySelectorAll('.bonsho-node');
-    if (!nodes.length) {
+    const handleExportFullTree = async () => {
+    const visualizerRoot = document.querySelector('main > div') as HTMLElement;
+    const nodesContainer = document.querySelector('.origin-top-left') as HTMLElement;
+    const svgGroup = document.querySelector('svg.pointer-events-none g') as SVGGElement;
+    const bgGrid = document.querySelector('.canvas-bg') as HTMLElement;
+
+    if (!visualizerRoot || !nodesContainer || !svgGroup) {
       alert('ফ্যামিলি ট্রি খালি');
       return;
     }
 
+    const nodes = document.querySelectorAll('.bonsho-node');
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     let found = false;
     nodes.forEach(node => {
@@ -237,76 +245,56 @@ export const App: React.FC = () => {
     const fullWidth = (maxX - minX) + nodeWidth + padding * 2;
     const fullHeight = (maxY - minY) + nodeHeight + padding * 2;
 
-    const exportContainer = document.createElement('div');
-    exportContainer.style.position = 'absolute';
-    // Position off-screen but visible to the browser layout engine
-    exportContainer.style.left = '-9999px';
-    exportContainer.style.top = '0px'; 
-    exportContainer.style.width = `${fullWidth}px`;
-    exportContainer.style.height = `${fullHeight}px`;
-    exportContainer.style.background = '#f1f5f9';
-    exportContainer.style.overflow = 'hidden';
-    exportContainer.style.fontFamily = 'Hind Siliguri, sans-serif';
-    
-    const grid = document.createElement('div');
-    grid.style.position = 'absolute';
-    grid.style.inset = '0';
-    grid.style.opacity = '0.4';
-    grid.style.backgroundImage = 'radial-gradient(#94a3b8 1px, transparent 1px)';
-    grid.style.backgroundSize = '24px 24px';
-    grid.style.backgroundPosition = `${-minX + padding}px ${-minY + padding}px`;
-    exportContainer.appendChild(grid);
-
-    const origSvg = document.querySelector('svg.pointer-events-none');
-    if (origSvg) {
-      const clonedSvg = origSvg.cloneNode(true) as SVGElement;
-      clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      clonedSvg.style.width = `${fullWidth}px`;
-      clonedSvg.style.height = `${fullHeight}px`;
-      const g = clonedSvg.querySelector('g');
-      if (g) {
-        g.setAttribute('transform', `translate(${-minX + padding}, ${-minY + padding}) scale(1)`);
-      }
-      exportContainer.appendChild(clonedSvg);
-    }
-
-    const origNodes = document.querySelector('.origin-top-left');
-    if (origNodes) {
-      const clonedNodes = origNodes.cloneNode(true) as HTMLElement;
-      clonedNodes.style.transform = `translate(${-minX + padding}px, ${-minY + padding}px) scale(1)`;
-      exportContainer.appendChild(clonedNodes);
-    }
-
-    const qrUrl = generateQRUrlForTree(tree).url;
-    const qrDataUrl = await generateQRCodeWithLogo(qrUrl);
-    const qrImg = document.createElement('img');
-    qrImg.src = qrDataUrl;
-    qrImg.style.position = 'absolute';
-    qrImg.style.top = '40px';
-    qrImg.style.left = '40px';
-    qrImg.style.width = '140px';
-    qrImg.style.height = '140px';
-    qrImg.style.background = 'white';
-    qrImg.style.padding = '10px';
-    qrImg.style.borderRadius = '16px';
-    qrImg.style.boxShadow = '0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)';
-    qrImg.style.zIndex = '50';
-    exportContainer.appendChild(qrImg);
-
-    document.body.appendChild(exportContainer);
-
-    // Wait a brief moment for browser to calculate layout of the offscreen container
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Save original styles
+    const origNodesTransform = nodesContainer.style.transform;
+    const origSvgTransform = svgGroup.getAttribute('transform') || '';
+    const origBgStyle = bgGrid?.getAttribute('style') || '';
 
     try {
-      const dataUrl = await toPng(exportContainer, { 
+      // Temporarily mutate live DOM inner transforms to align perfectly
+      nodesContainer.style.transform = `translate(${-minX + padding}px, ${-minY + padding}px) scale(1)`;
+      svgGroup.setAttribute('transform', `translate(${-minX + padding}, ${-minY + padding}) scale(1)`);
+      if (bgGrid) {
+        bgGrid.style.backgroundPosition = `${-minX + padding}px ${-minY + padding}px`;
+      }
+
+      // Inject QR Code directly into the live visualizer
+      const qrUrl = generateQRUrlForTree(tree).url;
+      const qrDataUrl = await generateQRCodeWithLogo(qrUrl);
+      const qrImg = document.createElement('img');
+      qrImg.src = qrDataUrl;
+      qrImg.style.position = 'absolute';
+      qrImg.style.top = '40px';
+      qrImg.style.left = '40px';
+      qrImg.style.width = '140px';
+      qrImg.style.height = '140px';
+      qrImg.style.background = 'white';
+      qrImg.style.padding = '10px';
+      qrImg.style.borderRadius = '16px';
+      qrImg.style.boxShadow = '0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)';
+      qrImg.style.zIndex = '50';
+      qrImg.id = 'temp-qr-full';
+      visualizerRoot.appendChild(qrImg);
+
+      // Wait for reflow
+      await new Promise(r => setTimeout(r, 150));
+
+      // Capture using the root, overriding its dimensions temporarily
+      const dataUrl = await toPng(visualizerRoot, { 
         quality: 1, 
         pixelRatio: 2,
         width: fullWidth,
         height: fullHeight,
-        style: { transform: 'none' },
+        style: {
+          width: `${fullWidth}px`,
+          height: `${fullHeight}px`,
+          position: 'absolute',
+          top: '0',
+          left: '0'
+        },
         skipFonts: false
       });
+      
       const link = document.createElement('a');
       link.download = 'bonsho-full-tree.png';
       link.href = dataUrl;
@@ -315,7 +303,13 @@ export const App: React.FC = () => {
       alert('ছবি তৈরি করতে সমস্যা হয়েছে।');
       console.error(err);
     } finally {
-      document.body.removeChild(exportContainer);
+      // Restore everything
+      nodesContainer.style.transform = origNodesTransform;
+      svgGroup.setAttribute('transform', origSvgTransform);
+      if (bgGrid) bgGrid.setAttribute('style', origBgStyle);
+      
+      const qrEl = document.getElementById('temp-qr-full');
+      if (qrEl) qrEl.remove();
     }
   };
 
