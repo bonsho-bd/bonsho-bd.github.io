@@ -68,7 +68,7 @@ export const App: React.FC = () => {
     const encodedTree = extractTreeFromCurrentUrl();
     if (encodedTree) {
       setTree(encodedTree);
-      markAsSynced(); // Reset sync state for new tree
+      markAsSynced(encodedTree); // Reset sync state for new tree
       // Clean up URL
       const url = new URL(window.location.href);
       url.searchParams.delete('d');
@@ -82,7 +82,7 @@ export const App: React.FC = () => {
       const parsedTree = parseRawText(rawText);
       setTree(parsedTree);
       disconnectSheet();
-      markAsSynced();
+      markAsSynced(parsedTree);
       navigateTo({}, true, parsedTree);
     } catch (err) {
       alert('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।');
@@ -146,7 +146,7 @@ export const App: React.FC = () => {
     const emptyTree = { people: {}, rootIds: [] };
     setTree(emptyTree);
     disconnectSheet();
-    markAsSynced();
+    markAsSynced(emptyTree);
     navigateTo({}, true, emptyTree);
   };
 
@@ -155,7 +155,7 @@ export const App: React.FC = () => {
     const sample = parseRawText(SAMPLE_FAMILY_TEXT);
     setTree(sample);
     disconnectSheet();
-    markAsSynced();
+    markAsSynced(sample);
     navigateTo({}, true, sample);
   };
 
@@ -412,7 +412,7 @@ export const App: React.FC = () => {
         tree={tree}
         onTreeLoaded={(newTree) => {
           setTree(newTree);
-          markAsSynced();
+          markAsSynced(newTree);
           navigateTo({}, true, newTree);
         }}
         connectedSheet={connectedSheet}

@@ -72,8 +72,8 @@ export const useGoogleSync = (tree: FamilyTree) => {
     setConnectedSheet(null);
   };
   
-  const markAsSynced = () => {
-    setLastSyncedTree(currentTreeStr);
+  const markAsSynced = (explicitTree?: FamilyTree) => {
+    setLastSyncedTree(explicitTree ? JSON.stringify(explicitTree) : currentTreeStr);
   };
 
   return {
