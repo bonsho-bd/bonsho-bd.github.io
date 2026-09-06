@@ -10,10 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "clsx": "^2.1.1",
-    "d3-hierarchy": "^3.1.2",
-    "d3-selection": "^3.0.0",
-    "d3-zoom": "^3.0.0",
     "html-to-image": "^1.11.11",
     "lucide-react": "^0.475.0",
     "pako": "^3.0.1",
@@ -21,13 +17,9 @@
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwind-merge": "^3.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
-    "@types/d3-hierarchy": "^3.1.7",
-    "@types/d3-selection": "^3.0.11",
-    "@types/d3-zoom": "^3.0.8",
     "@types/node": "^22.13.4",
     "@types/pako": "^2.0.4",
     "@types/papaparse": "^5.3.15",
