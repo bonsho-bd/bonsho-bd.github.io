@@ -46,14 +46,18 @@ export const Header: React.FC<HeaderProps> = ({
   // Close menus on outside click
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
         setShowShareMenu(false);
         setShowSyncMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   return (
@@ -91,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Action Buttons (Just Sync and Share) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:pb-0 lg:mx-0 lg:px-0 scrollbar-hide w-full lg:w-auto shrink-0 ml-auto justify-start lg:justify-end">
+        <div className="flex items-center flex-wrap gap-2 w-full lg:w-auto shrink-0 ml-auto justify-start lg:justify-end">
 
           {/* Start New / Blank */}
           <button

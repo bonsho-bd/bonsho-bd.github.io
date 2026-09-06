@@ -47,7 +47,8 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
-  const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number; logicalX: number; logicalY: number } | null>(null);
+    const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number; logicalX: number; logicalY: number } | null>(null);
+  const [lastPinchDist, setLastPinchDist] = useState<number | null>(null);
 
   // Compute Tree Layout
   const { nodes, links, bounds } = React.useMemo(() => {
@@ -316,6 +317,89 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     setClickStartPos(null);
   };
 
+  // Touch Handlers for Pinch to Zoom and Panning
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('.floating-add-btn') ||
+      target.closest('.zoom-controls') ||
+      target.closest('button')
+    ) {
+      return;
+    }
+    
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
+      setClickStartPos({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+      setFloatingAddBtnPos(null);
+    } else if (e.touches.length === 2) {
+      setIsDragging(false); // Stop panning when pinching
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      setLastPinchDist(dist);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && isDragging) {
+      setPan({
+        x: e.touches[0].clientX - dragStart.x,
+        y: e.touches[0].clientY - dragStart.y,
+      });
+    } else if (e.touches.length === 2 && lastPinchDist !== null) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const zoomDelta = dist / lastPinchDist;
+      setZoom(prev => Math.min(Math.max(prev * zoomDelta, 0.2), 2.5));
+      setLastPinchDist(dist);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) {
+      setLastPinchDist(null);
+    }
+    
+    if (e.touches.length === 0) {
+      setIsDragging(false);
+      
+      // Simulate tap on background (like handleMouseUp)
+      if (clickStartPos && e.changedTouches.length === 1) {
+        const distance = Math.hypot(e.changedTouches[0].clientX - clickStartPos.x, e.changedTouches[0].clientY - clickStartPos.y);
+        if (distance < 10) { // Slightly larger tolerance for touch
+          const target = e.target as HTMLElement;
+          const isBackground =
+            target === containerRef.current ||
+            target.classList.contains('canvas-bg');
+
+          if (isBackground) {
+            if (nodes.length === 0) {
+              onAddPerson(floatingAddBtnPos?.logicalX, floatingAddBtnPos?.logicalY);
+            } else {
+              const rect = containerRef.current?.getBoundingClientRect();
+              if (rect) {
+                setFloatingAddBtnPos({ 
+                  x: e.changedTouches[0].clientX - rect.left, 
+                  y: e.changedTouches[0].clientY - rect.top,
+                  logicalX: ((e.changedTouches[0].clientX - rect.left) - pan.x) / zoom,
+                  logicalY: ((e.changedTouches[0].clientY - rect.top) - pan.y) / zoom
+                });
+              }
+            }
+          }
+        }
+      }
+    } else if (e.touches.length === 1) {
+      setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
+      setIsDragging(true);
+    }
+  };
+
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
@@ -337,7 +421,11 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onWheel={handleWheel}
-      className="relative w-full h-full overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      className="relative w-full h-full overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg touch-none"
     >
       {/* Floating Add Person Button on Canvas (Click triggered) */}
       {floatingAddBtnPos && (
