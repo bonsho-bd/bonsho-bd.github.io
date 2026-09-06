@@ -73,10 +73,10 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onOpenPasteModal}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm transition"
-            title="গুগল শিট বা এক্সেল থেকে কপি করে পেস্ট করুন"
+            title="ক্লিপবোর্ডের মাধ্যমে ডেটা কপি বা পেস্ট করুন"
           >
             <ClipboardPaste className="w-4 h-4" />
-            <span>পেস্ট করুন</span>
+            <span className="hidden sm:inline">ক্লিপবোর্ড</span>
           </button>
 
           {/* Upload File */}

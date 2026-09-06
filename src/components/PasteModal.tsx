@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
-import { X, ClipboardPaste, Check, HelpCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ClipboardPaste, Check, HelpCircle, Copy, CheckCheck } from 'lucide-react';
 import { parseRawTextToRows } from '../lib/parser';
+import { treeToCSV } from '../lib/serializer';
+import { FamilyTree } from '../types/family';
 
 interface PasteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onParseText: (text: string) => void;
+  tree: FamilyTree;
 }
 
-export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParseText }) => {
+export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParseText, tree }) => {
   const [text, setText] = useState('');
   const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setText(treeToCSV(tree));
+      setCopied(false);
+    }
+  }, [isOpen, tree]);
 
   if (!isOpen) return null;
 
@@ -34,6 +45,16 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
     }
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -45,8 +66,8 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
               <ClipboardPaste className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800">সরাসরি ডেটা পেস্ট করুন</h2>
-              <p className="text-xs text-slate-500">গুগল শিট বা এক্সেল থেকে কপি করা ২ কলামের ডেটা এখানে দিন</p>
+              <h2 className="text-lg font-bold text-slate-800">টেক্সট / ক্লিপবোর্ড সিঙ্ক</h2>
+              <p className="text-xs text-slate-500">এখান থেকে ডেটা কপি করুন, অথবা নতুন ডেটা পেস্ট করে ট্রি আপডেট করুন</p>
             </div>
           </div>
           <button
@@ -67,19 +88,27 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={handleCopy}
+                className="text-xs text-blue-700 hover:text-blue-800 font-medium flex items-center gap-1 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200 transition"
+              >
+                {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'কপি হয়েছে!' : 'কপি করুন'}</span>
+              </button>
+              <button
+                type="button"
                 onClick={handlePasteFromClipboard}
                 className="text-xs text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200"
               >
                 <ClipboardPaste className="w-3.5 h-3.5" />
-                <span>ক্লিপবোর্ড থেকে পেস্ট করুন</span>
+                <span>পেস্ট করুন</span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowHelp(!showHelp)}
-                className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1"
+                className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1 ml-2"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
-                <span>ফরম্যাট কেমন হবে?</span>
+                <span>ফরম্যাট?</span>
               </button>
             </div>
           </div>
@@ -114,7 +143,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
             onChange={(e) => setText(e.target.value)}
             placeholder={`এখানে গুগল শিট বা এক্সেল থেকে কপি করে পেস্ট করুন...\n\nউদাহরণ:\nName\tআক্কাস আলী\nGender\tMale\nBirth\t1940\nWife\tসালেহা বেগম\nChild\tমতিউর রহমান`}
             rows={12}
-            className="w-full p-3.5 text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
+            className="w-full p-3.5 text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition whitespace-pre flex-nowrap overflow-auto"
           />
 
         </div>
@@ -133,7 +162,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
             className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition"
           >
             <Check className="w-4 h-4" />
-            <span>ট্রি তৈরি করুন</span>
+            <span>ট্রি আপডেট করুন</span>
           </button>
         </div>
 
@@ -141,4 +170,3 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
     </div>
   );
 };
-

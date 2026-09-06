@@ -402,6 +402,7 @@ export const App: React.FC = () => {
         isOpen={isPasteModalOpen}
         onClose={() => setIsPasteModalOpen(false)}
         onParseText={handleParseText}
+        tree={tree}
       />
 
       {/* Google Sheets Modal (Method 2: OAuth + Picker + 2-Way Sync) */}

@@ -47,6 +47,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number } | null>(null);
 
   // Center the view on initial tree load
   useEffect(() => {
@@ -200,6 +201,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     setIsDragging(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
     setClickStartPos({ x: e.clientX, y: e.clientY });
+    setFloatingAddBtnPos(null);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -224,7 +226,14 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           target.classList.contains('canvas-bg');
 
         if (isBackground) {
-          onAddPerson();
+          if (nodes.length === 0) {
+            onAddPerson();
+          } else {
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (rect) {
+              setFloatingAddBtnPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+            }
+          }
         }
       }
     }
@@ -260,17 +269,26 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       onWheel={handleWheel}
       className="relative w-full h-[calc(100vh-61px)] overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg"
     >
-      {/* Floating Add Person Button on Canvas */}
-      <div className="absolute left-4 top-4 z-30">
-        <button
-          onClick={onAddPerson}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md transition hover:scale-105 active:scale-95"
-          title="ক্যানভাসে নতুন ব্যক্তি / রুট যোগ করুন"
+      {/* Floating Add Person Button on Canvas (Click triggered) */}
+      {floatingAddBtnPos && (
+        <div
+          className="absolute z-30 animate-in fade-in zoom-in-95 duration-200 pointer-events-none"
+          style={{ left: floatingAddBtnPos.x, top: floatingAddBtnPos.y }}
         >
-          <Plus className="w-4 h-4" />
-          <span>নতুন ব্যক্তি যোগ করুন</span>
-        </button>
-      </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setFloatingAddBtnPos(null);
+              onAddPerson();
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xl transition hover:scale-105 active:scale-95 -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
+            title="নতুন ব্যক্তি যোগ করুন"
+          >
+            <Plus className="w-4 h-4" />
+            <span>নতুন ব্যক্তি যোগ করুন</span>
+          </button>
+        </div>
+      )}
 
       {/* Background Dot Grid */}
       <div
