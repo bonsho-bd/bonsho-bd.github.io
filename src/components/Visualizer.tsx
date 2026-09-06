@@ -48,7 +48,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [clickStartPos, setClickStartPos] = useState<{ x: number; y: number } | null>(null);
-    const [floatingAddBtnPos, setFloatingAddBtnPos] = useState<{ x: number; y: number } | null>(null);
   const [lastPinchDist, setLastPinchDist] = useState<number | null>(null);
 
   // Compute Tree Layout
@@ -251,7 +250,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     setIsDragging(true);
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
     setClickStartPos({ x: e.clientX, y: e.clientY });
-    setFloatingAddBtnPos(null);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -282,18 +280,8 @@ export const Visualizer: React.FC<VisualizerProps> = ({
           target === containerRef.current ||
           target.classList.contains('canvas-bg');
 
-        if (isBackground) {
-          if (nodes.length === 0) {
-            onAddPerson();
-          } else {
-            const rect = containerRef.current?.getBoundingClientRect();
-            if (rect) {
-              setFloatingAddBtnPos({
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-              });
-            }
-          }
+        if (isBackground && nodes.length === 0) {
+          onAddPerson();
         }
       }
     }
@@ -315,7 +303,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       setIsDragging(true);
       setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
       setClickStartPos({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-      setFloatingAddBtnPos(null);
     } else if (e.touches.length === 2) {
       setIsDragging(false); // Stop panning when pinching
       const dist = Math.hypot(
@@ -384,18 +371,8 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             target === containerRef.current ||
             target.classList.contains('canvas-bg');
 
-          if (isBackground) {
-            if (nodes.length === 0) {
-              onAddPerson();
-            } else {
-              const rect = containerRef.current?.getBoundingClientRect();
-              if (rect) {
-                setFloatingAddBtnPos({
-                  x: e.changedTouches[0].clientX - rect.left,
-                  y: e.changedTouches[0].clientY - rect.top
-                });
-              }
-            }
+          if (isBackground && nodes.length === 0) {
+            onAddPerson();
           }
         }
       }
@@ -475,32 +452,6 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       onTouchCancel={handleTouchEnd}
       className="relative w-full h-full overflow-hidden bg-slate-100 select-none cursor-grab active:cursor-grabbing canvas-bg touch-none"
     >
-      {/* Floating Add Person Button on Canvas (Click triggered) */}
-      {floatingAddBtnPos && (
-        <div
-          className="absolute z-30 animate-in fade-in zoom-in-95 duration-200 floating-add-btn"
-          style={{ left: floatingAddBtnPos.x, top: floatingAddBtnPos.y }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onMouseUp={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          onDoubleClick={(e) => e.stopPropagation()}
-        >
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setFloatingAddBtnPos(null);
-              onAddPerson();
-            }}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xl transition hover:scale-105 active:scale-95 -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none"
-            title="নতুন ব্যক্তি যোগ করুন"
-          >
-            <Plus className="w-4 h-4" />
-            <span>নতুন ব্যক্তি যোগ করুন</span>
-          </button>
-        </div>
-      )}
-
       {/* Background Dot Grid */}
       <div
         className="absolute inset-0 pointer-events-none opacity-40 canvas-bg"
