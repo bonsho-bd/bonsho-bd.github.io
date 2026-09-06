@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { FamilyTree, Person } from '../types/family';
-import { ZoomIn, ZoomOut, RotateCcw, User, Heart, Plus, MapPin, Calendar } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, User, Heart, Plus, Calendar } from 'lucide-react';
 
 interface VisualizerProps {
   tree: FamilyTree;
@@ -170,9 +170,9 @@ export const Visualizer: React.FC<VisualizerProps> = ({
 
     for (const rootId of tree.rootIds) {
       const p = tree.people[rootId];
-      if (p && p.customProperties['_x'] && p.customProperties['_y']) {
-        const cx = parseFloat(p.customProperties['_x']);
-        const cy = parseFloat(p.customProperties['_y']);
+      if (p && p.attributes['_x'] && p.attributes['_y']) {
+        const cx = parseFloat(p.attributes['_x']);
+        const cy = parseFloat(p.attributes['_y']);
         layoutPerson(rootId, currentXOffset, cy, cx);
       } else {
         currentXOffset = layoutPerson(rootId, currentXOffset, 0);
@@ -183,9 +183,9 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     for (const pId of Object.keys(tree.people)) {
       if (!visited.has(pId)) {
         const p = tree.people[pId];
-        if (p && p.customProperties['_x'] && p.customProperties['_y']) {
-          const cx = parseFloat(p.customProperties['_x']);
-          const cy = parseFloat(p.customProperties['_y']);
+        if (p && p.attributes['_x'] && p.attributes['_y']) {
+          const cx = parseFloat(p.attributes['_x']);
+          const cy = parseFloat(p.attributes['_y']);
           layoutPerson(pId, currentXOffset, cy, cx);
         } else {
           currentXOffset = layoutPerson(pId, currentXOffset, 0);
@@ -748,11 +748,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
           isMale ? 'bg-emerald-600' :
           'bg-slate-600'
         }`}>
-          {person.photo ? (
-            <img src={person.photo} alt={person.name} className="w-full h-full object-cover rounded-xl" />
-          ) : (
-            <User className="w-5 h-5" />
-          )}
+          {person.name ? person.name.charAt(0) : <User className="w-5 h-5" />}
         </div>
 
         {/* Info */}
@@ -788,17 +784,17 @@ const PersonCard: React.FC<PersonCardProps> = ({
             )}
           </div>
 
-          {/* Village or Profession */}
-          {person.village ? (
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 truncate mt-auto">
-              <MapPin className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
-              <span className="truncate">{person.village}</span>
-            </div>
-          ) : person.notes ? (
-            <div className="text-[10px] text-slate-500 truncate mt-auto">
-              {person.notes.split('\n')[0]}
-            </div>
-          ) : null}
+          {/* First custom attribute if available */}
+          {(() => {
+            const customEntries = Object.entries(person.attributes || {}).filter(([k]) => !k.startsWith('_'));
+            if (customEntries.length === 0) return null;
+            const [firstKey, firstVal] = customEntries[0];
+            return (
+              <div className="text-[10px] text-slate-500 truncate mt-auto">
+                <span className="font-semibold text-slate-600">{firstKey}:</span> {firstVal}
+              </div>
+            );
+          })()}
         </div>
       </div>
 

@@ -13,10 +13,7 @@ export interface Person {
   birth?: string;
   death?: string;
   isDeceased?: boolean;
-  photo?: string;
-  village?: string;
-  notes?: string;
-  customProperties: Record<string, string>;
+  attributes: Record<string, string>;
 
   // Lineage connections
   fatherId?: string;
@@ -28,10 +25,5 @@ export interface Person {
 export interface FamilyTree {
   people: Record<string, Person>;
   rootIds: string[];
-  meta?: {
-    familyTitle?: string;
-    village?: string;
-    notes?: string;
-  };
 }
 

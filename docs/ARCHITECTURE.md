@@ -66,9 +66,9 @@ graph TD
    - If the canvas is empty, clicking anywhere opens the form to add the first person.
    - If the canvas has people, clicking in any empty space spawns a floating **Add Person** button to easily add new, unconnected roots to the forest.
    - Bonsho supports **multiple independent roots** rendered side-by-side without spouse duplication.
-3. **Progressive Disclosure Data Entry**:
-   - Relative addition and editing modals default to only **Name** and **Gender**, keeping data collection friction-free.
-   - Optional attributes (**Birthday/Year**, **Address/Village**, **Death year**, and **Info/Notes**) are added on-demand via clickable button pills.
+3. **Progressive Disclosure & Open Key-Value Data Entry**:
+   - Person creation and editing focus strictly on minimal core attributes (**Name**, **Gender**, and optional **Birth/Death dates**).
+   - Any arbitrary information can be attached dynamically as key-value pairs without assuming fixed keys.
 4. **File Upload**:
    - Drag & drop any `.csv` or `.xlsx` file.
 5. **Connect Google Sheet**:
@@ -98,10 +98,9 @@ Name            | আক্কাস আলী
 Id              | akkas-1                  (Optional, defaults to Name)
 Gender          | Male
 Date of birth   | 1935
-Date of death   | 2012                     (Automatically adds মরহুম badge)
-Village         | রামপুর, চাঁদপুর
-Photo           | https://example.com/photo.jpg
-Notes           | বীর মুক্তিযোদ্ধা
+Date of death   | 2012                     (Automatically adds প্রয়াত badge)
+পেশা            | শিক্ষকতা
+উপাধি           | বীর মুক্তিযোদ্ধা
 Wife            | সালেহা বেগম              (1st Wife)
 Child           | মতিউর রহমান              (Child of 1st Wife)
 Child           | রোকসানা আক্তার           (Child of 1st Wife)
@@ -117,7 +116,6 @@ Key             | Value
 Name            | মেবেল মারাক
 Gender          | Female
 Clan / মাহারি   | মারাক (Marak)
-Village         | বিরিশিরি, নেত্রকোণা
 Husband         | জন নকরেক                 (1st Husband)
 Child           | সিলভিয়া মারাক
 Child           | প্রবীর মারাক
@@ -143,7 +141,7 @@ Child           | তাসনিম রহমান
 
 ## 4. Bilingual Polyglot Key-Value Dictionary
 
-The parser normalizes keys (ignoring case, trimming whitespace, and translating synonyms between Bangla and English):
+The schema is intentionally minimal. The parser normalizes only core genealogical keys (ignoring case, trimming whitespace, and translating synonyms between Bangla and English):
 
 | Standard Key | English Synonyms | Accepted বাংলা প্রতিশব্দ |
 | :--- | :--- | :--- |
@@ -158,10 +156,9 @@ The parser normalizes keys (ignoring case, trimming whitespace, and translating 
 | `child` | `Child`, `Son`, `Daughter`, `Children` | `সন্তান`, `ছেলে`, `মেয়ে`, `পুত্র`, `কন্যা` |
 | `father` | `Father`, `Dad` | `পিতা`, `বাবা`, `আব্বা`, `আব্বু` |
 | `mother` | `Mother`, `Mom` | `মাতা`, `মা`, `আম্মা`, `আম্মু` |
-| `photo` | `Photo`, `Image`, `Picture` | `ছবি`, `ফটোগ্রাফ` |
-| `village` | `Village`, `Address`, `Origin`, `Ancestral Home` | `গ্রাম`, `গ্রামের বাড়ি`, `ঠিকানা`, `আদি বাড়ি`, `দেশ` |
-| `notes` | `Notes`, `Info`, `Bio`, `Description`, `Title` | `মন্তব্য`, `তথ্য`, `বিবরণ`, `স্মৃতি`, `খেতাব`, `উপাধি` |
-| `*` (Arbitrary) | Any custom key (e.g. `Blood Group`) | যেকোনো বাংলা প্রপার্টি (যেমন `পেশা`, `রক্তের গ্রুপ`) |
+| `*` (Dynamic Attributes) | Any custom key (e.g. `Blood Group`) | যেকোনো বাংলা বা ইংরেজি প্রপার্টি (যেমন `পেশা`, `রক্তের গ্রুপ`) |
+
+> **Note**: All other keys are automatically treated as open key-value pairs stored in `person.attributes: Record<string, string>`. No keys or values are assumed or hardcoded by the application, and all attached attributes are rendered dynamically when a person is expanded in the visualizer.
 
 ---
 

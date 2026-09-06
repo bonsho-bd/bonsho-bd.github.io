@@ -1,6 +1,6 @@
 import React from 'react';
 import { Person, FamilyTree } from '../types/family';
-import { X, User, Heart, Baby, MapPin, Calendar, Briefcase, FileText, Edit2, Plus, ArrowLeft } from 'lucide-react';
+import { X, User, Heart, Baby, Calendar, FileText, Edit2, Plus, ArrowLeft } from 'lucide-react';
 
 interface PersonModalProps {
   person: Person | null;
@@ -68,11 +68,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
               person.gender === 'male' ? 'bg-emerald-600 shadow-emerald-200' :
               'bg-slate-600 shadow-slate-200'
             }`}>
-              {person.photo ? (
-                <img src={person.photo} alt={person.name} className="w-full h-full object-cover rounded-2xl" />
-              ) : (
-                <User className="w-8 h-8" />
-              )}
+              {person.name ? person.name.charAt(0) : <User className="w-8 h-8" />}
             </div>
 
             <div className="flex-1 min-w-0 pr-6">
@@ -99,13 +95,6 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                   </span>
                 )}
               </div>
-
-              {person.village && (
-                <div className="flex items-center gap-1 text-xs text-slate-600 mt-1">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{person.village}</span>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -138,31 +127,22 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             </button>
           </div>
 
-          {/* Notes */}
-          {person.notes && (
-            <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 text-xs text-amber-900 space-y-1">
-              <div className="font-semibold flex items-center gap-1.5 text-amber-800">
-                <FileText className="w-3.5 h-3.5" />
-                <span>স্মৃতি ও বিবরণ:</span>
-              </div>
-              <p className="whitespace-pre-line leading-relaxed">{person.notes}</p>
-            </div>
-          )}
-
-          {/* Custom Properties */}
-          {Object.keys(person.customProperties).length > 0 && (
-            <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-3 text-xs space-y-2">
+          {/* Attached Information (Key-Value Attributes) */}
+          {Object.keys(person.attributes || {}).filter(k => !k.startsWith('_')).length > 0 && (
+            <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-3.5 text-xs space-y-2">
               <div className="font-semibold text-slate-700 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                <span>অন্যান্য তথ্য:</span>
+                <FileText className="w-3.5 h-3.5 text-slate-400" />
+                <span>সংযুক্ত তথ্য:</span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(person.customProperties).map(([k, v]) => (
-                  <div key={k} className="bg-white p-2 rounded-lg border border-slate-100">
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">{k}</span>
-                    <span className="text-slate-800 font-medium">{v}</span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {Object.entries(person.attributes)
+                  .filter(([k]) => !k.startsWith('_'))
+                  .map(([k, v]) => (
+                    <div key={k} className="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
+                      <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">{k}</span>
+                      <span className="text-slate-800 font-medium whitespace-pre-wrap mt-0.5">{v}</span>
+                    </div>
+                  ))}
               </div>
             </div>
           )}

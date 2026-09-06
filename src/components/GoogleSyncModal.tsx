@@ -117,7 +117,8 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       setStatusMessage({ text: 'আপনার গুগল ড্রাইভে নতুন শিট তৈরি করা হচ্ছে...', type: 'info' });
 
       const rows = treeToKeyValueRows(tree);
-      const title = tree.meta?.familyTitle ? `${tree.meta.familyTitle} (বংশতালিকা)` : 'আমাদের বংশ ফ্যামিলি ট্রি';
+      const rootPerson = tree.rootIds.length > 0 ? tree.people[tree.rootIds[0]] : null;
+      const title = rootPerson ? `${rootPerson.name} এর পরিবার (বংশতালিকা)` : 'আমাদের বংশ ফ্যামিলি ট্রি';
 
       const newSheet = await createGoogleSheet(title, accessToken, rows);
       onSetConnectedSheet({ id: newSheet.id, name: newSheet.name });

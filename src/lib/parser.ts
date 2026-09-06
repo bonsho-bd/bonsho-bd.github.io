@@ -65,7 +65,7 @@ function getOrCreatePerson(
     id,
     name: cleanName,
     gender: 'other',
-    customProperties: {},
+    attributes: {},
     marriages: [],
     unassociatedChildren: [],
   };
@@ -84,12 +84,7 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
 
   function finishCurrentPerson() {
     if (currentPerson) {
-      // Finalize deceased status
-      currentPerson.isDeceased = checkIsDeceased(
-        currentPerson.death,
-        currentPerson.notes,
-        currentPerson.customProperties
-      );
+      currentPerson.isDeceased = checkIsDeceased(currentPerson.death);
     }
     currentPerson = null;
     currentMarriage = null;
@@ -160,27 +155,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
         if (currentPerson) {
           currentPerson.death = value;
           currentPerson.isDeceased = true;
-        }
-        break;
-      }
-
-      case 'village': {
-        if (currentPerson) {
-          currentPerson.village = value;
-        }
-        break;
-      }
-
-      case 'photo': {
-        if (currentPerson) {
-          currentPerson.photo = value;
-        }
-        break;
-      }
-
-      case 'notes': {
-        if (currentPerson) {
-          currentPerson.notes = currentPerson.notes ? `${currentPerson.notes}\n${value}` : value;
         }
         break;
       }
@@ -288,7 +262,7 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
       case 'custom':
       default: {
         if (currentPerson && original && value) {
-          currentPerson.customProperties[original] = value;
+          currentPerson.attributes[original] = value;
         }
         break;
       }
@@ -317,9 +291,6 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
   return {
     people,
     rootIds,
-    meta: {
-      familyTitle: rootIds.length > 0 ? `${people[rootIds[0]]?.name} এর পরিবার` : 'বংশ ফ্যামিলি ট্রি',
-    },
   };
 }
 

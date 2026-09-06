@@ -12,12 +12,9 @@ export type CanonicalKey =
   | 'child'
   | 'father'
   | 'mother'
-  | 'photo'
-  | 'village'
-  | 'notes'
   | 'custom';
 
-// Mappings for keys in both English and Bangla
+// Mappings for minimal keys in both English and Bangla
 const KEY_MAP: Record<string, CanonicalKey> = {
   // Name
   name: 'name',
@@ -106,42 +103,6 @@ const KEY_MAP: Record<string, CanonicalKey> = {
   'মা': 'mother',
   'আম্মা': 'mother',
   'আম্মু': 'mother',
-
-  // Photo
-  photo: 'photo',
-  image: 'photo',
-  picture: 'photo',
-  avatar: 'photo',
-  'ছবি': 'photo',
-  'ফটোগ্রাফ': 'photo',
-  'চিত্র': 'photo',
-
-  // Village / Roots / Address
-  village: 'village',
-  address: 'village',
-  'ঠিকানা': 'village',
-  origin: 'village',
-  'ancestral home': 'village',
-  hometown: 'village',
-  'গ্রাম': 'village',
-  'গ্রামের বাড়ি': 'village',
-  'আদি বাড়ি': 'village',
-  'আদি নিবাস': 'village',
-  'দেশ': 'village',
-
-  // Notes / Info
-  notes: 'notes',
-  info: 'notes',
-  information: 'notes',
-  bio: 'notes',
-  description: 'notes',
-  title: 'notes',
-  'মন্তব্য': 'notes',
-  'বিবরণ': 'notes',
-  'স্মৃতি': 'notes',
-  'খেতাব': 'notes',
-  'উপাধি': 'notes',
-  'তথ্য': 'notes',
 };
 
 /**
@@ -168,14 +129,9 @@ export function normalizeGender(val: string): Gender {
 }
 
 /**
- * Checks if a string or context indicates a deceased person (প্রয়াত/মৃত)
+ * Checks if a death date is provided
  */
-export function checkIsDeceased(death?: string, notes?: string, customProps?: Record<string, string>): boolean {
-  if (death && death.trim().length > 0) return true;
-
-  const searchTerms = ['প্রয়াত', 'মৃত', 'মরহুম', 'মরহুমা', 'স্বর্গীয়', 'late', 'deceased', 'ইন্তেকাল', 'passed away', 'ওফাত'];
-  const allText = [notes || '', ...Object.values(customProps || {})].join(' ').toLowerCase();
-
-  return searchTerms.some(term => allText.includes(term.toLowerCase()));
+export function checkIsDeceased(death?: string): boolean {
+  return Boolean(death && death.trim().length > 0);
 }
 

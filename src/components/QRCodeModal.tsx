@@ -78,7 +78,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, tree 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: tree.meta?.familyTitle || 'আমাদের বংশ তালিকা',
+          title: 'আমাদের বংশ তালিকা',
           text: `${peopleCount} জন সদস্যের বংশ ফ্যামিলি ট্রি দেখতে QR কোড বা লিঙ্কে প্রবেশ করুন:`,
           url: qrUrl,
         });

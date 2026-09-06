@@ -29,8 +29,6 @@ export const App: React.FC = () => {
     setNewPersonCoords, 
     savePerson, 
     deletePerson, 
-    addChild, 
-    addSpouse, 
     addPerson 
   } = useFamilyTree();
 
@@ -469,12 +467,11 @@ export const App: React.FC = () => {
         isOpen={addRelativeState.isOpen}
         onClose={closeActiveModal}
         onAdd={(data) => {
-          if (addRelativeState.mode === 'child' && addRelativeState.person) {
-            addChild(addRelativeState.person.id, data);
-          } else if (addRelativeState.mode === 'spouse' && addRelativeState.person) {
-            addSpouse(addRelativeState.person.id, data);
-          } else {
-            addPerson(data);
+          const newPerson = addPerson(data);
+          if (newPerson) {
+            disconnectSheet();
+            showToast(`${newPerson.name} যোগ করা হয়েছে!`, 'success');
+            navigateTo({ person: newPerson.id }, true);
           }
         }}
       />

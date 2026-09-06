@@ -25,18 +25,9 @@ function serializePersonToRows(
   if (person.death) {
     rows.push(['Date of death', person.death]);
   }
-  if (person.village) {
-    rows.push(['Village', person.village]);
-  }
-  if (person.photo) {
-    rows.push(['Photo', person.photo]);
-  }
-  if (person.notes) {
-    rows.push(['Notes', person.notes]);
-  }
 
-  // Custom properties (skip internal coordinates)
-  for (const [key, val] of Object.entries(person.customProperties)) {
+  // User-defined attributes (skip internal coordinates)
+  for (const [key, val] of Object.entries(person.attributes || {})) {
     if (key.startsWith('_')) continue;
     rows.push([key, val]);
   }
