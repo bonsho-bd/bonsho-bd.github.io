@@ -1,18 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="#059669">
-  <!-- Father (Left) -->
-  <circle cx="25" cy="22" r="6"/>
-  <path d="M 25 30 C 19 30, 18 40, 18 90 L 22.5 90 L 25 55 L 27.5 90 L 32 90 C 32 40, 31 30, 25 30 Z"/>
+  <!-- Father -->
+  <!-- Elongated, tilted bean head -->
+  <path d="M 23.5 22 C 22.5 13, 26 8, 29 9 C 32 10, 32 18, 29 23 C 27 25, 24.5 25, 23.5 22 Z" />
+  <!-- Tall body splitting into legs -->
+  <path d="M 22 26 C 26 24, 30 25, 31 31 C 32 50, 32 88, 32 88 L 29 88 L 27.5 55 L 26 88 L 22.5 88 C 22.5 88, 20.5 50, 22 26 Z" />
 
-  <!-- Mother (Right) -->
-  <circle cx="75" cy="22" r="6"/>
-  <!-- Slight asymmetry for the mother's drape, identical to the coin -->
-  <path d="M 75 30 C 69 30, 68 40, 68 90 L 72.5 90 L 75 55 L 77.5 90 L 82 90 C 82 40, 81 30, 75 30 Z"/>
+  <!-- Child 1 (Left, Taller) -->
+  <path d="M 42.5 45 C 41 40, 44 37, 46 38 C 48 39, 48 43, 46 46 C 45 47, 43.5 47, 42.5 45 Z" />
+  <path d="M 41.5 49 C 43.5 48, 45.5 48.5, 46 52 C 46.5 65, 46.5 88, 46.5 88 L 44.5 88 L 43.5 68 L 42.5 88 L 40.5 88 C 40.5 88, 40 65, 41.5 49 Z" />
 
-  <!-- Child 1 (Younger, Left-Middle) -->
-  <circle cx="43" cy="45" r="4.5"/>
-  <path d="M 43 51 C 39 51, 38 60, 38 90 L 41.5 90 L 43 70 L 44.5 90 L 48 90 C 48 60, 47 51, 43 51 Z"/>
+  <!-- Child 2 (Right, Shorter) -->
+  <path d="M 53.5 55 C 52 50, 55 47, 57 48 C 59 49, 59 53, 57 56 C 56 57, 54.5 57, 53.5 55 Z" />
+  <path d="M 52.5 59 C 54.5 58, 56.5 58.5, 57 62 C 57.5 75, 57.5 88, 57.5 88 L 55.5 88 L 54.5 74 L 53.5 88 L 51.5 88 C 51.5 88, 51 75, 52.5 59 Z" />
 
-  <!-- Child 2 (Older, Right-Middle) -->
-  <circle cx="57" cy="38" r="5"/>
-  <path d="M 57 45 C 53 45, 52 55, 52 90 L 55.5 90 L 57 65 L 58.5 90 L 62 90 C 62 55, 61 45, 57 45 Z"/>
+  <!-- Mother -->
+  <!-- Head with right-side bulge (bun) -->
+  <path d="M 71 22 C 69 15, 71 10, 74 10 C 77 10, 80 13, 81 16 C 83 20, 80 25, 77 24 C 75 23, 72 25, 71 22 Z" />
+  <!-- Tall body splitting into legs -->
+  <path d="M 71 26 C 75 25, 79 26, 80 32 C 81 50, 81 88, 81 88 L 78 88 L 76.5 55 L 75 88 L 71.5 88 C 71.5 88, 69.5 50, 71 26 Z" />
 </svg>
