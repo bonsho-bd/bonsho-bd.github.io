@@ -136,7 +136,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={`এখানে গুগল শিট বা এক্সেল থেকে কপি করে পেস্ট করুন...\n\nউদাহরণ:\nName\tআক্কাস আলী\nGender\tMale\nBirth\t1940\nWife\tসালেহা বেগম\nChild\tমতিউর রহমান`}
+            placeholder={`এখানে গুগল শিট বা এক্সেল থেকে কপি করে পেস্ট করুন...\n\nউদাহরণ:\nনাম\tআক্কাস আলী\nলিঙ্গ\tপুরুষ\nজন্ম\t১৯৪০\nস্ত্রী\tসালেহা বেগম\nসন্তান\tমতিউর রহমান`}
             rows={12}
             className="w-full p-3.5 text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition whitespace-pre flex-nowrap overflow-auto"
           />
