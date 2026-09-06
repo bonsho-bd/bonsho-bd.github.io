@@ -256,3 +256,9 @@ bonsho/
    - The UI auto-recalculates and smooth-transitions the layout.
    - User clicks "Share" to generate a compressed QR URL.
    - User sends the URL to a family member, who opens it and immediately sees the exact graph state with zero server interaction.
+
+4. **Clearing the Graph via Clipboard**
+   - User opens the "Paste Data" modal.
+   - User selects all text and deletes it (leaving the textarea completely blank).
+   - User clicks "Update Graph".
+   - *Result*: The graph is instantly cleared, returning to a completely empty state. If connected to Google Sheets, the user can sync this empty state to clear their spreadsheet.
