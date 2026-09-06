@@ -41,12 +41,11 @@ Users can start visualizing their lineage in 4 friction-free ways:
 graph TD
     A[User visits Bonsho] --> B1["1. Start Blank / Explore Sample Tree<br/>(Zero login, instant play)"]
     A --> B2["2. Clipboard Sync<br/>(Export & Import 2-column TSV/CSV)"]
-    A --> B3["3. File Upload<br/>(Upload .csv or .xlsx)"]
-    A --> B4["4. Connect Google Sheet<br/>(1-click OAuth + Drive Picker + 2-way sync)"]
+    A --> B4["3. Connect Google Sheet<br/>(1-click OAuth + Drive Picker + 2-way sync)"]
 
     B1 --> C[In-Memory Graph State]
     B2 <--> C
-    B3 --> C
+
     B4 --> C
 
     C --> D[Interactive Visualizer & In-App Editor]
@@ -68,13 +67,11 @@ graph TD
 3. **Progressive Disclosure & Open Key-Value Data Entry**:
    - Person creation and editing focus strictly on minimal core attributes (**Name**, **Gender**, and optional **Birth/Death dates**).
    - Any arbitrary information can be attached dynamically as key-value pairs without assuming fixed keys.
-4. **File Upload**:
-   - Drag & drop any `.csv` or `.xlsx` file.
-5. **Connect Google Sheet**:
+4. **Connect Google Sheet**:
    - 1-click spreadsheet creation directly in Google Drive, or connect an existing sheet via Google Drive Picker or URL.
    - Handles multi-account URLs (`/u/0/d/...`) and empty spreadsheets gracefully.
    - Supports two-way synchronization: in-app edits can be saved directly back to the Google Sheet.
-6. **QR Code URL Export & Direct Scan**:
+5. **QR Code URL Export & Direct Scan**:
    - Compresses the entire tree 100% client-side using `pako` (`deflateRaw` level 9) and converts it to a compact, URL-safe Base64URL string (`-`, `_`, no padding).
    - Preserves complete Unicode integrity for 3-byte Bengali text and complex multi-spouse genealogical trees via standard `TextEncoder` / `TextDecoder`.
    - Encodes a self-contained, **0-redirect query URL**: `<domain>/?qr-v0=<compressed-data>` that loads directly on GitHub Pages with zero server-side routing, zero redirects, and zero 404 delays.
@@ -167,7 +164,8 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
 - **Data Parsing, Serialization & Compression**:
   - Custom Key-Value Block Parser (`src/lib/parser.ts`)
   - `papaparse` for CSV & TSV parsing
-  - `xlsx` for Excel import/export
+  - `xlsx` for Excel export
+
   - `pako` for cross-browser, synchronous raw DEFLATE compression & decompression
   - `qrcode` for high-resolution client-side QR code canvas generation with embedded Bangladesh coin logo
 - **Visualization Engine & Export**:

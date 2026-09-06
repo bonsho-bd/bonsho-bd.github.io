@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { parseRawText, parseKeyValueBlocksToTree } from './lib/parser';
+import React from 'react';
+import { parseRawText } from './lib/parser';
 import { downloadTreeAsExcel, downloadTreeAsCSV, treeToCSV } from './lib/serializer';
 import { SAMPLE_FAMILY_TEXT } from './lib/sampleData';
 import { Header } from './components/Header';
@@ -13,7 +13,7 @@ import { QRCodeModal } from './components/QRCodeModal';
 import { extractTreeFromCurrentUrl, generateQRUrlForTree, generateQRCodeWithLogo } from './lib/qrCodec';
 import { toPng } from 'html-to-image';
 import { CloudUpload, AlertCircle, Loader2 } from 'lucide-react';
-import * as XLSX from 'xlsx';
+
 
 import { useFamilyTree } from './hooks/useFamilyTree';
 import { useGoogleSync } from './hooks/useGoogleSync';
@@ -61,7 +61,7 @@ export const App: React.FC = () => {
 
   const { toasts, showToast, dismissToast } = useToast();
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   // Check URL on load for encoded tree
   React.useEffect(() => {
@@ -97,62 +97,7 @@ export const App: React.FC = () => {
     }
   };
 
-  // Handle File Upload (CSV, TSV, TXT, Excel)
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    const extension = file.name.split('.').pop()?.toLowerCase();
-
-    if (extension === 'csv' || extension === 'tsv' || extension === 'txt') {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target?.result as string;
-        const success = handleParseText(text);
-        if (!success) {
-          showToast('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।', 'error');
-        }
-      };
-      reader.readAsText(file);
-    } else if (extension === 'xlsx' || extension === 'xls') {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = new Uint8Array(event.target?.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-          if (!rows || rows.length === 0) return;
-
-          const rawRows = rows
-            .map((row) => ({
-              key: String(row?.[0] || '').trim(),
-              value: String(row?.[1] || '').trim(),
-            }))
-            .filter((r) => r.key || r.value);
-
-          if (rawRows.length === 0) return;
-
-          const parsedTree = parseKeyValueBlocksToTree(rawRows);
-          setTree(parsedTree);
-          disconnectSheet();
-          markAsSynced(parsedTree);
-          navigateTo({}, true, parsedTree);
-          showToast('এক্সেল ফাইল সফলভাবে লোড করা হয়েছে!', 'success');
-        } catch (err) {
-          showToast('এক্সেল ফাইল পড়তে সমস্যা হয়েছে। নিশ্চিত করুন ফাইলটিতে ২টি কলাম রয়েছে।', 'error');
-          console.error(err);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
   // Clear Tree
   const handleNewTree = () => {
@@ -329,17 +274,11 @@ export const App: React.FC = () => {
   return (
     <div className="h-[100dvh] flex flex-col bg-slate-100 overflow-hidden">
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".csv,.tsv,.txt,.xlsx,.xls"
-        onChange={handleFileUpload}
-        className="hidden"
-      />
+
 
       <Header
         onOpenPasteModal={() => navigateTo({ modal: 'clipboard' })}
-        onOpenUpload={() => fileInputRef.current?.click()}
+
         onOpenGoogleModal={() => navigateTo({ modal: 'google' })}
         onOpenQRCode={() => navigateTo({ modal: 'qr' })}
         onLoadSample={handleLoadSample}

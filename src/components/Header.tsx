@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  TreePine, ClipboardPaste, Upload, Sparkles,
+  TreePine, ClipboardPaste, Sparkles,
   FileSpreadsheet, FileText, Search, PlusCircle,
   QrCode, Share2, Database, Copy, ChevronDown, Camera
 } from 'lucide-react';
@@ -8,7 +8,6 @@ import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
 interface HeaderProps {
   onOpenPasteModal: () => void;
-  onOpenUpload: () => void;
   onOpenGoogleModal: () => void;
   onOpenQRCode: () => void;
   onLoadSample: () => void;
@@ -26,7 +25,6 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenPasteModal,
-  onOpenUpload,
   onOpenGoogleModal,
   onOpenQRCode,
   onLoadSample,
@@ -172,13 +170,6 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>ক্লিপবোর্ড থেকে পেস্ট</span>
                 </button>
 
-                <button
-                  onClick={() => { onOpenUpload(); setShowSyncMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
-                >
-                  <Upload className="w-4 h-4 text-slate-500" />
-                  <span>আপলোড (CSV/Excel)</span>
-                </button>
               </div>
             )}
           </div>
