@@ -157,7 +157,7 @@ export const App: React.FC = () => {
 
   // Clear Tree
   const handleNewTree = () => {
-    const emptyTree = { people: {}, rootIds: [] };
+    const emptyTree = { people: {} };
     setTree(emptyTree);
     disconnectSheet();
     markAsSynced(emptyTree);

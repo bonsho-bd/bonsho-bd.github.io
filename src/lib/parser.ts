@@ -352,11 +352,8 @@ export function parseKeyValueBlocksToTree(rows: RawRow[]): FamilyTree {
 
   finishCurrentPerson();
 
-  const rootIds = computeRootIds(people);
-
   return {
     people,
-    rootIds,
   };
 }
 

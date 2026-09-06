@@ -1,4 +1,5 @@
 import { FamilyTree, Person } from '../types/family';
+import { computeRootIds } from './parser';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
@@ -85,7 +86,8 @@ export function treeToKeyValueRows(tree: FamilyTree): [string, string][] {
     }
   }
 
-  for (const rootId of tree.rootIds) {
+  const rootIds = computeRootIds(tree.people);
+  for (const rootId of rootIds) {
     traverse(rootId);
   }
 

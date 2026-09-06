@@ -23,7 +23,7 @@ import {
   extractSheetId
 } from '../lib/googleAuth';
 import { FamilyTree } from '../types/family';
-import { parseKeyValueBlocksToTree } from '../lib/parser';
+import { parseKeyValueBlocksToTree, computeRootIds } from '../lib/parser';
 import { treeToKeyValueRows } from '../lib/serializer';
 
 interface GoogleSyncModalProps {
@@ -117,7 +117,8 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       setStatusMessage({ text: 'আপনার গুগল ড্রাইভে নতুন শিট তৈরি করা হচ্ছে...', type: 'info' });
 
       const rows = treeToKeyValueRows(tree);
-      const rootPerson = tree.rootIds.length > 0 ? tree.people[tree.rootIds[0]] : null;
+      const rootIds = computeRootIds(tree.people);
+      const rootPerson = rootIds.length > 0 ? tree.people[rootIds[0]] : null;
       const title = rootPerson ? `${rootPerson.name} এর পরিবার (বংশতালিকা)` : 'আমাদের বংশ ফ্যামিলি ট্রি';
 
       const newSheet = await createGoogleSheet(title, accessToken, rows);

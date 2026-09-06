@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FamilyTree, Person, Gender, Marriage } from '../types/family';
-import { createUnknownSpouse, computeRootIds } from '../lib/parser';
+import { createUnknownSpouse } from '../lib/parser';
 
 const STORAGE_KEY = 'bonsho_family_tree_data';
 
@@ -17,9 +17,8 @@ export interface AddPersonInput {
   };
 }
 
-export const useFamilyTree = (initialTree?: FamilyTree) => {
+export const useFamilyTree = () => {
   const [tree, setTree] = useState<FamilyTree>(() => {
-    if (initialTree) return initialTree;
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -28,7 +27,7 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
         console.error('Failed to parse tree from local storage', e);
       }
     }
-    return { people: {}, rootIds: [] };
+    return { people: {} };
   });
 
   const [newPersonCoords, setNewPersonCoords] = useState<{x: number, y: number} | null>(null);
@@ -83,12 +82,9 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
         }
       });
 
-      const updatedRoots = computeRootIds(updatedPeople);
-
       return {
         ...prev,
         people: updatedPeople,
-        rootIds: updatedRoots,
       };
     });
   };
@@ -123,14 +119,8 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
 
     setTree((prev) => {
       const updatedPeople: Record<string, Person> = { ...prev.people, [newPerson.id]: newPerson };
-      let updatedRoots = [...prev.rootIds];
 
-      if (!input.relation) {
-        // Standalone / root person
-        if (!updatedRoots.includes(newPerson.id)) {
-          updatedRoots.push(newPerson.id);
-        }
-      } else if (input.relation.type === 'child') {
+      if (input.relation?.type === 'child') {
         const parent = updatedPeople[input.relation.targetPersonId];
         if (parent) {
           const updatedParent = {
@@ -173,7 +163,7 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
 
           updatedPeople[parent.id] = updatedParent;
         }
-      } else if (input.relation.type === 'spouse') {
+      } else if (input.relation?.type === 'spouse') {
         const spouse = updatedPeople[input.relation.targetPersonId];
         if (spouse) {
           const updatedTargetSpouse = {
@@ -201,7 +191,6 @@ export const useFamilyTree = (initialTree?: FamilyTree) => {
       return {
         ...prev,
         people: updatedPeople,
-        rootIds: updatedRoots,
       };
     });
 

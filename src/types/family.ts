@@ -19,6 +19,5 @@ export interface Person {
 
 export interface FamilyTree {
   people: Record<string, Person>;
-  rootIds: string[];
 }
 

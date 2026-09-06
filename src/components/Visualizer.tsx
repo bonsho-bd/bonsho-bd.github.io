@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { FamilyTree, Person } from '../types/family';
+import { computeRootIds } from '../lib/parser';
 import { ZoomIn, ZoomOut, RotateCcw, User, Heart, Plus, Calendar } from 'lucide-react';
 
 interface VisualizerProps {
@@ -55,10 +56,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
     const layoutMap = new Map<string, NodeLayout>();
     const linkList: LinkPath[] = [];
     const visited = new Set<string>();
-
-    if (tree.rootIds.length === 0 && Object.keys(tree.people).length > 0) {
-      tree.rootIds = [Object.keys(tree.people)[0]];
-    }
+    const rootIds = computeRootIds(tree.people);
 
     // Helper to calculate subtree width (with cycle protection)
     function calculateSubtreeWidth(personId: string, visitedNodes = new Set<string>()): number {
@@ -166,7 +164,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
       return usedStartX + subtreeWidth + HORIZONTAL_GAP;
     }
 
-    for (const rootId of tree.rootIds) {
+    for (const rootId of rootIds) {
       const p = tree.people[rootId];
       if (p && p.attributes['_x'] && p.attributes['_y']) {
         const cx = parseFloat(p.attributes['_x']);
