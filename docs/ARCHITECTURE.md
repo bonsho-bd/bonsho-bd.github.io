@@ -31,6 +31,12 @@
    - Floating controls (zoom buttons, reset view, mini-map, and context action prompts) explicitly isolate event propagation (`stopPropagation`), preventing ghost canvas clicks or unwanted form triggers on double clicks.
    - Dynamic viewport bounding-box calculations compute the global envelope of all nodes and marriages, automatically centering and scaling trees of any dimension on initial load and view reset.
 
+6. **Mobile-First Responsiveness & Keyboard-Accessible UX**:
+   - **Dynamic Viewport Height (`100dvh`)**: The root layout uses dynamic viewport units (`100dvh`) instead of legacy `100vh` to absorb mobile browser address bar expansions/collapses without canvas jumping or navigation clipping.
+   - **iOS Safari Auto-Zoom Prevention**: Enforces a strict minimum font-size (`16px`) for form inputs and textareas on screens `< 640px` to prevent iOS Safari from automatically zooming in and displacing the viewport when focusing fields.
+   - **Backdrop & Keyboard Dismissal**: All dialogs and drawer views (`PersonModal`, `GoogleSyncModal`, `PasteModal`, etc.) support backdrop click-to-close with event propagation isolation, as well as native `Escape` key dismissal.
+   - **Quick Search Hotkey**: Pressing `/` or `Cmd/Ctrl + F` from anywhere on the canvas immediately focuses the relative search input.
+
 ---
 
 ## 2. Supported Input & Onboarding Modes
@@ -162,12 +168,12 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
   - Modular Custom Hooks (`useFamilyGraph`, `useGoogleSync`, `useAppNavigation`, `useToast`) for state management, separation of concerns, and in-app notifications
 - **Styling & Interaction**: Tailwind CSS + Lucide Icons
   - 100% Non-blocking, modern UI: Contextual in-app toasts (`Toast.tsx`), inline delete confirmations, and graceful disabled states (zero native browser `alert()` or `confirm()`)
+  - **Mobile-First Touch & Display**: `100dvh` full-bleed layout, iOS auto-zoom mitigation (16px input font ceiling), and tactile button active states
+  - **Keyboard & Overlay Navigation**: Native `Escape` listener for modal dismissal, backdrop click-to-close with propagation stops, and `/` or `Cmd/Ctrl + F` quick search hotkey
 - **Bangla Typography**: Google Fonts (`Hind Siliguri` / `Noto Sans Bengali`)
 - **Data Parsing, Serialization & Compression**:
   - Custom Key-Value Block Parser (`src/lib/parser.ts`)
   - `papaparse` for CSV & TSV parsing
-
-
   - `pako` for cross-browser, synchronous raw DEFLATE compression & decompression
   - `qrcode` for high-resolution client-side QR code canvas generation with embedded Bangladesh coin logo
 - **Visualization Engine & Export**:
@@ -178,6 +184,7 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
   - Google Identity Services (GIS) Token Client (via `VITE_GOOGLE_CLIENT_ID` injected at build-time)
   - Google Sheets API v4 (Client-side REST via user's ephemeral token)
   - (Optional) Google Drive Picker API v1 (via `VITE_GOOGLE_API_KEY`)
+  - **Token Lifecycle Management**: Proactively tracks ephemeral access token expiration (`bonsho_access_token_expires_at`) using a 55-minute safety threshold (Google's 60-minute limit). Automatically logs out expired sessions on load and via a 60-second periodic heartbeat to eliminate 403 authorization errors in the Drive Picker iframe.
   - **Architecture**: Structured using explicit Domain Models (`AccessToken`, `SheetId`, `ConnectedSheet`) and Functional Programming abstractions (`fetchApi`, `handleApiError`) for safe side-effects and error handling.
 - **Deployment & Routing**:
   - GitHub Pages (`https://bonsho-bd.github.io`) via GitHub Actions
@@ -260,3 +267,9 @@ bonsho/
    - User selects all text and deletes it (leaving the textarea completely blank).
    - User clicks "Update Graph".
    - *Result*: The graph is instantly cleared, returning to a completely empty state. If connected to Google Sheets, the user can sync this empty state to clear their spreadsheet.
+
+5. **Mobile & Keyboard-Driven Exploration**
+   - Mobile users pan the graph with single-finger swipe and pinch-to-zoom with two fingers without canvas jitter or address-bar displacement (`100dvh`).
+   - Tapping an input field on iOS does not cause viewport zoom distortion.
+   - Desktop power users press `/` to immediately search for relatives, navigate details via deep links, and dismiss any modal overlay via `Escape` or backdrop click.
+
