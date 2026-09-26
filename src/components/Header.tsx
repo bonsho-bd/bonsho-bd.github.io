@@ -76,8 +76,20 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative w-full lg:flex-1 lg:max-w-md shrink-0">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
+            ref={(el) => {
+              // Quick and dirty global shortcut binding for search
+              if (!el) return;
+              if (el.dataset.bound) return;
+              el.dataset.bound = 'true';
+              document.addEventListener('keydown', (e) => {
+                if ((e.key === '/' || (e.key === 'f' && (e.metaKey || e.ctrlKey))) && document.activeElement !== el && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+                  e.preventDefault();
+                  el.focus();
+                }
+              });
+            }}
             type="text"
-            placeholder="আত্মীয় খুঁজুন..."
+            placeholder="আত্মীয় খুঁজুন... (/ চাপুন)"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-9 pr-3 py-2 sm:py-1.5 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition shadow-inner"

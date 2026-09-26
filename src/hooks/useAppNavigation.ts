@@ -155,6 +155,20 @@ export const useAppNavigation = (graph: FamilyGraph) => {
     };
   }, [graph]);
 
+  // Handle Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const isAnyModalOpen = selectedPerson || editingPerson || addRelativeState.isOpen || isPasteModalOpen || isGoogleModalOpen || isQRModalOpen;
+        if (isAnyModalOpen) {
+          closeActiveModal();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPerson, editingPerson, addRelativeState.isOpen, isPasteModalOpen, isGoogleModalOpen, isQRModalOpen, closeActiveModal]);
+
   return {
     isPasteModalOpen,
     isGoogleModalOpen,
