@@ -9,7 +9,7 @@ import { EditPersonModal } from './components/EditPersonModal';
 import { AddRelativeModal } from './components/AddRelativeModal';
 import { GoogleSyncModal } from './components/GoogleSyncModal';
 import { QRCodeModal } from './components/QRCodeModal';
-import { extractTreeFromCurrentUrl } from './lib/qrCodec';
+import { extractTreeFromCurrentUrl, generateQRUrlForTree } from './lib/qrCodec';
 import { toPng } from 'html-to-image';
 import { CloudUpload, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -160,6 +160,22 @@ export const App: React.FC = () => {
       if (el) el.remove();
     }
   };
+
+  // WhatsApp Share Handler
+  const handleShareWhatsApp = () => {
+    try {
+      const { url } = generateQRUrlForTree(graph);
+      const peopleCount = Object.keys(graph.people).length;
+      const text = encodeURIComponent(
+        `আমাদের পরিবারের ${peopleCount} জন সদস্যের বংশতালিকা গ্রাফ দেখতে নিচের লিঙ্কে ক্লিক করুন:\n${url}`
+      );
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    } catch (err) {
+      showToast('শেয়ার লিংক তৈরি করতে সমস্যা হয়েছে।', 'error');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="h-[100dvh] flex flex-col bg-slate-100 overflow-hidden">
       <Header
@@ -169,6 +185,7 @@ export const App: React.FC = () => {
         onLoadSample={handleLoadSample}
         onNewTree={handleNewTree}
         onExportViewport={handleExportViewport}
+        onShareWhatsApp={handleShareWhatsApp}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         totalPeopleCount={Object.keys(graph.people).length}
@@ -214,6 +231,7 @@ export const App: React.FC = () => {
           onAddPerson={() => {
             navigateTo({ add: 'person' });
           }}
+          onLoadSample={handleLoadSample}
         />
       </main>
 

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   TreePine, Table2, Sparkles,
   FileSpreadsheet, Search, PlusCircle,
-  QrCode, Share2, ChevronDown
+  QrCode, Share2, ChevronDown, MessageCircle
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
 
@@ -13,6 +13,7 @@ interface HeaderProps {
   onLoadSample: () => void;
   onNewTree: () => void;
   onExportViewport: () => void;
+  onShareWhatsApp: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   totalPeopleCount: number;
@@ -26,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLoadSample,
   onNewTree,
   onExportViewport,
+  onShareWhatsApp,
   searchQuery,
   onSearchChange,
   totalPeopleCount,
@@ -123,10 +125,10 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onOpenPasteModal}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 shadow-sm transition whitespace-nowrap"
-            title="CSV ফরম্যাটে ডেটা এডিট বা পেস্ট করুন"
+            title="খাতায় লেখার মতো তালিকা থেকে এডিট বা পেস্ট করুন"
           >
             <Table2 className="w-4 h-4 text-blue-600" />
-            <span className="hidden sm:inline">CSV এডিটর</span>
+            <span className="hidden sm:inline">তথ্য তালিকা (CSV)</span>
           </button>
 
           {/* Google Sheets Sync Button */}
@@ -171,15 +173,24 @@ export const Header: React.FC<HeaderProps> = ({
 
             {showShareMenu && (
               <div
-                className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm"
+                className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm"
               >
                 <button
                   disabled={totalPeopleCount === 0}
                   onClick={() => { onExportViewport(); setShowShareMenu(false); }}
-                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 font-medium bg-emerald-50/50 transition-colors"
+                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 font-medium bg-emerald-50/50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <TreePine className="w-4 h-4 text-emerald-600" />
                   <span>ডাউনলোড ইমেজ (PNG)</span>
+                </button>
+
+                <button
+                  disabled={totalPeopleCount === 0}
+                  onClick={() => { onShareWhatsApp(); setShowShareMenu(false); }}
+                  className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-800 font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>WhatsApp-এ পাঠান</span>
                 </button>
 
                 <div className="h-px bg-slate-100 my-1"></div>
@@ -191,8 +202,6 @@ export const Header: React.FC<HeaderProps> = ({
                   <QrCode className="w-4 h-4 text-slate-500" />
                   <span>QR কোড ও লিংক</span>
                 </button>
-
-
               </div>
             )}
           </div>

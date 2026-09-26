@@ -61,8 +61,8 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
               <Table2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800">CSV ডেটা এডিটর</h2>
-              <p className="text-xs text-slate-500">সরাসরি ডেটা এডিট করুন অথবা এক্সেল/গুগল শিট থেকে কপি করে পেস্ট করুন</p>
+              <h2 className="text-lg font-bold text-slate-800">তথ্য তালিকা এডিটর (CSV)</h2>
+              <p className="text-xs text-slate-500">খাতায় লেখার মতো তালিকা থেকে সরাসরি এডিট করুন অথবা এক্সেল/গুগল শিট থেকে কপি করে পেস্ট করুন</p>
             </div>
           </div>
           <button

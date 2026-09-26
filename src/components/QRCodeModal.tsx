@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, QrCode, Download, Copy, Check, Share2, Camera, Printer, Link as LinkIcon, Sparkles } from 'lucide-react';
+import { X, QrCode, Download, Copy, Check, Share2, Camera, Printer, Link as LinkIcon, Sparkles, MessageCircle } from 'lucide-react';
 import { FamilyGraph } from '../types/family';
 import { generateQRUrlForTree, generateQRCodeWithLogo } from '../lib/qrCodec';
 
@@ -72,6 +72,14 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, graph
     link.download = 'bonsho-family-graph-qr.png';
     link.href = qrDataUrl;
     link.click();
+  };
+
+  const handleWhatsAppShare = () => {
+    if (!qrUrl) return;
+    const text = encodeURIComponent(
+      `আমাদের পরিবারের ${peopleCount} জন সদস্যের বংশতালিকা গ্রাফ দেখতে নিচের লিঙ্কে ক্লিক করুন:\n${qrUrl}`
+    );
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
   const handleNativeShare = async () => {
@@ -196,26 +204,38 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, graph
         </div>
 
         {/* Footer Actions */}
-        <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2">
-          {typeof navigator !== 'undefined' && 'share' in navigator ? (
+        <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <button
               type="button"
-              onClick={handleNativeShare}
+              onClick={handleWhatsAppShare}
               className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition"
+              title="WhatsApp-এ পাঠান"
             >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>শেয়ার করুন</span>
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+              <span>WhatsApp</span>
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-              <span>{copied ? 'লিঙ্ক কপি হয়েছে' : 'লিঙ্ক কপি করুন'}</span>
-            </button>
-          )}
+
+            {typeof navigator !== 'undefined' && 'share' in navigator ? (
+              <button
+                type="button"
+                onClick={handleNativeShare}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>শেয়ার</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 rounded-xl transition"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                <span>{copied ? 'কপি হয়েছে' : 'লিঙ্ক কপি'}</span>
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <button
