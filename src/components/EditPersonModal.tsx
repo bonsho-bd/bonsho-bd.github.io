@@ -151,62 +151,80 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
           {/* Gender */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-semibold text-slate-700">লিঙ্গ</label>
-              {isGenderInferred && !isGenderManuallyTouched && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 animate-in fade-in duration-150" title="নামের ওপর ভিত্তি করে AI মডেল দ্বারা স্বয়ংক্রিয়ভাবে নির্বাচিত">
-                  <Sparkles className="w-3 h-3 text-emerald-600" />
-                  AI শনাক্ত
-                </span>
-              )}
-              {isGenderManuallyTouched && (
-                <div className="flex items-center gap-1.5 animate-in fade-in duration-150">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                    ম্যানুয়ালি নির্বাচিত
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsGenderManuallyTouched(false);
-                      const predicted = inferBanglaGender(name);
-                      if (predicted) {
-                        setGender(predicted);
-                        setIsGenderInferred(true);
-                      } else {
-                        setIsGenderInferred(false);
-                      }
-                    }}
-                    className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200 transition cursor-pointer"
-                    title="স্বয়ংক্রিয় AI সনাক্তকরণে ফিরে যান"
-                  >
-                    <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                    স্বয়ংক্রিয় করুন
-                  </button>
-                </div>
-              )}
-            </div>
-            <div className="flex gap-2">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">লিঙ্গ</label>
+            <div className="grid grid-cols-2 gap-2">
               {[
                 { val: 'male', label: 'পুরুষ' },
                 { val: 'female', label: 'নারী' },
-              ].map(({ val, label }) => (
-                <button
-                  type="button"
-                  key={val}
-                  onClick={() => {
-                    setGender(val as Gender);
-                    setIsGenderManuallyTouched(true);
+              ].map(({ val, label }) => {
+                const predictedGender = inferBanglaGender(name);
+                const isSelected = gender === val;
+                const isAiSelected = isSelected && isGenderInferred;
+                const isAiSuggested = !isSelected && predictedGender === val;
+
+                const handleClick = () => {
+                  if (gender === val) {
+                    if (isGenderInferred) {
+                      setIsGenderInferred(false);
+                      setIsGenderManuallyTouched(true);
+                    } else if (predictedGender === val) {
+                      setIsGenderInferred(true);
+                      setIsGenderManuallyTouched(false);
+                    }
+                    return;
+                  }
+                  setGender(val as Gender);
+                  if (predictedGender === val) {
+                    setIsGenderInferred(true);
+                    setIsGenderManuallyTouched(false);
+                  } else {
                     setIsGenderInferred(false);
-                  }}
-                  className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition ${
-                    gender === val
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+                    setIsGenderManuallyTouched(true);
+                  }
+                };
+
+                return (
+                  <button
+                    type="button"
+                    key={val}
+                    onClick={handleClick}
+                    className={`relative flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium border transition-all duration-150 select-none cursor-pointer active:scale-[0.99] ${
+                      isSelected
+                        ? isAiSelected
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-600 shadow-xs'
+                          : 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                        : isAiSuggested
+                          ? 'bg-emerald-50/60 text-slate-700 border-dashed border-emerald-300 hover:bg-emerald-50 hover:border-emerald-400'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="font-semibold">{label}</span>
+
+                    {/* AI Selected Badge */}
+                    {isAiSelected && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-xs border border-white/25 shadow-2xs animate-in fade-in duration-150" title="নাম অনুযায়ী AI মডেল দ্বারা স্বয়ংক্রিয়ভাবে শনাক্ত">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-200 fill-amber-200" />
+                        AI শনাক্ত
+                      </span>
+                    )}
+
+                    {/* Manual Selection Checkmark */}
+                    {isSelected && !isAiSelected && (
+                      <span className="inline-flex items-center text-[10px] bg-white/20 text-white p-0.5 rounded-full animate-in fade-in duration-150" title="ম্যানুয়ালি নির্বাচিত">
+                        <Check className="w-3 h-3 stroke-[2.5]" />
+                      </span>
+                    )}
+
+                    {/* AI Suggested on Unselected Button */}
+                    {isAiSuggested && (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-700 bg-white/80 px-1.5 py-0.5 rounded-full border border-emerald-200" title="AI এর সুপারিশে ফিরতে ক্লিক করুন">
+                        <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                        AI
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
