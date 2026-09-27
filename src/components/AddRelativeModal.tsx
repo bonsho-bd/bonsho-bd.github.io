@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Person, Gender, FamilyGraph } from '../types/family';
 import { AddPersonInput } from '../hooks/useFamilyGraph';
 import { X, Check, Baby, Heart, UserPlus, Plus, Trash2 } from 'lucide-react';
+import { inferBanglaGender } from '../lib/genderClassifier';
 
 interface AddRelativeModalProps {
   person: Person | null;
@@ -29,6 +30,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
       ? (person?.gender === 'male' ? 'female' : 'male')
       : 'male'
   );
+  const [isGenderManuallyTouched, setIsGenderManuallyTouched] = useState(false);
   const [birth, setBirth] = useState('');
   const [death, setDeath] = useState('');
   const [visibleFields, setVisibleFields] = useState<{
@@ -64,6 +66,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
       setAttributesList([]);
       setNewKey('');
       setNewVal('');
+      setIsGenderManuallyTouched(false);
       setSelectedSpouseId(
         person && person.marriages.length > 0 ? person.marriages[0].spouseId : ''
       );
@@ -157,7 +160,16 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
               autoFocus
               placeholder="পূর্ণ নাম লিখুন"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setName(val);
+                if (mode !== 'spouse' && !isGenderManuallyTouched) {
+                  const predicted = inferBanglaGender(val);
+                  if (predicted) {
+                    setGender(predicted);
+                  }
+                }
+              }}
               className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
             />
           </div>
@@ -174,7 +186,10 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                   type="button"
                   key={val}
                   disabled={mode === 'spouse'}
-                  onClick={() => setGender(val as Gender)}
+                  onClick={() => {
+                    setGender(val as Gender);
+                    setIsGenderManuallyTouched(true);
+                  }}
                   className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition ${
                     gender === val
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'

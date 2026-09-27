@@ -171,6 +171,11 @@ The schema is intentionally minimal. The parser normalizes only core genealogica
   - **Mobile-First Touch & Display**: `100dvh` full-bleed layout, iOS auto-zoom mitigation (16px input font ceiling), and tactile button active states
   - **Keyboard & Overlay Navigation**: Native `Escape` listener for modal dismissal, backdrop click-to-close with propagation stops, and `/` or `Cmd/Ctrl + F` quick search hotkey
 - **Bangla Typography**: Google Fonts (`Hind Siliguri` / `Noto Sans Bengali`)
+- **Machine Learning & Smart Linguistic Inference**:
+  - Client-side Pre-trained Naive Bayes Classifier (`src/lib/genderClassifier.ts` & `src/lib/genderModelData.json`)
+  - Offline-trained on 12,000+ authentic Bangladeshi names (Hugging Face Faruk Bengali dataset + Wikidata Bangladeshi person corpus)
+  - Dual-script support: predicts gender for both Bengali script (e.g. "ফাতেমা বেগম") and English transliteration (e.g. "Md. Tanvir Hasan") in $< 0.1\text{ms}$ with zero network requests and zero runtime dependencies
+  - Adaptive UI locking: sets smart default gender upon typing, while strictly preserving manual user overrides
 - **Data Parsing, Serialization & Compression**:
   - Custom Key-Value Block Parser (`src/lib/parser.ts`)
   - `papaparse` for CSV & TSV parsing

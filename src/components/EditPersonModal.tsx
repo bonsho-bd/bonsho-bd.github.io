@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Person, Gender } from '../types/family';
 import { X, Check, Trash2, Plus, AlertCircle } from 'lucide-react';
+import { inferBanglaGender } from '../lib/genderClassifier';
 
 interface EditPersonModalProps {
   person: Person | null;
@@ -21,6 +22,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
   const [name, setName] = useState(person.name);
   const [gender, setGender] = useState<Gender>(person.gender);
+  const [isGenderManuallyTouched, setIsGenderManuallyTouched] = useState(true);
   const [birth, setBirth] = useState(person.birth || '');
   const [death, setDeath] = useState(person.death || '');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -60,6 +62,8 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
       );
       setNewKey('');
       setNewVal('');
+      const isPlaceholder = !person.name || person.name.includes('অজানা') || person.name.toLowerCase().includes('unknown');
+      setIsGenderManuallyTouched(!isPlaceholder);
     }
   }, [person, isOpen]);
 
@@ -123,7 +127,16 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
               type="text"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setName(val);
+                if (!isGenderManuallyTouched) {
+                  const predicted = inferBanglaGender(val);
+                  if (predicted) {
+                    setGender(predicted);
+                  }
+                }
+              }}
               className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
             />
           </div>
@@ -139,7 +152,10 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                 <button
                   type="button"
                   key={val}
-                  onClick={() => setGender(val as Gender)}
+                  onClick={() => {
+                    setGender(val as Gender);
+                    setIsGenderManuallyTouched(true);
+                  }}
                   className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition ${
                     gender === val
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'

@@ -1,0 +1,157 @@
+import type { Gender } from '../types/family';
+import modelData from './genderModelData.json' with { type: 'json' };
+
+interface ModelPayload {
+  prior: number;
+  weights: Record<string, number>;
+}
+
+const { prior, weights } = modelData as ModelPayload;
+
+// Strict unambiguous gender prefixes / honorifics
+const FEMALE_PREFIXES = new Set([
+  'মোছাঃ', 'মোছা', 'মোসাঃ', 'মোসা', 'মোসাম্মৎ', 'মোসাম্মত', 'সৈয়দা', 'সৈয়দা',
+  'মিস', 'মিসেস', 'বেগম',
+  'most', 'most.', 'mst', 'mst.', 'musammat', 'mrs', 'mrs.', 'ms', 'ms.'
+]);
+
+const MALE_PREFIXES = new Set([
+  'মোঃ', 'মো', 'মোহাঃ', 'মোহা', 'মোহাম্মদ', 'মুহাম্মদ', 'সৈয়দ', 'সৈয়দ',
+  'মাওলানা', 'মুফতি', 'হাফেজ', 'কাজী', 'বাবু',
+  'md', 'md.', 'mohammad', 'muhammad', 'mr', 'mr.', 'sheikh', 'syed', 'kazi'
+]);
+
+// Strict unambiguous female suffixes/titles (never used by men)
+const FEMALE_SUFFIXES = new Set([
+  'বেগম', 'খাতুন', 'আক্তার', 'আখতার', 'সুলতানা', 'বানু', 'নেসা', 'বিবি',
+  'জাহান', 'নাহার', 'পারভীন', 'পারভিন', 'রাণী', 'রানী', 'দেবী', 'বালা', 'প্রিয়া', 'প্রিয়া', 'খানম',
+  'begum', 'khatun', 'akter', 'aktar', 'akhtar', 'sultana', 'banu', 'nesa',
+  'bibi', 'jahan', 'nahar', 'parveen', 'parvin', 'rani', 'devi', 'bala', 'priya', 'khanam'
+]);
+
+// Strict unambiguous male suffixes/titles (never used by women)
+// Note: Surnames like 'রহমান', 'খান', 'চৌধুরী', 'হক', 'রায়' are family names used by both genders, so they are not here.
+const MALE_SUFFIXES = new Set([
+  'আলী', 'আলি', 'হোসেন', 'হোসাইন', 'হাসান', 'উদ্দিন', 'উদদীন', 'মিয়া', 'মিঞা',
+  'কুমার', 'চন্দ্র', 'নাথ', 'বাবু',
+  'ali', 'hossain', 'hasan', 'uddin', 'mia', 'miah', 'kumar', 'chandra', 'nath', 'babu'
+]);
+
+// Core prominent given names to disambiguate compound names with family surnames (e.g. ফারহানা রহমান)
+const FEMALE_GIVEN_NAMES = new Set([
+  'ফারহানা', 'সাদিয়া', 'সাদিয়া', 'সুমাইয়া', 'সুমাইয়া', 'ফাতেমা', 'আয়েশা', 'আয়েশা',
+  'খাদিজা', 'নুসরাত', 'মারিয়া', 'মারিয়া', 'তানিয়া', 'তানিয়া', 'নাজনীন', 'শামীমা',
+  'রোকসানা', 'রুমানা', 'সাগরিকা', 'রিমু', 'ঝুমুর', 'পূজা', 'পুজা', 'স্নেহা', 'মিলি',
+  'শিউলি', 'আমেনা', 'সানজিদা', 'রিমা', 'মেবেল', 'অনামিকা', 'দীপিকা', 'রুবি',
+  'farhana', 'sadia', 'sumaiya', 'fatema', 'ayesha', 'khadija', 'nusrat', 'maria',
+  'tania', 'naznin', 'shamima', 'roksana', 'rumana', 'angela', 'shampa', 'salma', 'amena'
+]);
+
+const MALE_GIVEN_NAMES = new Set([
+  'অপূর্ব', 'আরিফ', 'আসিফ', 'তানভীর', 'সাকিব', 'তামিম', 'মুশফিক', 'মতিউর', 'সাজিদুর',
+  'ইমরান', 'সালমান', 'মাহমুদ', 'নাদিম', 'আবরার', 'রাফি', 'সোহেল', 'শুভ', 'সৌরভ',
+  'সুব্রত', 'বিজয়', 'জয়', 'পার্থ', 'আক্কাস', 'সবুজ', 'জালাল', 'শহীদুল', 'মেহেদি',
+  'মোজাম্মেল', 'জাহাঙ্গীর', 'সিরাজ', 'কামাল',
+  'apurba', 'tanvir', 'arif', 'asif', 'sakib', 'tamim', 'imran', 'salman', 'motiur',
+  'sajidur', 'shuvo', 'akkas', 'sohel', 'abrar', 'nadim'
+]);
+
+/**
+ * Extracts n-grams and tokens matching the model's feature space
+ */
+function extractFeatures(name: string): string[] {
+  const feats = new Set<string>();
+  const clean = name.replace(/[()[\]{}.,\/#!$%\^&\*;:{}=\-_`~]/g, ' ').trim().toLowerCase();
+  const tokens = clean.split(/\s+/).filter(Boolean);
+
+  for (const t of tokens) {
+    feats.add(`W:${t}`);
+
+    // Suffixes
+    for (const length of [1, 2, 3, 4]) {
+      if (t.length >= length) {
+        feats.add(`S${length}:${t.slice(-length)}`);
+      }
+    }
+
+    // Prefixes
+    for (const length of [2, 3, 4]) {
+      if (t.length >= length) {
+        feats.add(`P${length}:${t.slice(0, length)}`);
+      }
+    }
+
+    // Substring ngrams
+    for (const length of [2, 3]) {
+      for (let i = 0; i <= t.length - length; i++) {
+        feats.add(`N${length}:${t.slice(i, i + length)}`);
+      }
+    }
+  }
+
+  return Array.from(feats);
+}
+
+/**
+ * Predicts gender ('male' | 'female' | null) from a Bangladeshi/Bengali name.
+ * Uses high-confidence linguistic tokens + pre-trained character n-gram weights.
+ */
+export function inferBanglaGender(name: string): Gender | null {
+  if (!name || name.trim().length < 2) return null;
+
+  const rawTokens = name.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (rawTokens.length === 0) return null;
+
+  // 1. High-confidence Prefix check
+  const firstToken = rawTokens[0].replace(/[.:]/g, '');
+  const firstTokenWithPunc = rawTokens[0];
+
+  if (FEMALE_PREFIXES.has(firstToken) || FEMALE_PREFIXES.has(firstTokenWithPunc)) {
+    return 'female';
+  }
+  if (MALE_PREFIXES.has(firstToken) || MALE_PREFIXES.has(firstTokenWithPunc)) {
+    return 'male';
+  }
+
+  // 2. High-confidence Suffix / Title check
+  const lastToken = rawTokens[rawTokens.length - 1];
+  if (FEMALE_SUFFIXES.has(lastToken)) {
+    return 'female';
+  }
+  if (MALE_SUFFIXES.has(lastToken)) {
+    return 'male';
+  }
+
+  // 3. Middle / any token check for strict markers (e.g. "বেগম", "সুলতানা", "উদ্দিন")
+  for (const t of rawTokens) {
+    if (FEMALE_SUFFIXES.has(t)) return 'female';
+    if (MALE_SUFFIXES.has(t)) return 'male';
+  }
+
+  // 4. Prominent given name check
+  for (const t of rawTokens) {
+    if (FEMALE_GIVEN_NAMES.has(t)) return 'female';
+    if (MALE_GIVEN_NAMES.has(t)) return 'male';
+  }
+
+  // 5. Statistical Inference via Pre-trained Model Weights
+  const features = extractFeatures(name);
+  let score = prior;
+
+  for (const f of features) {
+    if (f in weights) {
+      score += weights[f];
+    }
+  }
+
+  // Threshold: score > 1.2 indicates strong female probability, < -1.2 indicates male
+  if (score > 1.2) {
+    return 'female';
+  }
+  if (score < -1.2) {
+    return 'male';
+  }
+
+  // Uncertain/unisex name -> return null so we don't guess blindly
+  return null;
+}
