@@ -30,40 +30,11 @@ const FEMALE_SUFFIXES = new Set([
 ]);
 
 // Strict unambiguous male suffixes/titles (never used by women)
-// Note: Surnames like 'রহমান', 'খান', 'চৌধুরী', 'হক', 'রায়' are family names used by both genders, so they are not here.
+// Surnames like 'হাসান', 'হোসেন', 'আলী', 'রহমান', 'খান', 'চৌধুরী', 'রায়' are family names used by both genders,
+// so they are evaluated statistically by the ML model weights rather than forced here.
 const MALE_SUFFIXES = new Set([
-  'আলী', 'আলি', 'হোসেন', 'হোসাইন', 'হাসান', 'উদ্দিন', 'উদদীন', 'মিয়া', 'মিঞা',
-  'কুমার', 'চন্দ্র', 'নাথ', 'বাবু',
-  'ali', 'hossain', 'hasan', 'uddin', 'mia', 'miah', 'kumar', 'chandra', 'nath', 'babu'
-]);
-
-// Core prominent given names to disambiguate compound names with family surnames (e.g. ফারহানা রহমান, মাহদি হাসনাত)
-const FEMALE_GIVEN_NAMES = new Set([
-  'ফারহানা', 'সাদিয়া', 'সাদিয়া', 'সুমাইয়া', 'সুমাইয়া', 'ফাতেমা', 'আয়েশা', 'আয়েশা',
-  'খাদিজা', 'নুসরাত', 'মারিয়া', 'মারিয়া', 'তানিয়া', 'তানিয়া', 'নাজনীন', 'শামীমা',
-  'রোকসানা', 'রুমানা', 'সাগরিকা', 'রিমু', 'ঝুমুর', 'পূজা', 'পুজা', 'স্নেহা', 'মিলি',
-  'শিউলি', 'আমেনা', 'সানজিদা', 'রিমা', 'মেবেল', 'অনামিকা', 'দীপিকা', 'রুবি',
-  'তাসনিম', 'নাবিলা', 'ফারজানা', 'জান্নাত', 'জান্নাতুল', 'ইসরাত', 'মুশফিকা', 'সুবর্ণা',
-  'হুমায়রা', 'হুমায়রা', 'মারিয়াম', 'মরিয়ম', 'তাসনুভা', 'সামিয়া', 'সামিয়া', 'শারমিন', 'শিরীন', 'শিরিন',
-  'farhana', 'sadia', 'sumaiya', 'fatema', 'ayesha', 'khadija', 'nusrat', 'maria',
-  'tania', 'naznin', 'shamima', 'roksana', 'rumana', 'angela', 'shampa', 'salma', 'amena',
-  'tasnim', 'nabila', 'farzana', 'jannat', 'jannatul', 'israt', 'mushfika', 'suborna',
-  'humaira', 'mariam', 'maryam', 'tasnuva', 'samia', 'sharmin', 'shirin'
-]);
-
-const MALE_GIVEN_NAMES = new Set([
-  'মাহদি', 'মাহদী', 'হাসনাত', 'সিয়াম', 'সিয়াম', 'আব্দুল্লাহ', 'তাহমিদ', 'নাফিস',
-  'অপূর্ব', 'আরিফ', 'আসিফ', 'তানভীর', 'তানজিম', 'সাকিব', 'তামিম', 'মুশফিক', 'মতিউর', 'সাজিদুর',
-  'ইমরান', 'সালমান', 'মাহমুদ', 'নাদিম', 'আবরার', 'রাফি', 'সোহেল', 'শুভ', 'সৌরভ',
-  'সুব্রত', 'বিজয়', 'জয়', 'পার্থ', 'আক্কাস', 'সবুজ', 'জালাল', 'শহীদুল', 'মেহেদি', 'মেহেদী',
-  'মোজাম্মেল', 'জাহাঙ্গীর', 'সিরাজ', 'কামাল', 'শামীম', 'শামিম', 'নাঈম', 'নাঈমুর', 'জাহিদ',
-  'রাকিব', 'রাকিবুল', 'সোহাগ', 'জুয়েল', 'রিয়াদ', 'আদনান', 'ফাহিম', 'সায়িম', 'সায়েম',
-  'মিরাজ', 'মিজানুর', 'আশরাফুল', 'মোস্তাফিজুর', 'তাসকিন', 'শরিফুল', 'শরিফ', 'শরীফ', 'সাইফুল', 'তৌহিদ',
-  'mahdi', 'mehdi', 'hasnat', 'siyam', 'siam', 'abdullah', 'tahmid', 'nafis',
-  'apurba', 'tanvir', 'tanjim', 'arif', 'asif', 'sakib', 'tamim', 'imran', 'salman', 'motiur',
-  'sajidur', 'shuvo', 'akkas', 'sohel', 'abrar', 'nadim', 'shamim', 'naim', 'zahid',
-  'rakib', 'sohag', 'jewel', 'riyad', 'adnan', 'fahim', 'sayem', 'miraz', 'mizanur',
-  'ashraful', 'mustafizur', 'taskin', 'shariful', 'sharif', 'saiful', 'towhid'
+  'উদ্দিন', 'উদদীন', 'মিয়া', 'মিঞা', 'কুমার', 'চন্দ্র', 'বাবু',
+  'uddin', 'mia', 'miah', 'kumar', 'chandra', 'babu'
 ]);
 
 /**
@@ -97,7 +68,8 @@ function extractFeatures(name: string): string[] {
 
 /**
  * Predicts gender ('male' | 'female' | null) from a Bangladeshi/Bengali name.
- * Uses high-confidence linguistic tokens + pre-trained character n-gram weights.
+ * Uses grammatical prefixes/suffixes + pre-trained ML character n-gram weights.
+ * NO hardcoded given names are shipped in the client bundle.
  */
 export function inferBanglaGender(name: string): Gender | null {
   if (!name || name.trim().length < 2) return null;
@@ -105,7 +77,7 @@ export function inferBanglaGender(name: string): Gender | null {
   const rawTokens = name.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (rawTokens.length === 0) return null;
 
-  // 1. Strict Prefix check
+  // 1. Strict Prefix check (Md., Most., Mrs., মোছাঃ, etc.)
   const firstToken = rawTokens[0].replace(/[.:]/g, '');
   const firstTokenWithPunc = rawTokens[0];
 
@@ -122,29 +94,7 @@ export function inferBanglaGender(name: string): Gender | null {
     if (FEMALE_SUFFIXES.has(t)) return 'female';
   }
 
-  // 3. Known Prominent Given Names
-  // Women often carry father's/husband's surnames (e.g. Sadia Hasan, Farhana Rahman)
-  // Given name takes precedence over family surnames
-  let hasFemaleGiven = false;
-  let hasMaleGiven = false;
-  let firstGivenGender: Gender | null = null;
-
-  for (const t of rawTokens) {
-    if (FEMALE_GIVEN_NAMES.has(t)) {
-      hasFemaleGiven = true;
-      if (!firstGivenGender) firstGivenGender = 'female';
-    }
-    if (MALE_GIVEN_NAMES.has(t)) {
-      hasMaleGiven = true;
-      if (!firstGivenGender) firstGivenGender = 'male';
-    }
-  }
-
-  if (hasFemaleGiven && !hasMaleGiven) return 'female';
-  if (hasMaleGiven && !hasFemaleGiven) return 'male';
-  if (hasFemaleGiven && hasMaleGiven && firstGivenGender) return firstGivenGender;
-
-  // 4. Male Suffix / Title check
+  // 3. Strict Male Titles (e.g. uddin, mia, kumar, chandra, babu)
   const lastToken = rawTokens[rawTokens.length - 1];
   if (MALE_SUFFIXES.has(lastToken)) {
     return 'male';
@@ -153,7 +103,7 @@ export function inferBanglaGender(name: string): Gender | null {
     if (MALE_SUFFIXES.has(t)) return 'male';
   }
 
-  // 5. Statistical Inference via Pre-trained Model Weights
+  // 4. Pure Statistical Inference via Pre-trained Model Weights (39 KB offline-trained log-odds)
   const features = extractFeatures(name);
   let score = prior;
 

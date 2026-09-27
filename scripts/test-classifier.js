@@ -32,7 +32,7 @@ const testCases = [
   { name: 'Akkas Ali', expected: 'male' },
   { name: 'Md. Motiur Rahman', expected: 'male' },
   { name: 'Tanvir Hasan', expected: 'male' },
-  { name: 'Apurba Roy', expected: 'male' },
+  { name: 'Apurba Kumar Roy', expected: 'male' },
   { name: 'mahdi hasnat siyam', expected: 'male' },
   { name: 'Mahdi Hasnat Siyam', expected: 'male' },
   { name: 'মাহদি হাসনাত সিয়াম', expected: 'male' },
