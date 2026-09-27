@@ -163,7 +163,7 @@ export const App: React.FC = () => {
   // WhatsApp Share Handler
   const handleShareWhatsApp = () => {
     try {
-      const { url } = generateQRUrlForTree(graph);
+      const { url } = generateQRUrlForTree(graph, language);
       const peopleCount = Object.keys(graph.people).length;
       const text = encodeURIComponent(t.app.whatsAppShareMessage(peopleCount, url));
       window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');

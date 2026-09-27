@@ -29,7 +29,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, graph
     setCopied(false);
 
     try {
-      const { url, rawByteCount, compressedByteCount } = generateQRUrlForTree(graph);
+      const { url, rawByteCount, compressedByteCount } = generateQRUrlForTree(graph, language);
       setQrUrl(url);
       setStats({ rawBytes: rawByteCount, compressedBytes: compressedByteCount });
 
@@ -52,7 +52,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ isOpen, onClose, graph
     return () => {
       isMounted = false;
     };
-  }, [isOpen, graph]);
+  }, [isOpen, graph, language]);
 
   if (!isOpen) return null;
 

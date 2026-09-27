@@ -56,16 +56,18 @@ export function decompressBase64UrlToText(base64Url: string): string {
   return new TextDecoder().decode(decompressed);
 }
 
+import { Language } from '../i18n/types';
+
 /**
- * Generates the full QR URL (bonsho-bd.github.io/?qr-v0=<compressed-data>)
+ * Generates the full QR URL (bonsho-bd.github.io/?qr-v0=<compressed-data>&lang=<lang>)
  */
-export function generateQRUrlForTree(graph: FamilyGraph): {
+export function generateQRUrlForTree(graph: FamilyGraph, lang: Language = 'bn'): {
   url: string;
   compressedData: string;
   rawByteCount: number;
   compressedByteCount: number;
 } {
-  const csv = graphToCSV(graph);
+  const csv = graphToCSV(graph, lang);
   const rawByteCount = new TextEncoder().encode(csv).length;
   const compressedData = compressTextToBase64Url(csv);
   const compressedByteCount = compressedData.length;
@@ -78,8 +80,8 @@ export function generateQRUrlForTree(graph: FamilyGraph): {
     .replace(/\/$/, '');
 
   // 0-redirect query param (?qr-v0=) allows instant loading on GitHub Pages and static hosts,
-  // and cleanly composes with other parameters (e.g. ?lang=en)
-  const url = `${origin}${basePath}/?qr-v0=${compressedData}`;
+  // and preserves the active language parameter (e.g. &lang=en or &lang=bn)
+  const url = `${origin}${basePath}/?qr-v0=${compressedData}&lang=${lang}`;
 
   return {
     url,

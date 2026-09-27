@@ -19,6 +19,9 @@ function getInitialLanguage(): Language {
     const params = new URLSearchParams(window.location.search);
     const urlLang = params.get('lang');
     if (urlLang === 'en' || urlLang === 'bn') {
+      try {
+        localStorage.setItem('bonsho_lang', urlLang);
+      } catch {}
       return urlLang;
     }
 
@@ -45,11 +48,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       localStorage.setItem('bonsho_lang', newLang);
       const url = new URL(window.location.href);
-      if (newLang === 'bn') {
-        url.searchParams.delete('lang'); // clean URL for default
-      } else {
-        url.searchParams.set('lang', newLang);
-      }
+      url.searchParams.set('lang', newLang);
       window.history.replaceState({}, '', url.toString());
     } catch {
       // Storage access or URL update safety
