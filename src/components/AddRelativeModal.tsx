@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Person, Gender, FamilyGraph } from '../types/family';
 import { AddPersonInput } from '../hooks/useFamilyGraph';
-import { X, Check, Baby, Heart, UserPlus, Plus, Trash2 } from 'lucide-react';
+import { X, Check, Baby, Heart, UserPlus, Plus, Trash2, Sparkles } from 'lucide-react';
 import { inferBanglaGender } from '../lib/genderClassifier';
 
 interface AddRelativeModalProps {
@@ -31,6 +31,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
       : 'male'
   );
   const [isGenderManuallyTouched, setIsGenderManuallyTouched] = useState(false);
+  const [isGenderInferred, setIsGenderInferred] = useState(false);
   const [birth, setBirth] = useState('');
   const [death, setDeath] = useState('');
   const [visibleFields, setVisibleFields] = useState<{
@@ -67,6 +68,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
       setNewKey('');
       setNewVal('');
       setIsGenderManuallyTouched(false);
+      setIsGenderInferred(false);
       setSelectedSpouseId(
         person && person.marriages.length > 0 ? person.marriages[0].spouseId : ''
       );
@@ -167,6 +169,9 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                   const predicted = inferBanglaGender(val);
                   if (predicted) {
                     setGender(predicted);
+                    setIsGenderInferred(true);
+                  } else {
+                    setIsGenderInferred(false);
                   }
                 }
               }}
@@ -176,7 +181,20 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
 
           {/* Gender */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">লিঙ্গ</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-slate-700">লিঙ্গ</label>
+              {isGenderInferred && !isGenderManuallyTouched && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 animate-in fade-in duration-150" title="নামের ওপর ভিত্তি করে AI মডেল দ্বারা স্বয়ংক্রিয়ভাবে নির্বাচিত">
+                  <Sparkles className="w-3 h-3 text-emerald-600" />
+                  AI শনাক্ত
+                </span>
+              )}
+              {isGenderManuallyTouched && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 animate-in fade-in duration-150">
+                  ম্যানুয়ালি নির্বাচিত
+                </span>
+              )}
+            </div>
             <div className="flex gap-2">
               {[
                 { val: 'male', label: 'পুরুষ' },
@@ -189,6 +207,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                   onClick={() => {
                     setGender(val as Gender);
                     setIsGenderManuallyTouched(true);
+                    setIsGenderInferred(false);
                   }}
                   className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition ${
                     gender === val

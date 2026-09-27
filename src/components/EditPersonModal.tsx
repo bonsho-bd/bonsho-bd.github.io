@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Person, Gender } from '../types/family';
-import { X, Check, Trash2, Plus, AlertCircle } from 'lucide-react';
+import { X, Check, Trash2, Plus, AlertCircle, Sparkles } from 'lucide-react';
 import { inferBanglaGender } from '../lib/genderClassifier';
 
 interface EditPersonModalProps {
@@ -23,6 +23,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
   const [name, setName] = useState(person.name);
   const [gender, setGender] = useState<Gender>(person.gender);
   const [isGenderManuallyTouched, setIsGenderManuallyTouched] = useState(true);
+  const [isGenderInferred, setIsGenderInferred] = useState(false);
   const [birth, setBirth] = useState(person.birth || '');
   const [death, setDeath] = useState(person.death || '');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -64,6 +65,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
       setNewVal('');
       const isPlaceholder = !person.name || person.name.includes('অজানা') || person.name.toLowerCase().includes('unknown');
       setIsGenderManuallyTouched(!isPlaceholder);
+      setIsGenderInferred(false);
     }
   }, [person, isOpen]);
 
@@ -134,6 +136,9 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                   const predicted = inferBanglaGender(val);
                   if (predicted) {
                     setGender(predicted);
+                    setIsGenderInferred(true);
+                  } else {
+                    setIsGenderInferred(false);
                   }
                 }
               }}
@@ -143,7 +148,20 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
           {/* Gender */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">লিঙ্গ</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-slate-700">লিঙ্গ</label>
+              {isGenderInferred && !isGenderManuallyTouched && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 animate-in fade-in duration-150" title="নামের ওপর ভিত্তি করে AI মডেল দ্বারা স্বয়ংক্রিয়ভাবে নির্বাচিত">
+                  <Sparkles className="w-3 h-3 text-emerald-600" />
+                  AI শনাক্ত
+                </span>
+              )}
+              {isGenderManuallyTouched && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 animate-in fade-in duration-150">
+                  ম্যানুয়ালি নির্বাচিত
+                </span>
+              )}
+            </div>
             <div className="flex gap-2">
               {[
                 { val: 'male', label: 'পুরুষ' },
@@ -155,6 +173,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                   onClick={() => {
                     setGender(val as Gender);
                     setIsGenderManuallyTouched(true);
+                    setIsGenderInferred(false);
                   }}
                   className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition ${
                     gender === val
