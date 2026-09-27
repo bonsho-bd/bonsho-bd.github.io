@@ -33,6 +33,12 @@ const testCases = [
   { name: 'Md. Motiur Rahman', expected: 'male' },
   { name: 'Tanvir Hasan', expected: 'male' },
   { name: 'Apurba Roy', expected: 'male' },
+  { name: 'mahdi hasnat siyam', expected: 'male' },
+  { name: 'Mahdi Hasnat Siyam', expected: 'male' },
+  { name: 'মাহদি হাসনাত সিয়াম', expected: 'male' },
+  { name: 'মাহদী হাসনাত সিয়াম', expected: 'male' },
+  { name: 'Hasnat Abdullah', expected: 'male' },
+  { name: 'Siam Ahmed', expected: 'male' },
 
   // English Transliterated Female
   { name: 'Saleha Begum', expected: 'female' },
@@ -41,6 +47,10 @@ const testCases = [
   { name: 'Most. Fatema Khatun', expected: 'female' },
   { name: 'Nusrat Jahan', expected: 'female' },
   { name: 'Angela Gomes', expected: 'female' },
+  { name: 'Sadia Hasan', expected: 'female' },
+  { name: 'Farhana Hasan', expected: 'female' },
+  { name: 'Tasnim Hossain', expected: 'female' },
+  { name: 'Nabila Rahman', expected: 'female' },
 ];
 
 let passed = 0;

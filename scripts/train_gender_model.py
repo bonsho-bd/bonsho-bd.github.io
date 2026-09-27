@@ -86,11 +86,6 @@ def extract_features(name):
             if len(t) >= length:
                 feats.add(f"P{length}:{t[:length]}")
 
-        # Substrings
-        for length in (2, 3):
-            for i in range(len(t) - length + 1):
-                feats.add(f"N{length}:{t[i:i+length]}")
-
     return list(feats)
 
 def main():
@@ -216,7 +211,7 @@ def main():
 
     # Sort by importance and select top 2200 features to stay under 35KB
     sorted_features = sorted(final_weights.items(), key=lambda item: abs(item[1]) * math.log(full_feat_total[item[0]]), reverse=True)
-    selected_weights = dict(sorted_features[:2200])
+    selected_weights = dict(sorted_features[:2150])
 
     # Save to src/lib/genderModelData.json
     out_file = "src/lib/genderModelData.json"
@@ -251,6 +246,10 @@ def main():
         ("Akkas Ali", "male"),
         ("Roksana Akter", "female"),
         ("Angela Gomes", "female"),
+        ("Mahdi Hasnat Siyam", "male"),
+        ("মাহদি হাসনাত সিয়াম", "male"),
+        ("Hasnat Abdullah", "male"),
+        ("Siam Ahmed", "male"),
     ]
 
     print("\n--- 5. Benchmark Predictions on Common Names ---")

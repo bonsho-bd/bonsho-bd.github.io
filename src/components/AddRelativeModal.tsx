@@ -170,7 +170,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                   if (predicted) {
                     setGender(predicted);
                     setIsGenderInferred(true);
-                  } else {
+                  } else if (!val.trim() || val.trim().length < 2) {
                     setIsGenderInferred(false);
                   }
                 }

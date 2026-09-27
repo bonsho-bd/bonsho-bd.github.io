@@ -137,7 +137,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                   if (predicted) {
                     setGender(predicted);
                     setIsGenderInferred(true);
-                  } else {
+                  } else if (!val.trim() || val.trim().length < 2) {
                     setIsGenderInferred(false);
                   }
                 }

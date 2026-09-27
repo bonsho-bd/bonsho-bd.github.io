@@ -37,27 +37,37 @@ const MALE_SUFFIXES = new Set([
   'ali', 'hossain', 'hasan', 'uddin', 'mia', 'miah', 'kumar', 'chandra', 'nath', 'babu'
 ]);
 
-// Core prominent given names to disambiguate compound names with family surnames (e.g. ফারহানা রহমান)
+// Core prominent given names to disambiguate compound names with family surnames (e.g. ফারহানা রহমান, মাহদি হাসনাত)
 const FEMALE_GIVEN_NAMES = new Set([
   'ফারহানা', 'সাদিয়া', 'সাদিয়া', 'সুমাইয়া', 'সুমাইয়া', 'ফাতেমা', 'আয়েশা', 'আয়েশা',
   'খাদিজা', 'নুসরাত', 'মারিয়া', 'মারিয়া', 'তানিয়া', 'তানিয়া', 'নাজনীন', 'শামীমা',
   'রোকসানা', 'রুমানা', 'সাগরিকা', 'রিমু', 'ঝুমুর', 'পূজা', 'পুজা', 'স্নেহা', 'মিলি',
   'শিউলি', 'আমেনা', 'সানজিদা', 'রিমা', 'মেবেল', 'অনামিকা', 'দীপিকা', 'রুবি',
+  'তাসনিম', 'নাবিলা', 'ফারজানা', 'জান্নাত', 'জান্নাতুল', 'ইসরাত', 'মুশফিকা', 'সুবর্ণা',
+  'হুমায়রা', 'হুমায়রা', 'মারিয়াম', 'মরিয়ম', 'তাসনুভা', 'সামিয়া', 'সামিয়া', 'শারমিন', 'শিরীন', 'শিরিন',
   'farhana', 'sadia', 'sumaiya', 'fatema', 'ayesha', 'khadija', 'nusrat', 'maria',
-  'tania', 'naznin', 'shamima', 'roksana', 'rumana', 'angela', 'shampa', 'salma', 'amena'
+  'tania', 'naznin', 'shamima', 'roksana', 'rumana', 'angela', 'shampa', 'salma', 'amena',
+  'tasnim', 'nabila', 'farzana', 'jannat', 'jannatul', 'israt', 'mushfika', 'suborna',
+  'humaira', 'mariam', 'maryam', 'tasnuva', 'samia', 'sharmin', 'shirin'
 ]);
 
 const MALE_GIVEN_NAMES = new Set([
-  'অপূর্ব', 'আরিফ', 'আসিফ', 'তানভীর', 'সাকিব', 'তামিম', 'মুশফিক', 'মতিউর', 'সাজিদুর',
+  'মাহদি', 'মাহদী', 'হাসনাত', 'সিয়াম', 'সিয়াম', 'আব্দুল্লাহ', 'তাহমিদ', 'নাফিস',
+  'অপূর্ব', 'আরিফ', 'আসিফ', 'তানভীর', 'তানজিম', 'সাকিব', 'তামিম', 'মুশফিক', 'মতিউর', 'সাজিদুর',
   'ইমরান', 'সালমান', 'মাহমুদ', 'নাদিম', 'আবরার', 'রাফি', 'সোহেল', 'শুভ', 'সৌরভ',
-  'সুব্রত', 'বিজয়', 'জয়', 'পার্থ', 'আক্কাস', 'সবুজ', 'জালাল', 'শহীদুল', 'মেহেদি',
-  'মোজাম্মেল', 'জাহাঙ্গীর', 'সিরাজ', 'কামাল',
-  'apurba', 'tanvir', 'arif', 'asif', 'sakib', 'tamim', 'imran', 'salman', 'motiur',
-  'sajidur', 'shuvo', 'akkas', 'sohel', 'abrar', 'nadim'
+  'সুব্রত', 'বিজয়', 'জয়', 'পার্থ', 'আক্কাস', 'সবুজ', 'জালাল', 'শহীদুল', 'মেহেদি', 'মেহেদী',
+  'মোজাম্মেল', 'জাহাঙ্গীর', 'সিরাজ', 'কামাল', 'শামীম', 'শামিম', 'নাঈম', 'নাঈমুর', 'জাহিদ',
+  'রাকিব', 'রাকিবুল', 'সোহাগ', 'জুয়েল', 'রিয়াদ', 'আদনান', 'ফাহিম', 'সায়িম', 'সায়েম',
+  'মিরাজ', 'মিজানুর', 'আশরাফুল', 'মোস্তাফিজুর', 'তাসকিন', 'শরিফুল', 'শরিফ', 'শরীফ', 'সাইফুল', 'তৌহিদ',
+  'mahdi', 'mehdi', 'hasnat', 'siyam', 'siam', 'abdullah', 'tahmid', 'nafis',
+  'apurba', 'tanvir', 'tanjim', 'arif', 'asif', 'sakib', 'tamim', 'imran', 'salman', 'motiur',
+  'sajidur', 'shuvo', 'akkas', 'sohel', 'abrar', 'nadim', 'shamim', 'naim', 'zahid',
+  'rakib', 'sohag', 'jewel', 'riyad', 'adnan', 'fahim', 'sayem', 'miraz', 'mizanur',
+  'ashraful', 'mustafizur', 'taskin', 'shariful', 'sharif', 'saiful', 'towhid'
 ]);
 
 /**
- * Extracts n-grams and tokens matching the model's feature space
+ * Extracts n-grams and tokens matching the model's feature space (W, S, P)
  */
 function extractFeatures(name: string): string[] {
   const feats = new Set<string>();
@@ -80,13 +90,6 @@ function extractFeatures(name: string): string[] {
         feats.add(`P${length}:${t.slice(0, length)}`);
       }
     }
-
-    // Substring ngrams
-    for (const length of [2, 3]) {
-      for (let i = 0; i <= t.length - length; i++) {
-        feats.add(`N${length}:${t.slice(i, i + length)}`);
-      }
-    }
   }
 
   return Array.from(feats);
@@ -102,7 +105,7 @@ export function inferBanglaGender(name: string): Gender | null {
   const rawTokens = name.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (rawTokens.length === 0) return null;
 
-  // 1. High-confidence Prefix check
+  // 1. Strict Prefix check
   const firstToken = rawTokens[0].replace(/[.:]/g, '');
   const firstTokenWithPunc = rawTokens[0];
 
@@ -113,25 +116,41 @@ export function inferBanglaGender(name: string): Gender | null {
     return 'male';
   }
 
-  // 2. High-confidence Suffix / Title check
-  const lastToken = rawTokens[rawTokens.length - 1];
-  if (FEMALE_SUFFIXES.has(lastToken)) {
-    return 'female';
+  // 2. Strict Unambiguous Female Titles / Suffixes anywhere in the name
+  // (e.g. বেগম, খাতুন, আক্তার, সুলতানা are exclusively female)
+  for (const t of rawTokens) {
+    if (FEMALE_SUFFIXES.has(t)) return 'female';
   }
+
+  // 3. Known Prominent Given Names
+  // Women often carry father's/husband's surnames (e.g. Sadia Hasan, Farhana Rahman)
+  // Given name takes precedence over family surnames
+  let hasFemaleGiven = false;
+  let hasMaleGiven = false;
+  let firstGivenGender: Gender | null = null;
+
+  for (const t of rawTokens) {
+    if (FEMALE_GIVEN_NAMES.has(t)) {
+      hasFemaleGiven = true;
+      if (!firstGivenGender) firstGivenGender = 'female';
+    }
+    if (MALE_GIVEN_NAMES.has(t)) {
+      hasMaleGiven = true;
+      if (!firstGivenGender) firstGivenGender = 'male';
+    }
+  }
+
+  if (hasFemaleGiven && !hasMaleGiven) return 'female';
+  if (hasMaleGiven && !hasFemaleGiven) return 'male';
+  if (hasFemaleGiven && hasMaleGiven && firstGivenGender) return firstGivenGender;
+
+  // 4. Male Suffix / Title check
+  const lastToken = rawTokens[rawTokens.length - 1];
   if (MALE_SUFFIXES.has(lastToken)) {
     return 'male';
   }
-
-  // 3. Middle / any token check for strict markers (e.g. "বেগম", "সুলতানা", "উদ্দিন")
   for (const t of rawTokens) {
-    if (FEMALE_SUFFIXES.has(t)) return 'female';
     if (MALE_SUFFIXES.has(t)) return 'male';
-  }
-
-  // 4. Prominent given name check
-  for (const t of rawTokens) {
-    if (FEMALE_GIVEN_NAMES.has(t)) return 'female';
-    if (MALE_GIVEN_NAMES.has(t)) return 'male';
   }
 
   // 5. Statistical Inference via Pre-trained Model Weights
@@ -144,7 +163,7 @@ export function inferBanglaGender(name: string): Gender | null {
     }
   }
 
-  // Threshold: score > 1.2 indicates strong female probability, < -1.2 indicates male
+  // Threshold: score > 1.2 indicates female, < -1.2 indicates male
   if (score > 1.2) {
     return 'female';
   }
