@@ -165,13 +165,18 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
               onChange={(e) => {
                 const val = e.target.value;
                 setName(val);
-                if (mode !== 'spouse' && !isGenderManuallyTouched) {
-                  const predicted = inferBanglaGender(val);
-                  if (predicted) {
-                    setGender(predicted);
-                    setIsGenderInferred(true);
-                  } else if (!val.trim() || val.trim().length < 2) {
+                if (mode !== 'spouse') {
+                  if (!val.trim()) {
+                    setIsGenderManuallyTouched(false);
                     setIsGenderInferred(false);
+                  } else if (!isGenderManuallyTouched) {
+                    const predicted = inferBanglaGender(val);
+                    if (predicted) {
+                      setGender(predicted);
+                      setIsGenderInferred(true);
+                    } else if (val.trim().length < 2) {
+                      setIsGenderInferred(false);
+                    }
                   }
                 }
               }}
@@ -189,10 +194,30 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                   AI শনাক্ত
                 </span>
               )}
-              {isGenderManuallyTouched && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 animate-in fade-in duration-150">
-                  ম্যানুয়ালি নির্বাচিত
-                </span>
+              {isGenderManuallyTouched && mode !== 'spouse' && (
+                <div className="flex items-center gap-1.5 animate-in fade-in duration-150">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                    ম্যানুয়ালি নির্বাচিত
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsGenderManuallyTouched(false);
+                      const predicted = inferBanglaGender(name);
+                      if (predicted) {
+                        setGender(predicted);
+                        setIsGenderInferred(true);
+                      } else {
+                        setIsGenderInferred(false);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-200 transition cursor-pointer"
+                    title="স্বয়ংক্রিয় AI সনাক্তকরণে ফিরে যান"
+                  >
+                    <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                    স্বয়ংক্রিয় করুন
+                  </button>
+                </div>
               )}
             </div>
             <div className="flex gap-2">
