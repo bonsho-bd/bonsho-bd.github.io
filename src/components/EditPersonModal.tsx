@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Person, Gender } from '../types/family';
-import { X, Check, Trash2, Plus, AlertCircle, Sparkles, RotateCcw } from 'lucide-react';
+import { X, Check, Trash2, Plus, AlertCircle, Sparkles } from 'lucide-react';
 import { inferBanglaGender } from '../lib/genderClassifier';
 
 interface EditPersonModalProps {
@@ -151,29 +151,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
           {/* Gender */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-semibold text-slate-700">লিঙ্গ</label>
-              {isGenderManuallyTouched && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsGenderManuallyTouched(false);
-                    const predicted = inferBanglaGender(name);
-                    if (predicted) {
-                      setGender(predicted);
-                      setIsGenderInferred(true);
-                    } else {
-                      setIsGenderInferred(false);
-                    }
-                  }}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-800 transition cursor-pointer group"
-                  title="ম্যানুয়াল নির্বাচন বাতিল করে AI স্বয়ংক্রিয় মোডে ফিরে যান"
-                >
-                  <RotateCcw className="w-2.5 h-2.5 transition-transform group-hover:-rotate-45" />
-                  <span>স্বয়ংক্রিয় মোড</span>
-                </button>
-              )}
-            </div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">লিঙ্গ</label>
             <div className="grid grid-cols-2 gap-2">
               {[
                 { val: 'male', label: 'পুরুষ' },
@@ -189,12 +167,9 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     if (isGenderInferred) {
                       setIsGenderInferred(false);
                       setIsGenderManuallyTouched(true);
-                    } else {
+                    } else if (predictedGender === val) {
+                      setIsGenderInferred(true);
                       setIsGenderManuallyTouched(false);
-                      if (predictedGender) {
-                        setGender(predictedGender);
-                        setIsGenderInferred(true);
-                      }
                     }
                     return;
                   }

@@ -115,10 +115,10 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onLoadSample}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg shadow-sm transition whitespace-nowrap"
-            title="নমুনা গ্রাফ লোড করুন"
+            title="নমুনা বংশতালিকা দেখুন"
           >
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <span className="hidden sm:inline">নমুনা গ্রাফ</span>
+            <span className="hidden sm:inline">নমুনা বংশতালিকা</span>
           </button>
 
           {/* CSV Editor Button */}
@@ -128,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="খাতায় লেখার মতো তালিকা থেকে এডিট বা পেস্ট করুন"
           >
             <Table2 className="w-4 h-4 text-blue-600" />
-            <span className="hidden sm:inline">তথ্য তালিকা (CSV)</span>
+            <span className="hidden sm:inline">খাতায় লেখার তালিকা (CSV)</span>
           </button>
 
           {/* Google Sheets Sync Button */}
@@ -147,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                   : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
               }`}
-              title={isGoogleAvailable ? "গুগল শিটের সাথে সিঙ্ক করুন" : "Google OAuth টোকেন অনুপস্থিত"}
+              title={isGoogleAvailable ? "গুগল শিটে সেভ ও ব্যাকআপ করুন" : "গুগল লগইন কনফিগারেশন সেটআপ করা নেই"}
             >
               <FileSpreadsheet className={`w-4 h-4 ${connectedSheet ? 'text-emerald-600' : 'text-emerald-600'}`} />
               <span className="hidden sm:inline">গুগল শিট</span>
@@ -155,7 +155,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             {!isGoogleAvailable && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:block w-48 bg-slate-800 text-white text-[11px] p-2 rounded shadow-lg z-50 before:content-[''] before:absolute before:bottom-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-b-slate-800">
-                Google OAuth টোকেন / Client ID অনুপস্থিত।
+                গুগল লগইন কনফিগারেশন সেটআপ করা নেই।
               </div>
             )}
           </div>

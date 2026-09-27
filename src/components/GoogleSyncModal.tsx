@@ -193,8 +193,8 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">গুগল শিট কানেক্টর</h2>
-              <p className="text-xs text-slate-500">১০০% প্রাইভেট শিটে দ্বি-মুখী সিঙ্ক (Read & Write)</p>
+              <h2 className="text-base font-bold text-slate-900">গুগল শিটে সেভ করুন</h2>
+              <p className="text-xs text-slate-500">আপনার নিজস্ব গুগল শিটেই তথ্য সেভ ও আপডেট রাখুন</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition">
@@ -209,9 +209,9 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5 text-emerald-950">
             <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <span className="font-bold text-emerald-900">জিরো সার্ভার ট্রানজিট:</span>
+              <span className="font-bold text-emerald-900">আপনার তথ্যের শতভাগ নিরাপত্তা:</span>
               <p className="text-emerald-800 leading-relaxed">
-                OAuth টোকেনটি কেবল আপনার এই ব্রাউজার ট্যাবেই থাকে। আপনার প্রাইভেট গুগল শিট ও ব্রাউজারের মাঝেই ডেটা সরাসরি আদান-প্রদান হয়।
+                বংশতালিকার কোনো তথ্য বা পাসওয়ার্ড আমাদের সার্ভারে জমা হয় না। সব তথ্য সরাসরি আপনার গুগল ড্রাইভেই সুরক্ষিত থাকে।
               </p>
             </div>
           </div>
@@ -233,9 +233,9 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
           {/* Step 1: Google Authentication */}
           {!accessToken ? (
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-              <div className="font-bold text-slate-800 text-sm">ধাপ ১: গুগলে সাইন-ইন করুন</div>
+              <div className="font-bold text-slate-800 text-sm">ধাপ ১: গুগল অ্যাকাউন্ট যুক্ত করুন</div>
               <p className="text-slate-600 leading-relaxed">
-                আপনার প্রাইভেট শিটটি অ্যাক্সেস ও সংরক্ষণ করার জন্য গুগল অথোরাইজেশন প্রয়োজন।
+                আপনার গুগল ড্রাইভে বংশতালিকা সেভ করতে গুগল দিয়ে লগইন করুন।
               </p>
 
               <button
@@ -250,7 +250,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
-                <span>Google দিয়ে সাইন-ইন করুন</span>
+                <span>Google দিয়ে লগইন করুন</span>
               </button>
             </div>
           ) : (
@@ -259,7 +259,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
               <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="font-semibold text-emerald-900">গুগল একাউন্ট সংযুক্ত আছে</span>
+                  <span className="font-semibold text-emerald-900">গুগল অ্যাকাউন্ট যুক্ত আছে</span>
                 </div>
                 <button
                   type="button"
@@ -300,7 +300,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       className="flex items-center justify-center gap-1.5 py-2 px-3 bg-white border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-100 transition"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-                      <span>শিট থেকে রিফ্রেশ</span>
+                      <span>শিট থেকে নতুন তথ্য আনুন</span>
                     </button>
                     <button
                       type="button"
@@ -309,14 +309,14 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       className="flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-200 transition"
                     >
                       <FolderOpen className="w-3.5 h-3.5" />
-                      <span>অন্য শিট বাছুন</span>
+                      <span>অন্য শিট বেছে নিন</span>
                     </button>
                   </div>
                 </div>
               ) : (
                 /* Select Sheet */
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                  <div className="font-bold text-slate-800 text-sm">ধাপ ২: আপনার ফ্যামিলি গ্রাফ শিট নির্বাচন করুন</div>
+                  <div className="font-bold text-slate-800 text-sm">ধাপ ২: বংশতালিকার গুগল শিটটি বেছে নিন</div>
 
                   {/* 1-Click Create New Sheet in Google Drive */}
                   <button
@@ -326,12 +326,12 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 shadow-sm transition"
                   >
                     <PlusCircle className="w-4 h-4" />
-                    <span>গুগল ড্রাইভে নতুন ফ্যামিলি গ্রাফ শিট তৈরি করুন</span>
+                    <span>গুগল ড্রাইভে নতুন বংশতালিকা শিট তৈরি করুন</span>
                   </button>
 
                   <div className="flex items-center gap-2 my-2 text-slate-400">
                     <div className="flex-1 h-px bg-slate-200"></div>
-                    <span className="text-[10px] uppercase font-bold">অথবা পূর্বে তৈরি শিট যুক্ত করুন</span>
+                    <span className="text-[10px] uppercase font-bold">অথবা আগের তৈরি কোনো শিট যোগ করুন</span>
                     <div className="flex-1 h-px bg-slate-200"></div>
                   </div>
 
@@ -342,12 +342,12 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-sm transition"
                   >
                     <FolderOpen className="w-4 h-4" />
-                    <span>Google Drive থেকে শিট বাছুন</span>
+                    <span>Google Drive থেকে আগের শিট বেছে নিন</span>
                   </button>
 
                   <div className="flex items-center gap-2 my-2 text-slate-400">
                     <div className="flex-1 h-px bg-slate-200"></div>
-                    <span className="text-[10px] uppercase font-bold">অথবা লিঙ্ক দিন</span>
+                    <span className="text-[10px] uppercase font-bold">অথবা শিটের লিঙ্ক দিন</span>
                     <div className="flex-1 h-px bg-slate-200"></div>
                   </div>
 
@@ -355,7 +355,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="শিটের URL বা ID পেস্ট করুন"
+                      placeholder="শিটের লিঙ্ক (URL) এখানে পেস্ট করুন"
                       value={manualSheetInput}
                       onChange={(e) => setManualSheetInput(e.target.value)}
                       className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -366,7 +366,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       onClick={handleConnectManual}
                       className="px-3 py-1.5 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-900 disabled:opacity-40"
                     >
-                      যুক্ত করুন
+                      সংযুক্ত করুন
                     </button>
                   </div>
                 </div>

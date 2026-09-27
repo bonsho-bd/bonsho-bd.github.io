@@ -560,9 +560,9 @@ export const Visualizer: React.FC<VisualizerProps> = ({
               <User className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-800">ফ্যামিলি গ্রাফ খালি</h3>
+              <h3 className="text-base font-bold text-slate-800">বংশতালিকা শুরু করুন</h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                এই গ্রাফে এখনো কোনো তথ্য নেই। আপনি প্রথম ব্যক্তি যোগ করে বংশতালিকা তৈরি শুরু করতে পারেন অথবা একটি নমুনা দেখতে পারেন।
+                এখানে এখনো কাউকে যোগ করা হয়নি। পরিবারের মূল পূর্বপুরুষ বা যেকোনো সদস্যকে দিয়ে বংশতালিকা তৈরি শুরু করুন।
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
@@ -571,7 +571,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
                 className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition inline-flex items-center justify-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>+ প্রথম ব্যক্তি যোগ করুন</span>
+                <span>+ প্রথম সদস্য যোগ করুন</span>
               </button>
               {onLoadSample && (
                 <button

@@ -134,10 +134,10 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
               <h2 className="text-base font-bold text-slate-800">
                 {mode === 'child' ? `${person?.name} এর সন্তান যোগ` :
                  mode === 'spouse' ? `${person?.name} এর জীবনসঙ্গী যোগ` :
-                 'নতুন ব্যক্তি (রুট) যোগ করুন'}
+                 'নতুন সদস্য যোগ করুন'}
               </h2>
               {mode === 'person' && (
-                <p className="text-[11px] text-slate-500">বংশতালিকায় নতুন রুট বা স্বাধীন সদস্য</p>
+                <p className="text-[11px] text-slate-500">বংশতালিকায় মূল পূর্বপুরুষ বা নতুন শাখা যোগ করুন</p>
               )}
             </div>
           </div>
