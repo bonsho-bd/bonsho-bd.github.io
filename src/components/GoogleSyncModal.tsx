@@ -23,6 +23,7 @@ import {
 import { FamilyGraph } from '../types/family';
 import { parseKeyValueBlocksToTree, computeRootIds } from '../lib/parser';
 import { graphToKeyValueRows } from '../lib/serializer';
+import { useLanguage } from '../i18n';
 
 interface GoogleSyncModalProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   accessToken,
   onSetAccessToken,
 }) => {
+  const { language, t } = useLanguage();
   const [config] = useState(getGoogleConfig());
   const [manualSheetInput, setManualSheetInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
       const clientId = config.clientId;
       if (!clientId) {
         setStatusMessage({
-          text: 'Google OAuth Token / Client ID কনফিগার করা নেই।',
+          text: language === 'bn' ? 'গুগল লগইন কনফিগারেশন সেটআপ করা নেই।' : 'Google OAuth Client ID is not configured.',
           type: 'error'
         });
         setLoading(false);
@@ -76,9 +78,15 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
 
       const token = await requestGoogleAccessToken(clientId);
       onSetAccessToken(token);
-      setStatusMessage({ text: 'গুগল একাউন্টের সাথে সফলভাবে যুক্ত হয়েছে!', type: 'success' });
+      setStatusMessage({
+        text: language === 'bn' ? 'গুগল অ্যাকাউন্টের সাথে সফলভাবে যুক্ত হয়েছে!' : 'Google account connected successfully!',
+        type: 'success'
+      });
     } catch (err: any) {
-      setStatusMessage({ text: err.message || 'গুগল সাইন-ইন ব্যর্থ হয়েছে', type: 'error' });
+      setStatusMessage({
+        text: err.message || (language === 'bn' ? 'গুগল সাইন-ইন ব্যর্থ হয়েছে' : 'Google sign-in failed'),
+        type: 'error'
+      });
     } finally {
       setLoading(false);
     }
@@ -87,7 +95,10 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   // Open Drive Picker
   const handleOpenPicker = () => {
     if (!accessToken) {
-      setStatusMessage({ text: 'প্রথমে গুগল সাইন-ইন করুন', type: 'error' });
+      setStatusMessage({
+        text: language === 'bn' ? 'প্রথমে গুগল সাইন-ইন করুন' : 'Please sign in with Google first',
+        type: 'error'
+      });
       return;
     }
 
@@ -97,34 +108,50 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
         await handlePullFromSheet(doc.id, doc.name);
       });
     } catch (err: any) {
-      setStatusMessage({ text: err.message || 'ড্রাইভ পিকার খুলতে সমস্যা হয়েছে', type: 'error' });
+      setStatusMessage({
+        text: err.message || (language === 'bn' ? 'ড্রাইভ পিকার খুলতে সমস্যা হয়েছে' : 'Failed to open Drive picker'),
+        type: 'error'
+      });
     }
   };
 
   // Create a brand new Google Sheet in Drive
   const handleCreateNewSheet = async () => {
     if (!accessToken) {
-      setStatusMessage({ text: 'প্রথমে গুগল সাইন-ইন করুন', type: 'error' });
+      setStatusMessage({
+        text: language === 'bn' ? 'প্রথমে গুগল সাইন-ইন করুন' : 'Please sign in with Google first',
+        type: 'error'
+      });
       return;
     }
 
     try {
       setLoading(true);
-      setStatusMessage({ text: 'আপনার গুগল ড্রাইভে নতুন শিট তৈরি করা হচ্ছে...', type: 'info' });
+      setStatusMessage({
+        text: language === 'bn' ? 'আপনার গুগল ড্রাইভে নতুন শিট তৈরি করা হচ্ছে...' : 'Creating new Sheet in your Google Drive...',
+        type: 'info'
+      });
 
-      const rows = graphToKeyValueRows(graph);
+      const rows = graphToKeyValueRows(graph, language);
       const rootIds = computeRootIds(graph.people);
       const rootPerson = rootIds.length > 0 ? graph.people[rootIds[0]] : null;
-      const title = rootPerson ? `${rootPerson.name} এর পরিবার (বংশতালিকা)` : 'আমাদের বংশ ফ্যামিলি গ্রাফ';
+      const title = rootPerson
+        ? (language === 'bn' ? `${rootPerson.name} এর পরিবার (বংশতালিকা)` : `${rootPerson.name}'s Family Graph`)
+        : (language === 'bn' ? 'আমাদের বংশতালিকা গ্রাফ' : 'Our Family Graph');
 
       const newSheet = await createGoogleSheet(title, accessToken, rows);
       onSetConnectedSheet({ id: newSheet.id, name: newSheet.name });
       setStatusMessage({
-        text: `গুগল ড্রাইভে "${newSheet.name}" সফলভাবে তৈরি হয়েছে এবং বর্তমান ফ্যামিলি গ্রাফর ডেটা সংরক্ষিত হয়েছে!`,
+        text: language === 'bn'
+          ? `গুগল ড্রাইভে "${newSheet.name}" সফলভাবে তৈরি হয়েছে এবং বংশতালিকার তথ্য সেভ হয়েছে!`
+          : `"${newSheet.name}" created successfully in Google Drive and saved!`,
         type: 'success'
       });
     } catch (err: any) {
-      setStatusMessage({ text: `শিট তৈরি করতে ব্যর্থ: ${err.message}`, type: 'error' });
+      setStatusMessage({
+        text: language === 'bn' ? `শিট তৈরি করতে ব্যর্থ: ${err.message}` : `Failed to create sheet: ${err.message}`,
+        type: 'error'
+      });
     } finally {
       setLoading(false);
     }
@@ -133,18 +160,24 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
   // Connect via Sheet URL / ID
   const handleConnectManual = async () => {
     if (!accessToken) {
-      setStatusMessage({ text: 'প্রথমে গুগল সাইন-ইন করুন', type: 'error' });
+      setStatusMessage({
+        text: language === 'bn' ? 'প্রথমে গুগল সাইন-ইন করুন' : 'Please sign in with Google first',
+        type: 'error'
+      });
       return;
     }
     const cleanId = extractSheetId(manualSheetInput);
     if (!cleanId) {
-      setStatusMessage({ text: 'অনুগ্রহ করে সঠিক গুগল শিটের লিঙ্ক দিন', type: 'error' });
+      setStatusMessage({
+        text: language === 'bn' ? 'অনুগ্রহ করে সঠিক গুগল শিটের লিঙ্ক দিন' : 'Please enter a valid Google Sheet URL or ID',
+        type: 'error'
+      });
       return;
     }
 
-    onSetConnectedSheet({ id: cleanId, name: 'Private Google Sheet' });
+    onSetConnectedSheet({ id: cleanId, name: 'Family Graph Sheet' });
     setManualSheetInput('');
-    await handlePullFromSheet(cleanId, 'Private Google Sheet');
+    await handlePullFromSheet(cleanId, 'Family Graph Sheet');
   };
 
   // Pull data from connected Sheet
@@ -153,7 +186,10 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
 
     try {
       setLoading(true);
-      setStatusMessage({ text: `${sheetName || 'শিট'} থেকে ডেটা আনা হচ্ছে...`, type: 'info' });
+      setStatusMessage({
+        text: language === 'bn' ? `${sheetName || 'শিট'} থেকে ডেটা আনা হচ্ছে...` : `Fetching data from ${sheetName || 'Sheet'}...`,
+        type: 'info'
+      });
 
       const rows = await fetchGoogleSheetValues(sheetId, accessToken);
       const parsedGraph = parseKeyValueBlocksToTree(rows);
@@ -161,19 +197,28 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
 
       if (rows.length === 0) {
         setStatusMessage({
-          text: 'খালি শিট সংযুক্ত করা হয়েছে। গ্রাফ-তে সদস্য যোগ করে "শিটে সেভ করুন" চাপুন।',
+          text: language === 'bn'
+            ? 'খালি শিট সংযুক্ত করা হয়েছে। বংশতালিকায় সদস্য যোগ করে "শিটে সেভ করুন" চাপুন।'
+            : 'Empty sheet connected. Add members to your family graph and save.',
           type: 'success',
         });
       } else {
-        setStatusMessage({ text: `সফলভাবে ${rows.length}টি প্রপার্টি লোড করা হয়েছে!`, type: 'success' });
+        setStatusMessage({
+          text: language === 'bn'
+            ? `সফলভাবে ${rows.length}টি প্রপার্টি লোড করা হয়েছে!`
+            : `Successfully loaded ${rows.length} properties!`,
+          type: 'success'
+        });
       }
     } catch (err: any) {
-      setStatusMessage({ text: `ডেটা লোড করতে ব্যর্থ: ${err.message}`, type: 'error' });
+      setStatusMessage({
+        text: language === 'bn' ? `ডেটা লোড করতে ব্যর্থ: ${err.message}` : `Failed to load data: ${err.message}`,
+        type: 'error'
+      });
     } finally {
       setLoading(false);
     }
   };
-
 
   // Disconnect
   const handleDisconnect = () => {
@@ -193,8 +238,8 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">গুগল শিটে সেভ করুন</h2>
-              <p className="text-xs text-slate-500">আপনার নিজস্ব গুগল শিটেই তথ্য সেভ ও আপডেট রাখুন</p>
+              <h2 className="text-base font-bold text-slate-900">{t.googleSync.modalTitle}</h2>
+              <p className="text-xs text-slate-500">{t.googleSync.modalSubtitle}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition">
@@ -209,9 +254,9 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5 text-emerald-950">
             <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <span className="font-bold text-emerald-900">আপনার তথ্যের শতভাগ নিরাপত্তা:</span>
+              <span className="font-bold text-emerald-900">{t.googleSync.privacyTitle}</span>
               <p className="text-emerald-800 leading-relaxed">
-                বংশতালিকার কোনো তথ্য বা পাসওয়ার্ড আমাদের সার্ভারে জমা হয় না। সব তথ্য সরাসরি আপনার গুগল ড্রাইভেই সুরক্ষিত থাকে।
+                {t.googleSync.privacyDesc}
               </p>
             </div>
           </div>
@@ -233,9 +278,9 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
           {/* Step 1: Google Authentication */}
           {!accessToken ? (
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-              <div className="font-bold text-slate-800 text-sm">ধাপ ১: গুগল অ্যাকাউন্ট যুক্ত করুন</div>
+              <div className="font-bold text-slate-800 text-sm">{t.googleSync.step1Title}</div>
               <p className="text-slate-600 leading-relaxed">
-                আপনার গুগল ড্রাইভে বংশতালিকা সেভ করতে গুগল দিয়ে লগইন করুন।
+                {t.googleSync.step1Desc}
               </p>
 
               <button
@@ -250,7 +295,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
-                <span>Google দিয়ে লগইন করুন</span>
+                <span>{t.googleSync.loginButton}</span>
               </button>
             </div>
           ) : (
@@ -259,7 +304,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
               <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="font-semibold text-emerald-900">গুগল অ্যাকাউন্ট যুক্ত আছে</span>
+                  <span className="font-semibold text-emerald-900">{t.googleSync.connectedBadge}</span>
                 </div>
                 <button
                   type="button"
@@ -267,7 +312,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                   className="text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 font-medium"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span>লগআউট</span>
+                  <span>{t.googleSync.logoutButton}</span>
                 </button>
               </div>
 
@@ -276,7 +321,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase block">বর্তমান শিট</span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">{t.googleSync.connectedSheetLabel}</span>
                       <h4 className="font-bold text-slate-800 text-sm truncate max-w-[280px]">{connectedSheet.name}</h4>
                       <span className="text-[10px] text-slate-400 font-mono">ID: {connectedSheet.id.slice(0, 16)}...</span>
                     </div>
@@ -285,7 +330,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       target="_blank"
                       rel="noreferrer"
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                      title="গুগল শিট খুলুন"
+                      title={t.googleSync.openSheet}
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
@@ -300,7 +345,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       className="flex items-center justify-center gap-1.5 py-2 px-3 bg-white border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-100 transition"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-                      <span>শিট থেকে নতুন তথ্য আনুন</span>
+                      <span>{t.googleSync.refreshFromSheet}</span>
                     </button>
                     <button
                       type="button"
@@ -309,14 +354,14 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       className="flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-200 transition"
                     >
                       <FolderOpen className="w-3.5 h-3.5" />
-                      <span>অন্য শিট বেছে নিন</span>
+                      <span>{t.googleSync.chooseAnotherSheet}</span>
                     </button>
                   </div>
                 </div>
               ) : (
                 /* Select Sheet */
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                  <div className="font-bold text-slate-800 text-sm">ধাপ ২: বংশতালিকার গুগল শিটটি বেছে নিন</div>
+                  <div className="font-bold text-slate-800 text-sm">{t.googleSync.step2Title}</div>
 
                   {/* 1-Click Create New Sheet in Google Drive */}
                   <button
@@ -326,12 +371,12 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 shadow-sm transition"
                   >
                     <PlusCircle className="w-4 h-4" />
-                    <span>গুগল ড্রাইভে নতুন বংশতালিকা শিট তৈরি করুন</span>
+                    <span>{t.googleSync.createNewSheet}</span>
                   </button>
 
                   <div className="flex items-center gap-2 my-2 text-slate-400">
                     <div className="flex-1 h-px bg-slate-200"></div>
-                    <span className="text-[10px] uppercase font-bold">অথবা আগের তৈরি কোনো শিট যোগ করুন</span>
+                    <span className="text-[10px] uppercase font-bold">{t.googleSync.orLinkExisting}</span>
                     <div className="flex-1 h-px bg-slate-200"></div>
                   </div>
 
@@ -342,12 +387,12 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-sm transition"
                   >
                     <FolderOpen className="w-4 h-4" />
-                    <span>Google Drive থেকে আগের শিট বেছে নিন</span>
+                    <span>{t.googleSync.selectFromDrive}</span>
                   </button>
 
                   <div className="flex items-center gap-2 my-2 text-slate-400">
                     <div className="flex-1 h-px bg-slate-200"></div>
-                    <span className="text-[10px] uppercase font-bold">অথবা শিটের লিঙ্ক দিন</span>
+                    <span className="text-[10px] uppercase font-bold">{t.googleSync.orPasteUrl}</span>
                     <div className="flex-1 h-px bg-slate-200"></div>
                   </div>
 
@@ -355,7 +400,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="শিটের লিঙ্ক (URL) এখানে পেস্ট করুন"
+                      placeholder={t.googleSync.urlPlaceholder}
                       value={manualSheetInput}
                       onChange={(e) => setManualSheetInput(e.target.value)}
                       className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -366,7 +411,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
                       onClick={handleConnectManual}
                       className="px-3 py-1.5 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-900 disabled:opacity-40"
                     >
-                      সংযুক্ত করুন
+                      {t.googleSync.connectButton}
                     </button>
                   </div>
                 </div>
@@ -381,7 +426,7 @@ export const GoogleSyncModal: React.FC<GoogleSyncModalProps> = ({
             onClick={onClose}
             className="px-4 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition"
           >
-            বন্ধ করুন
+            {t.common.close}
           </button>
         </div>
 

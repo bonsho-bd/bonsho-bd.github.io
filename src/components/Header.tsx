@@ -5,6 +5,7 @@ import {
   QrCode, Share2, ChevronDown, MessageCircle
 } from 'lucide-react';
 import { isGoogleSyncAvailable } from '../lib/googleAuth';
+import { useLanguage } from '../i18n';
 
 interface HeaderProps {
   onOpenPasteModal: () => void;
@@ -35,6 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const isGoogleAvailable = isGoogleSyncAvailable();
+  const { language, setLanguage, t } = useLanguage();
 
   // Close menus on outside click
   const headerRef = useRef<HTMLElement>(null);
@@ -64,12 +66,12 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-baseline gap-2">
-                <h1 className="text-lg sm:text-xl font-bold text-slate-800 leading-none">বংশ</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-slate-800 leading-none">{t.common.appName}</h1>
                 <span className="text-[10px] sm:text-xs font-semibold text-emerald-700 bg-emerald-50 px-1.5 sm:px-2 py-0.5 rounded-full">
-                  {totalPeopleCount} জন সদস্য
+                  {t.common.membersCount(totalPeopleCount)}
                 </span>
               </div>
-              <p className="text-[10px] sm:text-xs text-slate-500 hidden sm:block">প্রাইভেসি-বান্ধব বাংলাদেশী ফ্যামিলি গ্রাফ</p>
+              <p className="text-[10px] sm:text-xs text-slate-500 hidden sm:block">{t.common.tagline}</p>
             </div>
           </div>
         </div>
@@ -79,7 +81,6 @@ export const Header: React.FC<HeaderProps> = ({
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             ref={(el) => {
-              // Quick and dirty global shortcut binding for search
               if (!el) return;
               if (el.dataset.bound) return;
               el.dataset.bound = 'true';
@@ -91,44 +92,44 @@ export const Header: React.FC<HeaderProps> = ({
               });
             }}
             type="text"
-            placeholder="আত্মীয় খুঁজুন... (/ চাপুন)"
+            placeholder={t.header.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-9 pr-3 py-2 sm:py-1.5 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition shadow-inner"
           />
         </div>
 
-        {/* Action Buttons (Just Sync and Share) */}
+        {/* Action Buttons & Language Switcher */}
         <div className="flex items-center flex-wrap gap-2 w-full lg:w-auto shrink-0 ml-auto justify-start lg:justify-end">
 
           {/* Start New / Blank */}
           <button
             onClick={onNewTree}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-sm transition whitespace-nowrap"
-            title="নতুন খালি গ্রাফ শুরু করুন"
+            title={t.header.newGraphTooltip}
           >
             <PlusCircle className="w-4 h-4 text-slate-500" />
-            <span className="hidden sm:inline">নতুন গ্রাফ</span>
+            <span className="hidden sm:inline">{t.header.newGraph}</span>
           </button>
 
           {/* Load Sample Family */}
           <button
             onClick={onLoadSample}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg shadow-sm transition whitespace-nowrap"
-            title="নমুনা বংশতালিকা দেখুন"
+            title={t.header.sampleTreeTooltip}
           >
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <span className="hidden sm:inline">নমুনা বংশতালিকা</span>
+            <span className="hidden sm:inline">{t.header.sampleTree}</span>
           </button>
 
           {/* CSV Editor Button */}
           <button
             onClick={onOpenPasteModal}
             className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 shadow-sm transition whitespace-nowrap"
-            title="খাতায় লেখার মতো তালিকা থেকে এডিট বা পেস্ট করুন"
+            title={t.header.csvEditorTooltip}
           >
             <Table2 className="w-4 h-4 text-blue-600" />
-            <span className="hidden sm:inline">খাতায় লেখার তালিকা (CSV)</span>
+            <span className="hidden sm:inline">{t.header.csvEditor}</span>
           </button>
 
           {/* Google Sheets Sync Button */}
@@ -143,19 +144,17 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium border rounded-lg shadow-sm transition whitespace-nowrap ${
                 !isGoogleAvailable
                   ? 'opacity-50 cursor-not-allowed bg-slate-50 text-slate-400 border-slate-200'
-                  : connectedSheet
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                   : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
               }`}
-              title={isGoogleAvailable ? "গুগল শিটে সেভ ও ব্যাকআপ করুন" : "গুগল লগইন কনফিগারেশন সেটআপ করা নেই"}
+              title={isGoogleAvailable ? t.header.googleSheetsTooltip : t.header.googleAuthMissingTooltip}
             >
-              <FileSpreadsheet className={`w-4 h-4 ${connectedSheet ? 'text-emerald-600' : 'text-emerald-600'}`} />
-              <span className="hidden sm:inline">গুগল শিট</span>
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span className="hidden sm:inline">{t.header.googleSheets}</span>
               {connectedSheet && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-1"></span>}
             </button>
             {!isGoogleAvailable && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:block w-48 bg-slate-800 text-white text-[11px] p-2 rounded shadow-lg z-50 before:content-[''] before:absolute before:bottom-full before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-b-slate-800">
-                গুগল লগইন কনফিগারেশন সেটআপ করা নেই।
+                {t.header.googleAuthMissingTooltip}
               </div>
             )}
           </div>
@@ -167,21 +166,19 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-sm font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-sm transition whitespace-nowrap"
             >
               <Share2 className="w-4 h-4" />
-              <span>শেয়ার</span>
+              <span>{t.header.share}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${showShareMenu ? 'rotate-180' : ''}`} />
             </button>
 
             {showShareMenu && (
-              <div
-                className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm"
-              >
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-sm">
                 <button
                   disabled={totalPeopleCount === 0}
                   onClick={() => { onExportViewport(); setShowShareMenu(false); }}
                   className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-700 font-medium bg-emerald-50/50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <TreePine className="w-4 h-4 text-emerald-600" />
-                  <span>ডাউনলোড ইমেজ (PNG)</span>
+                  <span>{t.header.downloadPng}</span>
                 </button>
 
                 <button
@@ -190,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className="w-full px-3 py-2 text-left hover:bg-emerald-50 flex items-center gap-2 text-emerald-800 font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <MessageCircle className="w-4 h-4 text-emerald-600" />
-                  <span>WhatsApp-এ পাঠান</span>
+                  <span>{t.header.shareWhatsApp}</span>
                 </button>
 
                 <div className="h-px bg-slate-100 my-1"></div>
@@ -200,10 +197,38 @@ export const Header: React.FC<HeaderProps> = ({
                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   <QrCode className="w-4 h-4 text-slate-500" />
-                  <span>QR কোড ও লিংক</span>
+                  <span>{t.header.qrAndLink}</span>
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Language Switcher Pill */}
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+            <button
+              type="button"
+              onClick={() => setLanguage('bn')}
+              className={`px-2 py-1 text-xs font-semibold rounded-md transition ${
+                language === 'bn'
+                  ? 'bg-white text-emerald-800 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="বাংলা ভাষা সক্রিয়"
+            >
+              বাং
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage('en')}
+              className={`px-2 py-1 text-xs font-semibold rounded-md transition ${
+                language === 'en'
+                  ? 'bg-white text-emerald-800 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Switch to English"
+            >
+              EN
+            </button>
           </div>
 
         </div>

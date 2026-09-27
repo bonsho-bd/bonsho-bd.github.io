@@ -2,6 +2,7 @@ import React from 'react';
 import { Person, FamilyGraph } from '../types/family';
 import { getParents } from '../lib/parser';
 import { X, User, Heart, Baby, Calendar, FileText, Edit2, Plus, ArrowLeft } from 'lucide-react';
+import { useLanguage } from '../i18n';
 
 interface PersonModalProps {
   person: Person | null;
@@ -28,6 +29,8 @@ export const PersonModal: React.FC<PersonModalProps> = ({
   onBack,
   canGoBack,
 }) => {
+  const { t } = useLanguage();
+
   if (!isOpen || !person) return null;
 
   const { father, mother } = getParents(graph, person.id);
@@ -37,7 +40,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
 
         {/* Header with Gender Theme */}
-        <div className={`px-4 sm:px-4 sm:px-6 py-3 sm:py-4 sm:py-5 border-b relative ${
+        <div className={`px-4 sm:px-6 py-3 sm:py-4 border-b relative ${
           person.gender === 'female' ? 'bg-gradient-to-r from-rose-50 to-pink-50 border-rose-100' :
           person.gender === 'male' ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-100' :
           'bg-gradient-to-r from-slate-50 to-gray-50 border-slate-100'
@@ -46,16 +49,16 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             {canGoBack && onBack && (
               <button
                 onClick={onBack}
-                title="পূর্ববর্তী ব্যক্তি (Back)"
+                title={t.common.back}
                 className="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white/80 transition flex items-center gap-1 text-xs font-semibold px-2 py-1 border border-slate-200/60 bg-white/40 shadow-xs"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span className="text-[11px] hidden sm:inline">পূর্ববর্তী</span>
+                <span className="text-[11px] hidden sm:inline">{t.common.back}</span>
               </button>
             )}
             <button
               onClick={onClose}
-              title="বন্ধ করুন (Close)"
+              title={t.common.close}
               className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-white/80 transition"
             >
               <X className="w-5 h-5" />
@@ -77,7 +80,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                 <div className="text-xs text-slate-500 font-mono mt-0.5">#{person.id}</div>
                 {Boolean(person.death) && (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
-                    প্রয়াত
+                    {t.common.deceased}
                   </span>
                 )}
               </div>
@@ -86,13 +89,13 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                 {person.birth && (
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>জন্ম: {person.birth}</span>
+                    <span>{t.common.birthPrefix}{person.birth}</span>
                   </span>
                 )}
                 {person.death && (
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>মৃত্যু: {person.death}</span>
+                    <span>{t.common.deathPrefix}{person.death}</span>
                   </span>
                 )}
               </div>
@@ -110,21 +113,21 @@ export const PersonModal: React.FC<PersonModalProps> = ({
               className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
             >
               <Edit2 className="w-3.5 h-3.5" />
-              <span>তথ্য সম্পাদনা</span>
+              <span>{t.personModal.editDetails}</span>
             </button>
             <button
               onClick={() => onAddChild(person)}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg transition"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>সন্তান যোগ করুন</span>
+              <span>{t.personModal.addChild}</span>
             </button>
             <button
               onClick={() => onAddSpouse(person)}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg transition"
             >
               <Heart className="w-3.5 h-3.5" />
-              <span>স্বামী/স্ত্রী যোগ</span>
+              <span>{t.personModal.addSpouse}</span>
             </button>
           </div>
 
@@ -133,15 +136,15 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-3.5 text-xs space-y-2">
               <div className="font-semibold text-slate-700 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-slate-400" />
-                <span>সংযুক্ত তথ্য:</span>
+                <span>{t.personModal.attachedInfo}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {Object.entries(person.attributes).map(([k, v]) => (
-                    <div key={k} className="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                      <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">{k}</span>
-                      <span className="text-slate-800 font-medium whitespace-pre-wrap mt-0.5">{v}</span>
-                    </div>
-                  ))}
+                  <div key={k} className="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">{k}</span>
+                    <span className="text-slate-800 font-medium whitespace-pre-wrap mt-0.5">{v}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -149,7 +152,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
           {/* Parents */}
           {(father || mother) && (
             <div className="space-y-1.5">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">পিতা ও মাতা</h3>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.personModal.parentsSection}</h3>
               <div className="flex gap-2">
                 {father && (
                   <button
@@ -157,11 +160,11 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                     className="flex-1 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/50 text-left transition flex items-center gap-2"
                   >
                     <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
-                      বাবা
+                      {t.common.father}
                     </div>
                     <div className="truncate">
                       <div className="font-semibold text-xs text-slate-800 truncate">{father.name}</div>
-                      <div className="text-[10px] text-slate-400">পিতা</div>
+                      <div className="text-[10px] text-slate-400">{t.common.father}</div>
                     </div>
                   </button>
                 )}
@@ -171,11 +174,11 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                     className="flex-1 p-2.5 rounded-xl border border-slate-200 hover:border-rose-400 hover:bg-rose-50/50 text-left transition flex items-center gap-2"
                   >
                     <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-xs">
-                      মা
+                      {t.common.mother}
                     </div>
                     <div className="truncate">
                       <div className="font-semibold text-xs text-slate-800 truncate">{mother.name}</div>
-                      <div className="text-[10px] text-slate-400">মাতা</div>
+                      <div className="text-[10px] text-slate-400">{t.common.mother}</div>
                     </div>
                   </button>
                 )}
@@ -188,7 +191,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             <div className="space-y-2">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                 <Heart className="w-3.5 h-3.5 text-rose-500" />
-                <span>দাম্পত্য ও সন্তানাদি</span>
+                <span>{t.personModal.marriagesSection}</span>
               </h3>
               {person.marriages.map((m, idx) => {
                 const spouse = graph.people[m.spouseId];
@@ -203,10 +206,12 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                           <span className="w-2 h-2 rounded-full bg-rose-400"></span>
                           <span>{spouse.name}</span>
                           <span className="text-[10px] text-slate-400 font-normal">
-                            ({spouse.gender === 'female' ? 'স্ত্রী' : 'স্বামী'})
+                            ({spouse.gender === 'female' ? t.common.wife : t.common.husband})
                           </span>
                         </button>
-                        <span className="text-[11px] text-slate-400 font-medium">{m.children.length} সন্তান</span>
+                        <span className="text-[11px] text-slate-400 font-medium">
+                          {t.common.childrenCount(m.children.length)}
+                        </span>
                       </div>
                     )}
 
@@ -240,4 +245,3 @@ export const PersonModal: React.FC<PersonModalProps> = ({
     </div>
   );
 };
-

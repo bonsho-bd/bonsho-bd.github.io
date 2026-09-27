@@ -7,6 +7,7 @@
     "dev": "vite",
     "trim": "node scripts/trim-trailing-spaces.js",
     "build": "npm run trim && tsc && vite build",
+    "test": "node --experimental-strip-types scripts/test-classifier.js && node --experimental-strip-types scripts/test-i18n.js",
     "preview": "vite preview"
   },
   "dependencies": {

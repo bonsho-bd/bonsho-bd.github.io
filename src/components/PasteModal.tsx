@@ -3,6 +3,7 @@ import { X, Table2, Check, HelpCircle, Copy, CheckCheck, AlertCircle } from 'luc
 import { parseRawTextToRows } from '../lib/parser';
 import { graphToCSV } from '../lib/serializer';
 import { FamilyGraph } from '../types/family';
+import { useLanguage } from '../i18n';
 
 interface PasteModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface PasteModalProps {
 }
 
 export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParseText, graph }) => {
+  const { language, t } = useLanguage();
   const [text, setText] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -19,11 +21,11 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
 
   useEffect(() => {
     if (isOpen) {
-      setText(graphToCSV(graph));
+      setText(graphToCSV(graph, language));
       setCopied(false);
       setErrorMessage(null);
     }
-  }, [isOpen, graph]);
+  }, [isOpen, graph, language]);
 
   if (!isOpen) return null;
 
@@ -36,7 +38,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
       setErrorMessage(null);
       onClose();
     } else {
-      setErrorMessage('তথ্য পার্স করতে সমস্যা হয়েছে। অনুগ্রহ করে ফরম্যাট যাচাই করুন।');
+      setErrorMessage(t.pasteModal.parseError);
     }
   };
 
@@ -61,8 +63,8 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
               <Table2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800">তথ্য তালিকা এডিটর (CSV)</h2>
-              <p className="text-xs text-slate-500">খাতায় লেখার মতো তালিকা থেকে সরাসরি এডিট করুন অথবা এক্সেল/গুগল শিট থেকে কপি করে পেস্ট করুন</p>
+              <h2 className="text-lg font-bold text-slate-800">{t.pasteModal.title}</h2>
+              <p className="text-xs text-slate-500">{t.pasteModal.subtitle}</p>
             </div>
           </div>
           <button
@@ -78,7 +80,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span>{validRowCount} টি প্রপার্টি শনাক্ত হয়েছে</span>
+              <span>{t.pasteModal.propertiesDetected(validRowCount)}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -87,7 +89,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
                 className="text-xs text-blue-700 hover:text-blue-800 font-medium flex items-center gap-1 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200 transition"
               >
                 {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'কপি হয়েছে!' : 'সব টেক্সট কপি করুন'}</span>
+                <span>{copied ? t.pasteModal.copied : t.pasteModal.copyAll}</span>
               </button>
 
               <button
@@ -96,7 +98,7 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
                 className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1 ml-2"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
-                <span>ফরম্যাট?</span>
+                <span>{t.pasteModal.formatHelp}</span>
               </button>
             </div>
           </div>
@@ -112,23 +114,32 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
           {/* Help Accordion */}
           {showHelp && (
             <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-950 space-y-2">
-              <div className="font-semibold text-emerald-900">২ কলামের সহজ ফরম্যাট (বাংলা বা ইংরেজি উভয়ই চলবে):</div>
+              <div className="font-semibold text-emerald-900">{t.pasteModal.formatHelpTitle}</div>
               <pre className="bg-white/80 p-2.5 rounded border border-emerald-100 font-mono text-[11px] overflow-x-auto">
-{`নাম, আক্কাস আলী
+{language === 'bn' ? `নাম, আক্কাস আলী
 লিঙ্গ, পুরুষ
-জন্ম, 1935
-মৃত্যু, 2012
-গ্রাম, রামপুর, চাঁদপুর
+জন্ম, ১৯৭৮
 স্ত্রী, সালেহা বেগম
 সন্তান, মতিউর রহমান
-সন্তান, রোকসানা আক্তার
-নাম, মতিউর রহমান
-স্ত্রী, নাজনীন আক্তার
-সন্তান, নাদিম রহমান`}
+
+নাম, সালেহা বেগম
+লিঙ্গ, নারী
+জন্ম, ১৯৮২` : `Name, Akkas Ali
+Gender, Male
+Birth, 1978
+Wife, Saleha Begum
+Child, Motiur Rahman
+
+Name, Saleha Begum
+Gender, Female
+Birth, 1982`}
               </pre>
-              <p className="text-emerald-800">
-                💡 প্রতিটি ব্যক্তির তথ্য <strong>'নাম' (Name)</strong> দিয়ে শুরু করলেই স্বয়ংক্রিয়ভাবে নতুন ব্যক্তি তৈরি হবে। স্ত্রী/স্বামীর ঠিক নিচে সন্তানের নাম দিলে তারা সেই দম্পতির সন্তান হিসেবে যুক্ত হবে।
-              </p>
+              <div className="space-y-1 text-emerald-800 text-[11px]">
+                <p>💡 {t.pasteModal.formatHelpLine1}</p>
+                <p>💡 {t.pasteModal.formatHelpLine2}</p>
+                <p>💡 {t.pasteModal.formatHelpLine3}</p>
+                <p>💡 {t.pasteModal.formatHelpLine4}</p>
+              </div>
             </div>
           )}
 
@@ -136,7 +147,11 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={`এখানে গুগল শিট বা এক্সেল থেকে কপি করে পেস্ট করুন...\n\nউদাহরণ:\nনাম\tআক্কাস আলী\nলিঙ্গ\tপুরুষ\nজন্ম\t১৯৪০\nস্ত্রী\tসালেহা বেগম\nসন্তান\tমতিউর রহমান`}
+            placeholder={
+              language === 'bn'
+                ? `এখানে গুগল শিট বা এক্সেল থেকে কপি করে পেস্ট করুন...\n\nউদাহরণ:\nনাম\tআক্কাস আলী\nলিঙ্গ\tপুরুষ\nজন্ম\t১৯৭৮\nস্ত্রী\tসালেহা বেগম\nসন্তান\tমতিউর রহমান`
+                : `Paste copied table from Excel or Google Sheets here...\n\nExample:\nName\tAkkas Ali\nGender\tMale\nBirth\t1978\nWife\tSaleha Begum\nChild\tMotiur Rahman`
+            }
             rows={12}
             className="w-full p-3.5 text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition whitespace-pre flex-nowrap overflow-auto"
           />
@@ -149,14 +164,14 @@ export const PasteModal: React.FC<PasteModalProps> = ({ isOpen, onClose, onParse
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition"
           >
-            বাতিল
+            {t.common.cancel}
           </button>
           <button
             onClick={handleApply}
             className="flex items-center gap-1.5 px-5 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm transition"
           >
             <Check className="w-4 h-4" />
-            <span>গ্রাফ আপডেট করুন</span>
+            <span>{t.pasteModal.applyButton}</span>
           </button>
         </div>
 

@@ -3,6 +3,7 @@ import { Person, Gender, FamilyGraph } from '../types/family';
 import { AddPersonInput } from '../hooks/useFamilyGraph';
 import { X, Check, Baby, Heart, UserPlus, Plus, Trash2, Sparkles, RotateCcw } from 'lucide-react';
 import { inferBanglaGender } from '../lib/genderClassifier';
+import { useLanguage } from '../i18n';
 
 interface AddRelativeModalProps {
   person: Person | null;
@@ -21,6 +22,8 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
   onClose,
   onAdd,
 }) => {
+  const { language, t } = useLanguage();
+
   if (!isOpen) return null;
   if (mode !== 'person' && !person) return null;
 
@@ -132,12 +135,12 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
             )}
             <div>
               <h2 className="text-base font-bold text-slate-800">
-                {mode === 'child' ? `${person?.name} এর সন্তান যোগ` :
-                 mode === 'spouse' ? `${person?.name} এর জীবনসঙ্গী যোগ` :
-                 'নতুন সদস্য যোগ করুন'}
+                {mode === 'child' ? t.addModal.titleChild(person?.name || '') :
+                 mode === 'spouse' ? t.addModal.titleSpouse(person?.name || '') :
+                 t.addModal.titleNewMember}
               </h2>
               {mode === 'person' && (
-                <p className="text-[11px] text-slate-500">বংশতালিকায় মূল পূর্বপুরুষ বা নতুন শাখা যোগ করুন</p>
+                <p className="text-[11px] text-slate-500">{t.addModal.rootSubtitle}</p>
               )}
             </div>
           </div>
@@ -152,15 +155,15 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {/* Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              {mode === 'child' ? 'সন্তানের নাম *' :
-               mode === 'spouse' ? (person?.gender === 'male' ? 'স্ত্রীর নাম *' : 'স্বামীর নাম *') :
-               'ব্যক্তির নাম *'}
+              {mode === 'child' ? (language === 'bn' ? 'সন্তানের নাম *' : "Child's Name *") :
+               mode === 'spouse' ? (person?.gender === 'male' ? (language === 'bn' ? 'স্ত্রীর নাম *' : "Wife's Name *") : (language === 'bn' ? 'স্বামীর নাম *' : "Husband's Name *")) :
+               t.addModal.fullNameLabel}
             </label>
             <input
               type="text"
               required
               autoFocus
-              placeholder="পূর্ণ নাম লিখুন"
+              placeholder={t.addModal.fullNamePlaceholder}
               value={name}
               onChange={(e) => {
                 const val = e.target.value;
@@ -187,7 +190,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {/* Gender */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-semibold text-slate-700">লিঙ্গ</label>
+              <label className="block text-xs font-semibold text-slate-700">{t.addModal.genderLabel}</label>
               {isGenderManuallyTouched && mode !== 'spouse' && (
                 <button
                   type="button"
@@ -202,17 +205,17 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     }
                   }}
                   className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-800 transition cursor-pointer group"
-                  title="ম্যানুয়াল নির্বাচন বাতিল করে AI স্বয়ংক্রিয় মোডে ফিরে যান"
+                  title={language === 'bn' ? 'স্বয়ংক্রিয় মোডে ফিরে যান' : 'Reset to auto-detect mode'}
                 >
                   <RotateCcw className="w-2.5 h-2.5 transition-transform group-hover:-rotate-45" />
-                  <span>স্বয়ংক্রিয় মোড</span>
+                  <span>{t.common.auto}</span>
                 </button>
               )}
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { val: 'male', label: 'পুরুষ' },
-                { val: 'female', label: 'নারী' },
+                { val: 'male', label: t.common.male },
+                { val: 'female', label: t.common.female },
               ].map(({ val, label }) => {
                 const predictedGender = mode !== 'spouse' ? inferBanglaGender(name) : null;
                 const isSelected = gender === val;
@@ -264,24 +267,24 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
 
                     {/* AI Selected Badge */}
                     {isAiSelected && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-xs border border-white/25 shadow-2xs animate-in fade-in duration-150" title="নাম অনুযায়ী AI মডেল দ্বারা স্বয়ংক্রিয়ভাবে শনাক্ত">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-xs border border-white/25 shadow-2xs animate-in fade-in duration-150">
                         <Sparkles className="w-2.5 h-2.5 text-amber-200 fill-amber-200" />
-                        AI শনাক্ত
+                        {t.common.auto}
                       </span>
                     )}
 
                     {/* Manual Selection Checkmark */}
                     {isSelected && !isAiSelected && mode !== 'spouse' && (
-                      <span className="inline-flex items-center text-[10px] bg-white/20 text-white p-0.5 rounded-full animate-in fade-in duration-150" title="ম্যানুয়ালি নির্বাচিত">
+                      <span className="inline-flex items-center text-[10px] bg-white/20 text-white p-0.5 rounded-full animate-in fade-in duration-150">
                         <Check className="w-3 h-3 stroke-[2.5]" />
                       </span>
                     )}
 
                     {/* AI Suggested on Unselected Button */}
                     {isAiSuggested && (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-700 bg-white/80 px-1.5 py-0.5 rounded-full border border-emerald-200" title="AI এর সুপারিশে ফিরতে ক্লিক করুন">
+                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-700 bg-white/80 px-1.5 py-0.5 rounded-full border border-emerald-200">
                         <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                        AI
+                        {t.common.auto}
                       </span>
                     )}
                   </button>
@@ -294,7 +297,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {mode === 'child' && person && person.marriages.length > 0 && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                {person.gender === 'male' ? 'সন্তানের মা নির্বাচন করুন' : 'সন্তানের বাবা নির্বাচন করুন'}
+                {t.addModal.otherParentLabel}
               </label>
               <select
                 value={selectedSpouseId}
@@ -309,7 +312,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     </option>
                   );
                 })}
-                <option value="">অনির্দিষ্ট / অপর মাতা-পিতা ছাড়াই</option>
+                <option value="">{t.addModal.otherParentUnknown}</option>
               </select>
             </div>
           )}
@@ -318,7 +321,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {visibleFields.birth && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">জন্ম সাল / তারিখ</label>
+                <label className="text-xs font-semibold text-slate-700">{t.addModal.birthLabel}</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -326,14 +329,14 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     setBirth('');
                   }}
                   className="text-slate-400 hover:text-rose-500 p-0.5 rounded transition"
-                  title="বাদ দিন"
+                  title={t.common.delete}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
               <input
                 type="text"
-                placeholder="যেমন: ১৯৮৫ বা ১৫/০৮/১৯৮৫"
+                placeholder={language === 'bn' ? 'যেমন: ১৯৮৫ বা ১৫/০৮/১৯৮৫' : 'e.g. 1985 or 15/08/1985'}
                 value={birth}
                 onChange={(e) => setBirth(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -345,7 +348,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {visibleFields.death && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">মৃত্যু সাল</label>
+                <label className="text-xs font-semibold text-slate-700">{t.addModal.deathLabel}</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -353,14 +356,14 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                     setDeath('');
                   }}
                   className="text-slate-400 hover:text-rose-500 p-0.5 rounded transition"
-                  title="বাদ দিন"
+                  title={t.common.delete}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
               <input
                 type="text"
-                placeholder="যেমন: ২০২১"
+                placeholder={language === 'bn' ? 'যেমন: ২০২১' : 'e.g. 2021'}
                 value={death}
                 onChange={(e) => setDeath(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -371,7 +374,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {/* User-defined Key-Value Attributes List */}
           {attributesList.length > 0 && (
             <div className="space-y-1.5 pt-1">
-              <span className="block text-xs font-semibold text-slate-700">সংযুক্ত তথ্য:</span>
+              <span className="block text-xs font-semibold text-slate-700">{t.personModal.attachedInfo}</span>
               {attributesList.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-xs">
                   <span className="font-semibold text-slate-700">{item.key}:</span>
@@ -391,19 +394,19 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
           {/* Dynamic Key-Value Input Row */}
           <div className="pt-2 border-t border-slate-100">
             <span className="block text-[11px] font-semibold text-slate-500 mb-1.5">
-              + তথ্য যোগ করুন (কী এবং মান):
+              + {t.addModal.customSectionTitle}:
             </span>
             <div className="flex items-center gap-1.5">
               <input
                 type="text"
-                placeholder="প্রপার্টি (Key)"
+                placeholder={t.addModal.customKeyPlaceholder}
                 value={newKey}
                 onChange={(e) => setNewKey(e.target.value)}
                 className="w-1/3 px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <input
                 type="text"
-                placeholder="মান (Value)"
+                placeholder={t.addModal.customValPlaceholder}
                 value={newVal}
                 onChange={(e) => setNewVal(e.target.value)}
                 className="flex-1 px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -413,7 +416,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                 onClick={handleAddAttribute}
                 className="px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition"
               >
-                + যোগ
+                + {t.addModal.addFieldButton}
               </button>
             </div>
           </div>
@@ -428,7 +431,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                   className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3 text-emerald-600" />
-                  <span>জন্ম সাল</span>
+                  <span>{t.addModal.birthLabel}</span>
                 </button>
               )}
               {!visibleFields.death && (
@@ -438,7 +441,7 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
                   className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3 text-rose-600" />
-                  <span>মৃত্যু সাল</span>
+                  <span>{t.addModal.deathLabel}</span>
                 </button>
               )}
             </div>
@@ -451,14 +454,14 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
             >
-              বাতিল
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm"
             >
               <Check className="w-4 h-4" />
-              <span>যোগ করুন</span>
+              <span>{t.common.save}</span>
             </button>
           </div>
 
@@ -468,4 +471,3 @@ export const AddRelativeModal: React.FC<AddRelativeModalProps> = ({
     </div>
   );
 };
-

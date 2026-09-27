@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Person, Gender } from '../types/family';
 import { X, Check, Trash2, Plus, AlertCircle, Sparkles } from 'lucide-react';
 import { inferBanglaGender } from '../lib/genderClassifier';
+import { useLanguage } from '../i18n';
 
 interface EditPersonModalProps {
   person: Person | null;
@@ -18,6 +19,8 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
   onSave,
   onDeletePerson,
 }) => {
+  const { language, t } = useLanguage();
+
   if (!isOpen || !person) return null;
 
   const [name, setName] = useState(person.name);
@@ -113,7 +116,9 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
         {/* Header */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-          <h2 className="text-base font-bold text-slate-800">তথ্য সম্পাদন করুন <span className="text-xs font-mono text-slate-400 font-normal ml-2">#{person.id}</span></h2>
+          <h2 className="text-base font-bold text-slate-800">
+            {t.editModal.title} <span className="text-xs font-mono text-slate-400 font-normal ml-2">#{person.id}</span>
+          </h2>
           <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition">
             <X className="w-5 h-5" />
           </button>
@@ -124,11 +129,12 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">পূর্ণ নাম *</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">{t.editModal.fullNameLabel}</label>
             <input
               type="text"
               required
               value={name}
+              placeholder={t.editModal.fullNamePlaceholder}
               onChange={(e) => {
                 const val = e.target.value;
                 setName(val);
@@ -151,11 +157,11 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
           {/* Gender */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">লিঙ্গ</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">{t.editModal.genderLabel}</label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { val: 'male', label: 'পুরুষ' },
-                { val: 'female', label: 'নারী' },
+                { val: 'male', label: t.common.male },
+                { val: 'female', label: t.common.female },
               ].map(({ val, label }) => {
                 const predictedGender = inferBanglaGender(name);
                 const isSelected = gender === val;
@@ -202,24 +208,24 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
                     {/* AI Selected Badge */}
                     {isAiSelected && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-xs border border-white/25 shadow-2xs animate-in fade-in duration-150" title="নাম অনুযায়ী AI মডেল দ্বারা স্বয়ংক্রিয়ভাবে শনাক্ত">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-xs border border-white/25 shadow-2xs animate-in fade-in duration-150">
                         <Sparkles className="w-2.5 h-2.5 text-amber-200 fill-amber-200" />
-                        AI শনাক্ত
+                        {t.common.auto}
                       </span>
                     )}
 
                     {/* Manual Selection Checkmark */}
                     {isSelected && !isAiSelected && (
-                      <span className="inline-flex items-center text-[10px] bg-white/20 text-white p-0.5 rounded-full animate-in fade-in duration-150" title="ম্যানুয়ালি নির্বাচিত">
+                      <span className="inline-flex items-center text-[10px] bg-white/20 text-white p-0.5 rounded-full animate-in fade-in duration-150">
                         <Check className="w-3 h-3 stroke-[2.5]" />
                       </span>
                     )}
 
                     {/* AI Suggested on Unselected Button */}
                     {isAiSuggested && (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-700 bg-white/80 px-1.5 py-0.5 rounded-full border border-emerald-200" title="AI এর সুপারিশে ফিরতে ক্লিক করুন">
+                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-700 bg-white/80 px-1.5 py-0.5 rounded-full border border-emerald-200">
                         <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                        AI
+                        {t.common.auto}
                       </span>
                     )}
                   </button>
@@ -232,7 +238,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {visibleFields.birth && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">জন্ম সাল / তারিখ</label>
+                <label className="text-xs font-semibold text-slate-700">{t.editModal.birthLabel}</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -240,14 +246,14 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     setBirth('');
                   }}
                   className="text-slate-400 hover:text-rose-500 p-0.5 rounded transition"
-                  title="বাদ দিন"
+                  title={t.common.delete}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
               <input
                 type="text"
-                placeholder="যেমন: ১৯৬৫"
+                placeholder={language === 'bn' ? 'যেমন: ১৯৬৫' : 'e.g. 1965'}
                 value={birth}
                 onChange={(e) => setBirth(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -259,7 +265,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {visibleFields.death && (
             <div className="animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700">মৃত্যু সাল</label>
+                <label className="text-xs font-semibold text-slate-700">{t.editModal.deathLabel}</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -267,14 +273,14 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     setDeath('');
                   }}
                   className="text-slate-400 hover:text-rose-500 p-0.5 rounded transition"
-                  title="বাদ দিন"
+                  title={t.common.delete}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
               <input
                 type="text"
-                placeholder="যেমন: ২০২০"
+                placeholder={language === 'bn' ? 'যেমন: ২০২০' : 'e.g. 2020'}
                 value={death}
                 onChange={(e) => setDeath(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs"
@@ -286,7 +292,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
           {(!visibleFields.birth || !visibleFields.death) && (
             <div className="pt-2 border-t border-slate-100">
               <span className="block text-[11px] font-semibold text-slate-400 mb-1.5">
-                + আরও তথ্য যোগ করুন:
+                + {t.editModal.customSectionTitle}:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {!visibleFields.birth && (
@@ -296,7 +302,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-emerald-600" />
-                    <span>জন্ম সাল</span>
+                    <span>{t.editModal.birthLabel}</span>
                   </button>
                 )}
                 {!visibleFields.death && (
@@ -306,7 +312,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="px-2 py-1 text-[11px] font-medium bg-slate-50 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 border border-slate-200 rounded-lg text-slate-600 transition flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3 text-rose-600" />
-                    <span>মৃত্যু সাল</span>
+                    <span>{t.editModal.deathLabel}</span>
                   </button>
                 )}
               </div>
@@ -315,13 +321,13 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
 
           {/* Dynamic Key-Value Attributes */}
           <div className="border-t border-slate-100 pt-3">
-            <label className="block text-xs font-semibold text-slate-700 mb-2">সংযুক্ত তথ্য (কী এবং মান)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-2">{t.personModal.attachedInfo}</label>
 
             {attributesList.map((p, idx) => (
               <div key={idx} className="flex items-center gap-2 mb-2">
                 <input
                   type="text"
-                  placeholder="কী (Key)"
+                  placeholder={t.editModal.customKeyPlaceholder}
                   value={p.key}
                   onChange={(e) => {
                     const copy = [...attributesList];
@@ -332,7 +338,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                 />
                 <input
                   type="text"
-                  placeholder="মান (Value)"
+                  placeholder={t.editModal.customValPlaceholder}
                   value={p.val}
                   onChange={(e) => {
                     const copy = [...attributesList];
@@ -354,14 +360,14 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
             <div className="flex items-center gap-2 mt-2">
               <input
                 type="text"
-                placeholder="প্রপার্টি (Key)"
+                placeholder={t.editModal.customKeyPlaceholder}
                 value={newKey}
                 onChange={(e) => setNewKey(e.target.value)}
                 className="w-1/3 px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg"
               />
               <input
                 type="text"
-                placeholder="মান (Value)"
+                placeholder={t.editModal.customValPlaceholder}
                 value={newVal}
                 onChange={(e) => setNewVal(e.target.value)}
                 className="flex-1 px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg"
@@ -372,7 +378,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                 className="px-2.5 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center gap-1 font-medium transition"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>যোগ</span>
+                <span>{t.editModal.addFieldButton}</span>
               </button>
             </div>
           </div>
@@ -384,7 +390,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                 <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in duration-150">
                   <div className="flex items-center gap-2 text-xs font-semibold text-rose-800">
                     <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                    <span>আপনি কি সত্যিই {person.name}-কে মুছে ফেলতে চান?</span>
+                    <span>{t.editModal.deleteConfirmDesc}</span>
                   </div>
                   <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                     <button
@@ -392,7 +398,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                       onClick={() => setShowDeleteConfirm(false)}
                       className="px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition"
                     >
-                      বাতিল
+                      {t.editModal.deleteConfirmNo}
                     </button>
                     <button
                       type="button"
@@ -402,7 +408,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                       }}
                       className="px-3 py-1 text-xs font-medium bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition shadow-xs"
                     >
-                      হ্যাঁ, মুছে ফেলুন
+                      {t.editModal.deleteConfirmYes}
                     </button>
                   </div>
                 </div>
@@ -414,7 +420,7 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
                     className="text-xs text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>গ্রাফ থেকে মুছে ফেলুন</span>
+                    <span>{t.editModal.deletePersonButton}</span>
                   </button>
                 </div>
               )}
@@ -428,14 +434,14 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
             >
-              বাতিল
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm"
             >
               <Check className="w-4 h-4" />
-              <span>সংরক্ষণ করুন</span>
+              <span>{t.common.save}</span>
             </button>
           </div>
 
@@ -445,4 +451,3 @@ export const EditPersonModal: React.FC<EditPersonModalProps> = ({
     </div>
   );
 };
-

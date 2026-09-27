@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { FamilyGraph, Person } from '../types/family';
 import { computeRootIds } from '../lib/parser';
 import { ZoomIn, ZoomOut, RotateCcw, User, Heart, Plus, Calendar, Sparkles } from 'lucide-react';
+import { useLanguage } from '../i18n';
 
 interface VisualizerProps {
   graph: FamilyGraph;
@@ -44,6 +45,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
   onAddPerson,
   onLoadSample,
 }) => {
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -560,9 +562,9 @@ export const Visualizer: React.FC<VisualizerProps> = ({
               <User className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-800">বংশতালিকা শুরু করুন</h3>
+              <h3 className="text-base font-bold text-slate-800">{t.visualizer.emptyTitle}</h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                এখানে এখনো কাউকে যোগ করা হয়নি। পরিবারের মূল পূর্বপুরুষ বা যেকোনো সদস্যকে দিয়ে বংশতালিকা তৈরি শুরু করুন।
+                {t.visualizer.emptyDescription}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
@@ -571,7 +573,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
                 className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition inline-flex items-center justify-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>+ প্রথম সদস্য যোগ করুন</span>
+                <span>{t.visualizer.addFirstMember}</span>
               </button>
               {onLoadSample && (
                 <button
@@ -579,7 +581,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
                   className="w-full sm:w-auto px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-semibold shadow-sm transition inline-flex items-center justify-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>নমুনা দেখুন</span>
+                  <span>{t.visualizer.viewSample}</span>
                 </button>
               )}
             </div>
@@ -605,7 +607,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             e.stopPropagation();
             handleZoomIn();
           }}
-          title="বড় করুন (Zoom In)"
+          title={t.visualizer.zoomIn}
           className="p-3 sm:p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
           <ZoomIn className="w-4 h-4 pointer-events-none" />
@@ -620,7 +622,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             e.stopPropagation();
             handleZoomOut();
           }}
-          title="ছোট করুন (Zoom Out)"
+          title={t.visualizer.zoomOut}
           className="p-3 sm:p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
           <ZoomOut className="w-4 h-4 pointer-events-none" />
@@ -636,7 +638,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({
             e.stopPropagation();
             handleResetZoom();
           }}
-          title="পুনরায় সাজান"
+          title={t.visualizer.resetZoom}
           className="p-3 sm:p-2 hover:bg-slate-100 active:scale-90 rounded-xl transition flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
         >
           <RotateCcw className="w-4 h-4 pointer-events-none" />
@@ -662,9 +664,10 @@ const PersonCard: React.FC<PersonCardProps> = ({
   onAddChild,
   onAddSpouse,
 }) => {
+  const { t } = useLanguage();
   const isFemale = person.gender === 'female';
   const isMale = person.gender === 'male';
-  const isUnknown = person.name.toLowerCase() === 'unknown';
+  const isUnknown = !person.name || person.name.toLowerCase() === 'unknown' || person.name.includes('অজানা');
 
   return (
     <div
@@ -710,20 +713,20 @@ const PersonCard: React.FC<PersonCardProps> = ({
             <div className="flex items-center justify-between gap-1">
               <h4
                 className={`font-bold text-xs truncate ${isUnknown ? 'text-slate-500 italic' : 'text-slate-800'}`}
-                title={isUnknown ? 'অজানা (Unknown)' : person.name}
+                title={isUnknown ? t.common.unknown : person.name}
               >
-                {isUnknown ? 'অজানা (Unknown)' : person.name}
+                {isUnknown ? t.common.unknown : person.name}
               </h4>
               {Boolean(person.death) && (
                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 shrink-0">
-                  প্রয়াত
+                  {t.common.deceased}
                 </span>
               )}
             </div>
 
             {/* Hint for unknown spouse */}
             {isUnknown && !person.birth && !person.death && (
-              <span className="text-[10px] text-slate-400 italic">নাম দিতে ক্লিক করুন</span>
+              <span className="text-[10px] text-slate-400 italic">{t.visualizer.clickToAddName}</span>
             )}
 
             {/* Dates */}
@@ -733,7 +736,7 @@ const PersonCard: React.FC<PersonCardProps> = ({
                 <span className="truncate">
                   {(() => {
                     if (person.birth && person.death) return `${person.birth} - ${person.death}`;
-                    if (person.birth && !person.death) return `জন্ম: ${person.birth}`;
+                    if (person.birth && !person.death) return `${t.common.birthPrefix}${person.birth}`;
                     if (!person.birth && person.death) return `? - ${person.death}`;
                     return '';
                   })()}
@@ -764,19 +767,19 @@ const PersonCard: React.FC<PersonCardProps> = ({
         <button
           onClick={onAddChild}
           className="hover:text-emerald-700 hover:bg-emerald-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 transition"
-          title="সন্তান যোগ করুন"
+          title={t.visualizer.addChildTooltip}
         >
           <Plus className="w-2.5 h-2.5" />
-          <span>সন্তান</span>
+          <span>{t.common.child}</span>
         </button>
         <div className="w-px h-2.5 bg-slate-200" />
         <button
           onClick={onAddSpouse}
           className="hover:text-rose-700 hover:bg-rose-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 transition"
-          title="স্বামী বা স্ত্রী যোগ করুন"
+          title={t.visualizer.addSpouseTooltip}
         >
           <Heart className="w-2.5 h-2.5" />
-          <span>সঙ্গী</span>
+          <span>{t.common.spouse}</span>
         </button>
       </div>
 
